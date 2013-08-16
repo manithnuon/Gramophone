@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Gramophone</string>
+    <string name="action_settings">Settings</string>
+    <string name="no_songs_found">No songs found</string>
+    <string name="album">Album: %s</string>
+    <string name="album_artist">Album Artist: %s</string>
+    <string name="artist">Artist: %s</string>
+    <string name="bitrate">Bitrate: %s</string>
+    <string name="cd_track_number">CD Track Number: %s</string>
+    <string name="compilation">Compilation: %s</string>
+    <string name="composer">Composer: %s</string>
+    <string name="date_modified">Date Modified: %s</string>
+    <string name="disc_number">Disc #: %s</string>
+    <string name="duration">Duration: %s</string>
+    <string name="genre">Genre: %s</string>
+    <string name="location">Location: %s</string>
+    <string name="num_tracks">Number of tracks: %s</string>
+    <string name="title">Title: %s</string>
+    <string name="year">Year: %s</string>
+
+    <string-array name="supported_file_types">
+        <item>3gp</item>
+        <item>mp4</item>
+        <item>m4a</item>
+        <item>aac</item>
+        <item>ts</item>
+        <item>flac</item>
+        <item>mp3</item>
+        <item>mid</item>
+        <item>xmf</item>
+        <item>mxmf</item>
+        <item>rtttl</item>
+        <item>rtx</item>
+        <item>ota</item>
+        <item>imy</item>
+        <item>ogg</item>
+    </string-array>
+
+    <string name="title_activity_song_metadata">Song Metadata</string>
+    <string name="hello_world">Hello world!</string>
+
+</resources>
