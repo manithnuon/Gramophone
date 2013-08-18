@@ -20,12 +20,11 @@ import java.util.ArrayList;
 
 public class SongsFragment extends ListFragment {
     private static final String TAG = "SongsFragment";
-    private String[] supportedFormats;
+    SongAdapter mAdapter;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
         Log.i(TAG, "onAttach");
     }
 
@@ -39,8 +38,8 @@ public class SongsFragment extends ListFragment {
 
         Library library = Library.getLibrary(getActivity());
 
-        SongAdapter adapter = new SongAdapter(library.getSongs());
-        setListAdapter(adapter);
+        mAdapter = new SongAdapter(library.getSongs());
+        setListAdapter(mAdapter);
     }
 
     @Override
@@ -56,7 +55,6 @@ public class SongsFragment extends ListFragment {
     @Override
     public void onStart() {
         super.onStart();
-
         Log.i(TAG, "onStart");
     }
 
@@ -68,38 +66,88 @@ public class SongsFragment extends ListFragment {
         return view;
     }
 
+    @Override
+    public void onListItemClick(ListView listView, View view, int position, long id) {
+        //TODO start an intent to metadata fragment here
+
+        int type = mAdapter.getItemViewType(position);
+
+        Song song = (Song) getListAdapter().getItem(position);
+
+        if (type == SongAdapter.VIEW_TYPE_NO_ARTIST_OR_TITLE) {
+            String fileName = song.getFileName();
+            Toast titleToast = Toast.makeText(getActivity(), "Filename: " + fileName, Toast.LENGTH_SHORT);
+            titleToast.show();
+        }
+
+        String title = song.getTitle();
+        String artist = song.getArtist();
+        Toast titleToast = Toast.makeText(getActivity(), title + " - " + artist + " Filename: " + song.getFileName(), Toast.LENGTH_SHORT);
+        titleToast.show();
+    }
+
     private class SongAdapter extends ArrayAdapter<Song> {
+        protected static final int VIEW_TYPE_NO_ALBUM_ART = 0;
+        protected static final int VIEW_TYPE_NO_ARTIST_OR_TITLE = 1;
+        protected static final int VIEW_TYPE_HAS_ALBUM_ART = 2;
+        protected static final int VIEW_TYPE_COUNT = VIEW_TYPE_HAS_ALBUM_ART + 1;
 
         public SongAdapter(ArrayList<Song> songs) {
             super(getActivity(), android.R.layout.simple_list_item_1, songs);
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            // if we weren't given a view, inflate one
-            if (convertView == null) {
-                convertView = getActivity().getLayoutInflater()
-                        .inflate(android.R.layout.simple_list_item_1, null);
-            }
-
-            // configure the view for this Crime
+        public int getItemViewType(int position) {
             Song song = getItem(position);
 
-            TextView songView = (TextView) convertView;
-            songView.setText(song.getLocation()); //TODO setText may produce NullPointerException. Figure out why and then prevent it from happening
-            return songView;
+            if (song.getArtist() == null || song.getTitle() == null) {
+                return VIEW_TYPE_NO_ARTIST_OR_TITLE;
+            }
+
+            if (song.hasArtwork()) {
+                return VIEW_TYPE_HAS_ALBUM_ART;
+            } else {
+                return VIEW_TYPE_NO_ALBUM_ART;
+            }
         }
 
-    }
+        @Override
+        public int getViewTypeCount() {
+            return VIEW_TYPE_COUNT;
+        }
 
-    @Override
-    public void onListItemClick(ListView listView, View view, int position, long id) {
-        //TODO start an intent to metaata fragment here
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Song song = getItem(position);
 
-        String title = ((Song) getListAdapter().getItem(position)).getTitle();
-        String artist = ((Song) getListAdapter().getItem(position)).getArtist();
-        Toast titleToast = Toast.makeText(getActivity(), title + " - " + artist, Toast.LENGTH_SHORT);
-        titleToast.show();
+            int type = getItemViewType(position);
+
+            switch (type) {
+                case VIEW_TYPE_HAS_ALBUM_ART:
+                case VIEW_TYPE_NO_ALBUM_ART:
+                    if (convertView == null) {
+                        convertView = getActivity().getLayoutInflater()
+                                .inflate(R.layout.list_item_no_album_art, null);
+                    }
+
+                    TextView songTitleTextView = (TextView) convertView.findViewById(R.id.songTitle_TextView);
+                    songTitleTextView.setText(song.getTitle());
+                    TextView songArtistTextView = (TextView) convertView.findViewById(R.id.songArtist_TextView);
+                    songArtistTextView.setText(song.getArtist());
+                    break;
+
+                case VIEW_TYPE_NO_ARTIST_OR_TITLE:
+                    if (convertView == null) { // if we weren't given a view, inflate one
+                        convertView = getActivity().getLayoutInflater().inflate(R.layout.list_item_no_title_or_artist, null);
+                    }
+
+                    TextView fileName = (TextView) convertView.findViewById(R.id.fileName_TextView);
+                    fileName.setText(song.getFileName());
+                    break;
+            }
+
+            return convertView;
+        }
+
     }
 }

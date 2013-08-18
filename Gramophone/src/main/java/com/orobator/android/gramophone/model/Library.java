@@ -42,6 +42,7 @@ public class Library {
 
         //Make the directories just in case they don't exist
         musicDirectory.mkdirs();
+
         downloadsDirectory.mkdirs();
 
         File[] musicFiles = musicDirectory.listFiles();
@@ -65,7 +66,7 @@ public class Library {
             Log.i(TAG, "No files in downloads");
         }
 
-        Log.i(TAG, "Starting fileSnooper on " + files.size() + " files");
+        Log.i(TAG, "Starting fileSnooper on " + files.size() + " files/directories");
 
         fileSnooper(files);
         Log.i(TAG, "Found " + mSongs.size() + " songs");
@@ -93,7 +94,7 @@ public class Library {
 
                 setSongMetadata(song, file);
                 mSongs.add(song);
-                if (mSongs.size() % 111 == 0) {
+                if (mSongs.size() % 150 == 0) {
                     Log.i(TAG, "Found " + mSongs.size() + " songs");
                 }
             } else if (file.isDirectory()) {
@@ -187,12 +188,14 @@ public class Library {
         }
 
         song.setSize(songFile.length());
+        song.setFileName(songFile.getName());
 
         song.setHasArtwork(sMetadataRetriever.getEmbeddedPicture() == null);
 
         //Free resources when done
         sMetadataRetriever.release();
         sMetadataRetriever = null;
+
     }
 
 }

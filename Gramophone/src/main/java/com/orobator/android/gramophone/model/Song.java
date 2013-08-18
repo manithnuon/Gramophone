@@ -5,16 +5,17 @@ import java.util.Date;
 public class Song {
     boolean hasArtwork;
     private long trackID = 0;
-    private String title;
-    private String artist;
-    private String albumArtist;
-    private String album;
-    private String genre;
-    private String compilationStatus;
-    private String composer;
-    private String writer;
+    private String title = null;
+    private String artist = null;
+    private String albumArtist = null;
+    private String album = null;
+    private String genre = null;
+    private String compilationStatus = null;
+    private String composer = null;
+    private String writer = null;
+    private String fileName = null;
     private long size = 0; //Size of song in bytes
-    private String duration; //TODO units?
+    private String duration = null; //TODO units?
     private int discNumber = 0;
     private int discCount = 0;
     private int trackNumber = 0; //TODO hook up the metadata display
@@ -24,11 +25,19 @@ public class Song {
     private Date dateModified;
     private int bitRate = 0; //bits/sec
     private int sampleRate = 0;
-    private String location;
+    private String location = null;
     private int playCount = 0;
 
     public Song(String location) {
         this.location = location;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public int getPlayCount() {
@@ -203,7 +212,7 @@ public class Song {
         this.sampleRate = sampleRate;
     }
 
-    public boolean isHasArtwork() {
+    public boolean hasArtwork() {
         return hasArtwork;
     }
 
