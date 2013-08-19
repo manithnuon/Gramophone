@@ -158,6 +158,8 @@ public class Library {
         String dateModified = sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
         if (dateModified != null) {
             song.setDateModified(new Date(dateModified));
+        } else {
+            song.setDateModified(new Date());
         }
 
         song.setCompilationStatus(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPILATION));

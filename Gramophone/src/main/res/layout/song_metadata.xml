@@ -6,6 +6,21 @@
               android:layout_height="match_parent">
 
     <TextView
+            android:id="@+id/has_album_art_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/title_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/artist_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
             android:id="@+id/album_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -16,17 +31,7 @@
             android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/artist_textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    <TextView
-            android:id="@+id/bitrate_textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    <TextView
-            android:id="@+id/cd_track_number_textView"
+            android:id="@+id/genre_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
@@ -41,12 +46,22 @@
             android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/date_modified_textView"
+            android:id="@+id/writer_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/disc_number_textView"
+            android:id="@+id/filename_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/artist_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/size_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
@@ -56,12 +71,27 @@
             android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/genre_textView"
+            android:id="@+id/disc_number_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/location_textView"
+            android:id="@+id/disc_count_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/track_number_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/track_count_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/year_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
@@ -71,13 +101,27 @@
             android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/title_textView"
+            android:id="@+id/date_modified_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/year_textView"
+            android:id="@+id/bitrate_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+    <TextView
+            android:id="@+id/sample_rate_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/location_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/play_count_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 </LinearLayout>

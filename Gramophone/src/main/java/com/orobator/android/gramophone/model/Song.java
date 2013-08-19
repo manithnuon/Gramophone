@@ -1,21 +1,23 @@
 package com.orobator.android.gramophone.model;
 
+import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.Date;
 
-public class Song {
+public class Song implements Serializable {
     boolean hasArtwork;
     private long trackID = 0;
-    private String title = null;
-    private String artist = null;
-    private String albumArtist = null;
-    private String album = null;
-    private String genre = null;
-    private String compilationStatus = null;
-    private String composer = null;
-    private String writer = null;
-    private String fileName = null;
+    private String title;
+    private String artist;
+    private String albumArtist;
+    private String album;
+    private String genre;
+    private String compilationStatus;
+    private String composer;
+    private String writer;
+    private String fileName;
     private long size = 0; //Size of song in bytes
-    private String duration = null; //TODO units?
+    private String duration; //TODO units?
     private int discNumber = 0;
     private int discCount = 0;
     private int trackNumber = 0; //TODO hook up the metadata display
@@ -25,7 +27,7 @@ public class Song {
     private Date dateModified;
     private int bitRate = 0; //bits/sec
     private int sampleRate = 0;
-    private String location = null;
+    private String location;
     private int playCount = 0;
 
     public Song(String location) {
@@ -226,5 +228,30 @@ public class Song {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    @Override
+    public String toString() {
+        if (title == null || artist == null) {
+            return fileName;
+        }
+
+        return title + " - " + artist;
+    }
+
+    public String displaySize() {
+        double kb = 1000;
+        double mb = kb * 1000;
+        double gb = mb * 1000;
+
+        DecimalFormat df = new DecimalFormat("########.##");
+
+        if (size % gb != size) {
+            return df.format(size / gb) + " GB";
+        } else if (size % mb != size) {
+            return df.format(size / mb) + " MB";
+        } else {
+            return df.format(size / kb) + " KB";
+        }
     }
 }

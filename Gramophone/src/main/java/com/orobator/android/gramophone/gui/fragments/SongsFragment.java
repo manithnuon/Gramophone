@@ -1,6 +1,7 @@
 package com.orobator.android.gramophone.gui.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -10,9 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.orobator.android.gramophone.R;
+import com.orobator.android.gramophone.gui.activities.SongMetadataActivity;
 import com.orobator.android.gramophone.model.Library;
 import com.orobator.android.gramophone.model.Song;
 
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 
 public class SongsFragment extends ListFragment {
     private static final String TAG = "SongsFragment";
+    public static final String KEY_SONG = "song";
     SongAdapter mAdapter;
 
     @Override
@@ -74,16 +76,22 @@ public class SongsFragment extends ListFragment {
 
         Song song = (Song) getListAdapter().getItem(position);
 
-        if (type == SongAdapter.VIEW_TYPE_NO_ARTIST_OR_TITLE) {
-            String fileName = song.getFileName();
-            Toast titleToast = Toast.makeText(getActivity(), "Filename: " + fileName, Toast.LENGTH_SHORT);
-            titleToast.show();
-        }
+        Intent intent = new Intent(getActivity(), SongMetadataActivity.class);
+        intent.putExtra(KEY_SONG, song);
 
-        String title = song.getTitle();
-        String artist = song.getArtist();
-        Toast titleToast = Toast.makeText(getActivity(), title + " - " + artist + " Filename: " + song.getFileName(), Toast.LENGTH_SHORT);
-        titleToast.show();
+//        if (type == SongAdapter.VIEW_TYPE_NO_ARTIST_OR_TITLE) {
+//            String fileName = song.getFileName();
+//            Toast titleToast = Toast.makeText(getActivity(), "Filename: " + fileName, Toast.LENGTH_SHORT);
+//            titleToast.show();
+//            return;
+//        }
+//
+//        String title = song.getTitle();
+//        String artist = song.getArtist();
+//        Toast titleToast = Toast.makeText(getActivity(), title + " - " + artist + " Filename: " + song.getFileName(), Toast.LENGTH_SHORT);
+//        titleToast.show();
+
+        startActivity(intent);
     }
 
     private class SongAdapter extends ArrayAdapter<Song> {
@@ -118,6 +126,7 @@ public class SongsFragment extends ListFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            //TODO if optimization is needed, use ViewHolder pattern
             Song song = getItem(position);
 
             int type = getItemViewType(position);
