@@ -174,7 +174,7 @@ public class Library {
             }
         }
 
-        song.setDuration(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        song.setDuration(Long.parseLong(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
         song.setGenre(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE));
 
         String numTracks = sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS);

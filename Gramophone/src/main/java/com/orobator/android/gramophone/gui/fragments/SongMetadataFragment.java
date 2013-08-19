@@ -102,7 +102,7 @@ public class SongMetadataFragment extends Fragment {
         mDiscCountTextView.setText(discCount);
 
         mDurationTextView = (TextView) view.findViewById(R.id.duration_textView);
-        String duration = getString(R.string.duration, mSong.getDuration());
+        String duration = getString(R.string.duration, mSong.displayTime(mSong.getDuration(), true));
         mDurationTextView.setText(duration);
 
         mGenreTextView = (TextView) view.findViewById(R.id.genre_textView);

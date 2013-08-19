@@ -17,15 +17,15 @@ public class Song implements Serializable {
     private String writer;
     private String fileName;
     private long size = 0; //Size of song in bytes
-    private String duration; //TODO units?
+    private long duration; //Time in milliseconds
     private int discNumber = 0;
     private int discCount = 0;
-    private int trackNumber = 0; //TODO hook up the metadata display
+    private int trackNumber = 0;
     private int trackCount = 0;  //TODO Change the list display of songs to Song in bold with artist underneath
     private int year = 0;
     private int numTracks = 0; //TODO is this the number of tracks in the containing album?
     private Date dateModified;
-    private int bitRate = 0; //bits/sec
+    private int bitRate = 0; //bits per second
     private int sampleRate = 0;
     private String location;
     private int playCount = 0;
@@ -70,11 +70,11 @@ public class Song implements Serializable {
         this.numTracks = numTracks;
     }
 
-    public String getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 
@@ -253,5 +253,55 @@ public class Song implements Serializable {
         } else {
             return df.format(size / kb) + " KB";
         }
+    }
+
+    /**
+     * displayTime() displays the time in a formatted string
+     *
+     * @param duration the duration of a song in milliseconds
+     * @param precise  if true, the result string will contain milliseconds
+     * @return a string in the format of hh:mm:ss(.mmm). Leading zeros are not shown
+     */
+    public String displayTime(long duration, boolean precise) {
+        if (!precise) {
+            duration += 500;
+        }
+
+        long totalSeconds = duration / 1000;
+        int minute = 60;
+        int hour = minute * 60;
+
+        String hours = "";
+        String minutes = "";
+        String seconds = "";
+        String milliseconds = "";
+
+        long displayHours = totalSeconds / hour;
+        if (displayHours != 0) {
+            hours = Long.toString(displayHours) + ":";
+        }
+
+        long displayMinutes = (totalSeconds - displayHours * hour) / minute;
+        if (displayMinutes != 0) {
+            minutes = Long.toString(displayMinutes);
+        } else {
+            minutes = "00";
+        }
+
+        long displaySeconds = totalSeconds - displayHours * hour - displayMinutes * minute;
+        if (displaySeconds != 0) {
+            seconds = Long.toString(displaySeconds);
+            if (displaySeconds < 10) {
+                seconds = "0" + seconds;
+            }
+        } else {
+            seconds = "00";
+        }
+
+        if (precise) {
+            milliseconds = "." + Long.toString(duration % 1000);
+        }
+
+        return hours + minutes + ":" + seconds + milliseconds;
     }
 }
