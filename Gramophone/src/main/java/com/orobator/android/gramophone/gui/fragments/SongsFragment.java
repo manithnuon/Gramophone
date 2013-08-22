@@ -70,26 +70,11 @@ public class SongsFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
-        //TODO start an intent to metadata fragment here
-
-        int type = mAdapter.getItemViewType(position);
 
         Song song = (Song) getListAdapter().getItem(position);
 
         Intent intent = new Intent(getActivity(), SongMetadataActivity.class);
         intent.putExtra(KEY_SONG, song);
-
-//        if (type == SongAdapter.VIEW_TYPE_NO_ARTIST_OR_TITLE) {
-//            String fileName = song.getFileName();
-//            Toast titleToast = Toast.makeText(getActivity(), "Filename: " + fileName, Toast.LENGTH_SHORT);
-//            titleToast.show();
-//            return;
-//        }
-//
-//        String title = song.getTitle();
-//        String artist = song.getArtist();
-//        Toast titleToast = Toast.makeText(getActivity(), title + " - " + artist + " Filename: " + song.getFileName(), Toast.LENGTH_SHORT);
-//        titleToast.show();
 
         startActivity(intent);
     }

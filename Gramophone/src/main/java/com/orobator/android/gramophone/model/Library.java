@@ -1,8 +1,11 @@
 package com.orobator.android.gramophone.model;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
-import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Audio.AudioColumns;
+import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 
 import com.orobator.android.gramophone.R;
@@ -37,39 +40,105 @@ public class Library {
 
         mSongs = new ArrayList<Song>();
 
-        File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
-        File downloadsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        //New Content Provider stuff
 
-        //Make the directories just in case they don't exist
-        musicDirectory.mkdirs();
+        final StringBuilder mSelection = new StringBuilder();
+        mSelection.append(AudioColumns.IS_MUSIC + "=1");
+        mSelection.append(" AND " + AudioColumns.TITLE + " != ''"); //$NON-NLS-2$
+        Cursor mCursor = mContext
+                .getContentResolver()
+                .query(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        new String[]{AudioColumns.ALBUM, AudioColumns.ARTIST, AudioColumns.COMPOSER,
+                                AudioColumns.DISPLAY_NAME, AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
+                                AudioColumns.TITLE, AudioColumns.TRACK, AudioColumns.SIZE, AudioColumns.YEAR}, mSelection.toString(), null, Media.DEFAULT_SORT_ORDER);
 
-        downloadsDirectory.mkdirs();
+        mCursor.moveToNext();
 
-        File[] musicFiles = musicDirectory.listFiles();
-        File[] downloadsFiles = downloadsDirectory.listFiles();
+        /* The columns to get */
+//        String[] mProjection = {AudioColumns.ALBUM, AudioColumns.ARTIST, AudioColumns.COMPOSER,
+//                AudioColumns.DISPLAY_NAME, AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
+//                AudioColumns.TITLE, AudioColumns.TRACK, AudioColumns.SIZE, AudioColumns.YEAR};
+//        //Display Name = file name
+//
+//        String mSelectionClause = AudioColumns.IS_MUSIC + "=1" + " AND " + AudioColumns.TITLE + " != ''";
+//
+//        /*
+//         * This defines a one-element String array to contain the selection argument.
+//         */
+//        String[] mSelectionArgs = {""};
+//
+//
+//        Cursor mCursor = mContext
+//                .getApplicationContext()
+//                .getContentResolver()
+//                .query(
+//                        Media.INTERNAL_CONTENT_URI,// The content uri of the audio media table
+//                        mProjection, //The columns to get
+//                        mSelectionClause,
+//                        mSelectionArgs,
+//                        Media.DEFAULT_SORT_ORDER
+//                );
 
-        ArrayList<File> files = new ArrayList<File>();
+        //TODO fix up metadata + add your own, clean up code
 
-        if (musicFiles != null) {
-            for (File file : musicFiles) {
-                files.add(file); //TODO slow, fix this
+        Log.i(TAG, "Found " + mCursor.getCount() + " songs");
+        while (!mCursor.isAfterLast()) {
+            Song song = new Song(mCursor.getString(3));
+            song.setAlbum(mCursor.getString(0));
+            song.setArtist(mCursor.getString(1));
+            song.setComposer(mCursor.getString(2));
+//            Log.i(TAG, "Date Modified: " + mCursor.getString(4));
+            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
+            song.setDuration(Long.parseLong(mCursor.getString(5)));
+            song.setTitle(mCursor.getString(6));
+            Log.i(TAG, "Song " + song.getTitle() + " - " + song.getArtist() + " has track " + mCursor.getString(7));
+            song.setSize(Long.parseLong(mCursor.getString(8)));
+//            Log.i(TAG, "Year: " + mCursor.getString(9));
+            String year = mCursor.getString(9);
+            if (year != null) {
+                song.setYear(Integer.parseInt(mCursor.getString(9)));
+            } else {
+                song.setYear(-1);
             }
-        } else {
-            Log.i(TAG, "No files in music");
+            mSongs.add(song);
+            mCursor.moveToNext();
         }
+        //Content provider stuff end
 
-        if (downloadsFiles != null) {
-            for (File file : downloadsFiles) {
-                files.add(file); //TODO slow, fix this
-            }
-        } else {
-            Log.i(TAG, "No files in downloads");
-        }
-
-        Log.i(TAG, "Starting fileSnooper on " + files.size() + " files/directories");
-
-        fileSnooper(files);
-        Log.i(TAG, "Found " + mSongs.size() + " songs");
+//        File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+//        File downloadsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+//
+//        //Make the directories just in case they don't exist
+//        musicDirectory.mkdirs();
+//
+//        downloadsDirectory.mkdirs();
+//
+//        File[] musicFiles = musicDirectory.listFiles();
+//        File[] downloadsFiles = downloadsDirectory.listFiles();
+//
+//        ArrayList<File> files = new ArrayList<File>();
+//
+//        if (musicFiles != null) {
+//            for (File file : musicFiles) {
+//                files.add(file); //TODO slow, fix this
+//            }
+//        } else {
+//            Log.i(TAG, "No files in music");
+//        }
+//
+//        if (downloadsFiles != null) {
+//            for (File file : downloadsFiles) {
+//                files.add(file); //TODO slow, fix this
+//            }
+//        } else {
+//            Log.i(TAG, "No files in downloads");
+//        }
+//
+//        Log.i(TAG, "Starting fileSnooper on " + files.size() + " files/directories");
+//
+//        fileSnooper(files);
+//        Log.i(TAG, "Found " + mSongs.size() + " songs");
 
         return mSongs;
 

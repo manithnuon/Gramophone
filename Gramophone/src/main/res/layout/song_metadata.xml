@@ -56,11 +56,6 @@
             android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/artist_textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    <TextView
             android:id="@+id/size_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

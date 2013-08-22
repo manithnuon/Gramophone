@@ -6,7 +6,19 @@ import java.util.Date;
 
 public class Song implements Serializable {
     boolean hasArtwork;
+    private int discNumber = 0;
+    private int discCount = 0;
+    private int trackNumber = 0;
+    private int trackCount = 0;
+    private int year = 0;
+    private int numTracks = 0; //Number of tracks on the album
+    private int bitRate = 0; //bits per second
+    private int sampleRate = 0;
+    private int playCount = 0;
+    private int skipCount = 0;
     private long trackID = 0;
+    private long size = 0; //Size of song in bytes
+    private long duration; //Time in milliseconds
     private String title;
     private String artist;
     private String albumArtist;
@@ -16,22 +28,25 @@ public class Song implements Serializable {
     private String composer;
     private String writer;
     private String fileName;
-    private long size = 0; //Size of song in bytes
-    private long duration; //Time in milliseconds
-    private int discNumber = 0;
-    private int discCount = 0;
-    private int trackNumber = 0;
-    private int trackCount = 0;  //TODO Change the list display of songs to Song in bold with artist underneath
-    private int year = 0;
-    private int numTracks = 0; //TODO is this the number of tracks in the containing album?
-    private Date dateModified;
-    private int bitRate = 0; //bits per second
-    private int sampleRate = 0;
     private String location;
-    private int playCount = 0;
+
+
+    private Date dateModified;
 
     public Song(String location) {
         this.location = location;
+    }
+
+    public void resetSkipCount() {
+        skipCount = 0;
+    }
+
+    public void incrSkipCount() {
+        skipCount++;
+    }
+
+    public int getSkipCount() {
+        return skipCount;
     }
 
     public String getFileName() {
@@ -158,7 +173,7 @@ public class Song implements Serializable {
         this.discNumber = discNumber;
     }
 
-    public int getDiscCount() { //TODO do i need this? Should it be renamed?
+    public int getDiscCount() {
         return discCount;
     }
 
@@ -174,7 +189,7 @@ public class Song implements Serializable {
         this.trackNumber = trackNumber;
     }
 
-    public int getTrackCount() {//TODO do i need this? Should it be renamed?
+    public int getTrackCount() {
         return trackCount;
     }
 
@@ -206,7 +221,7 @@ public class Song implements Serializable {
         this.bitRate = bitRate;
     }
 
-    public int getSampleRate() { //TODO do i need this? Should it be renamed?
+    public int getSampleRate() {
         return sampleRate;
     }
 
@@ -272,8 +287,8 @@ public class Song implements Serializable {
         int hour = minute * 60;
 
         String hours = "";
-        String minutes = "";
-        String seconds = "";
+        String minutes;
+        String seconds;
         String milliseconds = "";
 
         long displayHours = totalSeconds / hour;

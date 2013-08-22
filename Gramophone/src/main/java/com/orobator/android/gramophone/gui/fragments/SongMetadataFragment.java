@@ -37,7 +37,7 @@ public class SongMetadataFragment extends Fragment {
     private TextView mTitleTextView;
     private TextView mHasArtworkTextView;
     private TextView mPlayCountTextView;
-    private TextView mYearTextView; //TODO make sure you have track num and track count
+    private TextView mYearTextView;
     private Song mSong;
 
     @Override
@@ -47,7 +47,6 @@ public class SongMetadataFragment extends Fragment {
         setRetainInstance(true);
 
         mSong = (Song) getActivity().getIntent().getSerializableExtra(SongsFragment.KEY_SONG);
-        //TODO Go over fragment arguments to send a song over.
 
     }
 
@@ -148,6 +147,10 @@ public class SongMetadataFragment extends Fragment {
         mYearTextView = (TextView) view.findViewById(R.id.year_textView);
         String year = getString(R.string.year, mSong.getYear());
         mYearTextView.setText(year);
+
+        mPlayCountTextView = (TextView) view.findViewById(R.id.play_count_textView);
+        String playCount = getString(R.string.play_count, mSong.getPlayCount());
+        mPlayCountTextView.setText(playCount);
 
         return view;
     }
