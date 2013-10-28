@@ -9,12 +9,14 @@
             android:id="@+id/songTitle_TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:textSize="18sp"/>
 
     <TextView
             android:id="@+id/songArtist_TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:textSize="14sp"/>
 
 
