@@ -46,7 +46,17 @@
         <item>ogg</item>
     </string-array>
 
+    <string-array name="nav_drawer_menu_items">
+        <item>Songs</item>
+        <item>Albums</item>
+        <item>Artists</item>
+        <item>Genres</item>
+        <item>Playlists</item>
+    </string-array>
+
     <string name="title_activity_song_metadata">Song Metadata</string>
-    <string name="hello_world">Hello world!</string>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 
 </resources>

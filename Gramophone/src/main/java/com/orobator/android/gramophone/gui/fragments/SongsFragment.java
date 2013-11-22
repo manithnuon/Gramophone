@@ -48,10 +48,6 @@ public class SongsFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.i(TAG, "onActivityCreated");
-
-        //String to be displayed if library is empty
-//        setEmptyText(getString(R.string.no_songs_found));
-
     }
 
     @Override
@@ -62,7 +58,6 @@ public class SongsFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-//        View view = super.onCreateView(inflater, parent, savedInstanceState);
         View view = inflater.inflate(R.layout.list_view_songs, parent, false);
 
         Log.i(TAG, "onCreateView");
