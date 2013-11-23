@@ -28,11 +28,6 @@ public class MusicActivity extends FragmentActivity {
     private CharSequence mTitle;
     private CharSequence mDrawerTitle;
 
-//    @Override
-//    protected Fragment createFragment() {
-//        return new SongsFragment();
-//    }
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
