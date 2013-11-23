@@ -24,7 +24,7 @@
     <!-- All customizations that are NOT specific to a particular API-level can go here. -->
 
     <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
-        <item name="android:background">@color/wet_asphalt</item>
+        <item name="android:background">@color/belize_hole</item>
         <item name="android:titleTextStyle">@style/AppTheme.ActionBar.TitleTextStyle</item>
     </style>
 
