@@ -1,6 +1,8 @@
 package com.orobator.android.gramophone.gui.activities;
 
+import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -8,16 +10,22 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.gui.fragments.SongsFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MusicActivity extends FragmentActivity {
     private static final String TAG = "MusicActivity";
@@ -109,7 +117,13 @@ public class MusicActivity extends FragmentActivity {
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.nav_drawer_list_item, nav_items));
+        List<String> items = new ArrayList<String>();
+        for (String string : nav_items) {
+            items.add(string);
+        }
+
+//        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.nav_drawer_list_item, nav_items));
+        mDrawerList.setAdapter(new CustomListAdapter(this, R.layout.nav_drawer_list_item, items, "fonts/robotocondensed_light.ttf"));
 
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -159,4 +173,36 @@ public class MusicActivity extends FragmentActivity {
         }
     }
 
+    private class CustomListAdapter extends ArrayAdapter<String> {
+
+        Context mContext;
+        int layoutResourceId;
+        List<String> items;
+        Typeface tf;
+
+        public CustomListAdapter(Context context, int layoutResourceId, List<String> items, String FONT) {
+            super(context, layoutResourceId, items);
+            this.mContext = context;
+            this.layoutResourceId = layoutResourceId;
+            this.items = items;
+            try {
+                this.tf = Typeface.createFromAsset(context.getAssets(), FONT);
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View listItemView = inflater.inflate(R.layout.nav_drawer_list_item, null, true);
+            TextView textView = (TextView) listItemView.findViewById(R.id.nav_drawer_list_item);
+            textView.setText(items.get(position));
+            if (tf != null) {
+                textView.setTypeface(tf);
+            }
+            return listItemView;
+        }
+
+    }
 }
