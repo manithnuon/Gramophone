@@ -44,6 +44,14 @@ public class MusicActivity extends FragmentActivity {
         mDrawerToggle.syncState();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.music, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
     /* Called whenever we call invalidateOptionsMenu() */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -51,14 +59,6 @@ public class MusicActivity extends FragmentActivity {
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 //        menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
         return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.music, menu);
-
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -73,6 +73,10 @@ public class MusicActivity extends FragmentActivity {
             case R.id.action_settings:
                 Toast toast = Toast.makeText(this, "Settings", Toast.LENGTH_SHORT);
                 toast.show();
+                return true;
+            case R.id.action_search:
+                Toast toast1 = Toast.makeText(this, "Search", Toast.LENGTH_SHORT);
+                toast1.show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -144,13 +148,7 @@ public class MusicActivity extends FragmentActivity {
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         // Create initial view
-        Fragment fragment = new SongsFragment();
-
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
+        selectItem(0);
     }
 
     @Override
@@ -171,6 +169,9 @@ public class MusicActivity extends FragmentActivity {
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .commit();
+
+        // Update ActionBar title
+        mTitle = nav_items[position];
 
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
