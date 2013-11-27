@@ -16,6 +16,7 @@ public class Song implements Serializable {
     private int sampleRate = 0;
     private int playCount = 0;
     private int skipCount = 0;
+    private int rating = 0;
     private long trackID = 0;
     private long size = 0; //Size of song in bytes
     private long duration; //Time in milliseconds
@@ -29,12 +30,17 @@ public class Song implements Serializable {
     private String writer;
     private String fileName;
     private String location;
-
-
     private Date dateModified;
 
-    public Song(String location) {
-        this.location = location;
+    public Song() {
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
     public void resetSkipCount() {

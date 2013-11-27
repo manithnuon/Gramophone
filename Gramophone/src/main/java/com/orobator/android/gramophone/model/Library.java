@@ -17,20 +17,23 @@ import java.util.Date;
 public class Library {
     private static final String TAG = "Library";
     private static ArrayList<Song> mSongs;
-    private static Library mLibrary;
-    private static Context mContext;
+    private static Library sLibrary;
     private static MediaMetadataRetriever sMetadataRetriever;
+    private Context mAppContext;
+    private SongDatabaseHelper mHelper;
 
-    private Library(Context context) {
-        mContext = context;
+
+    private Library(Context appContext) {
+        mAppContext = appContext;
         sMetadataRetriever = new MediaMetadataRetriever();
+        mHelper = new SongDatabaseHelper(mAppContext);
     }
 
     public static Library getLibrary(Context context) {
-        if (mLibrary == null) {
-            mLibrary = new Library(context);
+        if (sLibrary == null) {
+            sLibrary = new Library(context);
         }
-        return mLibrary;
+        return sLibrary;
     }
 
     public ArrayList<Song> getSongs() {
@@ -45,7 +48,7 @@ public class Library {
         final StringBuilder mSelection = new StringBuilder();
         mSelection.append(AudioColumns.IS_MUSIC + "=1");
         mSelection.append(" AND " + AudioColumns.TITLE + " != ''"); //$NON-NLS-2$
-        Cursor mCursor = mContext
+        Cursor mCursor = mAppContext
                 .getContentResolver()
                 .query(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -69,7 +72,7 @@ public class Library {
 //        String[] mSelectionArgs = {""};
 //
 //
-//        Cursor mCursor = mContext
+//        Cursor mCursor = mAppContext
 //                .getApplicationContext()
 //                .getContentResolver()
 //                .query(
@@ -84,7 +87,8 @@ public class Library {
 
         Log.i(TAG, "Found " + mCursor.getCount() + " songs");
         while (!mCursor.isAfterLast()) {
-            Song song = new Song(mCursor.getString(3));
+            Song song = new Song();
+            song.setLocation(mCursor.getString(3));
             song.setAlbum(mCursor.getString(0));
             song.setArtist(mCursor.getString(1));
             song.setComposer(mCursor.getString(2));
@@ -106,88 +110,54 @@ public class Library {
         }
         //Content provider stuff end
 
-//        File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
-//        File downloadsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-//
-//        //Make the directories just in case they don't exist
-//        musicDirectory.mkdirs();
-//
-//        downloadsDirectory.mkdirs();
-//
-//        File[] musicFiles = musicDirectory.listFiles();
-//        File[] downloadsFiles = downloadsDirectory.listFiles();
-//
-//        ArrayList<File> files = new ArrayList<File>();
-//
-//        if (musicFiles != null) {
-//            for (File file : musicFiles) {
-//                files.add(file); //TODO slow, fix this
-//            }
-//        } else {
-//            Log.i(TAG, "No files in music");
-//        }
-//
-//        if (downloadsFiles != null) {
-//            for (File file : downloadsFiles) {
-//                files.add(file); //TODO slow, fix this
-//            }
-//        } else {
-//            Log.i(TAG, "No files in downloads");
-//        }
-//
-//        Log.i(TAG, "Starting fileSnooper on " + files.size() + " files/directories");
-//
-//        fileSnooper(files);
-//        Log.i(TAG, "Found " + mSongs.size() + " songs");
-
         return mSongs;
 
     }
 
-    //TODO find metadata editing java library
 
-    private void fileSnooper(ArrayList<File> files) {
-        if (files.isEmpty())
-            return;
-
-        ArrayList<File> newFiles = new ArrayList<File>();
-
-        for (File file : files) {
-            if (!file.isDirectory() && isSupportedType(file)) {
-                String filePath = file.getAbsolutePath();
-                if (sMetadataRetriever == null) {
-                    sMetadataRetriever = new MediaMetadataRetriever();
-                }
-                sMetadataRetriever.setDataSource(filePath);
-                Song song = new Song(filePath);
-
-                setSongMetadata(song, file);
-                mSongs.add(song);
-                if (mSongs.size() % 150 == 0) {
-                    Log.i(TAG, "Found " + mSongs.size() + " songs");
-                }
-            } else if (file.isDirectory()) {
-                File[] dirContents = file.listFiles();
-                if (dirContents == null) {
-                    continue;
-                }
-                for (File content : dirContents) {
-                    newFiles.add(content); //TODO slow, fix this
-                }
-            }
-        }
-
-        if (newFiles.isEmpty()) {
-            return;
-        }
-
-        fileSnooper(newFiles);
-    }
+//    private void fileSnooper(ArrayList<File> files) {
+//        if (files.isEmpty())
+//            return;
+//
+//        ArrayList<File> newFiles = new ArrayList<File>();
+//
+//        for (File file : files) {
+//            if (!file.isDirectory() && isSupportedType(file)) {
+//                String filePath = file.getAbsolutePath();
+//                if (sMetadataRetriever == null) {
+//                    sMetadataRetriever = new MediaMetadataRetriever();
+//                }
+//                sMetadataRetriever.setDataSource(filePath);
+//                Song song = new Song();
+//                song.setLocation(filePath);
+//
+//                setSongMetadata(song, file);
+//                mSongs.add(song);
+//                if (mSongs.size() % 150 == 0) {
+//                    Log.i(TAG, "Found " + mSongs.size() + " songs");
+//                }
+//            } else if (file.isDirectory()) {
+//                File[] dirContents = file.listFiles();
+//                if (dirContents == null) {
+//                    continue;
+//                }
+//                for (File content : dirContents) {
+//                    newFiles.add(content); //TODO slow, fix this
+//                }
+//            }
+//        }
+//
+//        if (newFiles.isEmpty()) {
+//            return;
+//        }
+//
+//        fileSnooper(newFiles);
+//    }
 
     private boolean isSupportedType(File file) {
         String filePath = file.getPath();
         String[] pathArray = filePath.split("\\.");
-        String[] compat = mContext.getResources().getStringArray(R.array.supported_file_types);
+        String[] compat = mAppContext.getResources().getStringArray(R.array.supported_file_types);
 
         if (pathArray.length == 0) {
             return false;

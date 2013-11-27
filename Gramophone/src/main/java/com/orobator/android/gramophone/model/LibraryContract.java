@@ -4,7 +4,7 @@ package com.orobator.android.gramophone.model;
  * The LibraryContract specifies the schemas of the SQL tables used for
  * accessing collections of music.
  */
-public class LibraryContract {
+public final class LibraryContract {
     /** Resources:
      * SQL Tables: http://developer.android.com/training/basics/data-storage/databases.html
      * MetaDataRetriever: http://developer.android.com/reference/android/media/MediaMetadataRetriever.html

@@ -1,4 +1,4 @@
-package com.orobator.android.gramophone.gui.fragments;
+package com.orobator.android.gramophone.view.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,9 +13,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.orobator.android.gramophone.R;
-import com.orobator.android.gramophone.gui.activities.SongMetadataActivity;
 import com.orobator.android.gramophone.model.Library;
 import com.orobator.android.gramophone.model.Song;
+import com.orobator.android.gramophone.view.activities.SongMetadataActivity;
 
 import java.util.ArrayList;
 
@@ -38,7 +38,7 @@ public class SongsFragment extends ListFragment {
 
         getActivity();
 
-        Library library = Library.getLibrary(getActivity());
+        Library library = Library.getLibrary(getActivity().getApplicationContext());
 
         mAdapter = new SongAdapter(library.getSongs());
         setListAdapter(mAdapter);

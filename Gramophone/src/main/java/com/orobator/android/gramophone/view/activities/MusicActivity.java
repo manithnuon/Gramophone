@@ -1,4 +1,4 @@
-package com.orobator.android.gramophone.gui.activities;
+package com.orobator.android.gramophone.view.activities;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -23,7 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.orobator.android.gramophone.R;
-import com.orobator.android.gramophone.gui.fragments.SongsFragment;
+import com.orobator.android.gramophone.view.fragments.SongsFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,8 @@ public class MusicActivity extends FragmentActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         // If the nav drawer is open, hide action items related to the content view
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-//        menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_sort_by_artist).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_sort_by_title).setVisible(!drawerOpen);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -77,6 +78,14 @@ public class MusicActivity extends FragmentActivity {
             case R.id.action_search:
                 Toast toast1 = Toast.makeText(this, "Search", Toast.LENGTH_SHORT);
                 toast1.show();
+                return true;
+            case R.id.action_sort_by_artist:
+                Toast toast2 = Toast.makeText(this, "Sort by Artist", Toast.LENGTH_SHORT);
+                toast2.show();
+                return true;
+            case R.id.action_sort_by_title:
+                Toast toast3 = Toast.makeText(this, "Sort by Title", Toast.LENGTH_SHORT);
+                toast3.show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -175,7 +184,6 @@ public class MusicActivity extends FragmentActivity {
 
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
-//        setTitle(nav_items[position]); // TODO actually do this. For now I'll just toast
         Toast toast = Toast.makeText(this, nav_items[position], Toast.LENGTH_SHORT);
         toast.show();
         mDrawerLayout.closeDrawer(mDrawerList);

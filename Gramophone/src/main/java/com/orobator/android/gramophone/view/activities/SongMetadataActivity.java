@@ -1,8 +1,8 @@
-package com.orobator.android.gramophone.gui.activities;
+package com.orobator.android.gramophone.view.activities;
 
 import android.support.v4.app.Fragment;
 
-import com.orobator.android.gramophone.gui.fragments.SongMetadataFragment;
+import com.orobator.android.gramophone.view.fragments.SongMetadataFragment;
 
 public class SongMetadataActivity extends SingleFragmentActivity {
 

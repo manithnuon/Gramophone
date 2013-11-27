@@ -1,4 +1,4 @@
-package com.orobator.android.gramophone.gui.activities;
+package com.orobator.android.gramophone.view.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

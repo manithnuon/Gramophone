@@ -6,6 +6,16 @@
             android:showAsAction="always"
             android:icon="@drawable/ic_action_search"/>
     <item
+            android:id="@+id/action_sort_by_artist"
+            android:title="@string/action_sort_by_artist"
+            android:orderInCategory="2"
+            android:showAsAction="never"/>
+    <item
+            android:id="@+id/action_sort_by_title"
+            android:title="@string/action_sort_by_title"
+            android:orderInCategory="3"
+            android:showAsAction="never"/>
+    <item
             android:id="@+id/action_settings"
             android:title="@string/action_settings"
             android:orderInCategory="100"
