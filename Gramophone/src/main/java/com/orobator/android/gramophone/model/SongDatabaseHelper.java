@@ -2,6 +2,8 @@ package com.orobator.android.gramophone.model;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -9,6 +11,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "songs.sqlite";
     private static final int VERSION = 1;
     private static final String TABLE_SONG = "song";
+    private static final String COLUMN_SONG_ID = "_id";
     private static final String COLUMN_SONG_TITLE = "title";
     private static final String COLUMN_SONG_DURATION = "duration";
     private static final String COLUMN_SONG_ARTIST = "artist";
@@ -37,6 +40,13 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
 
     public SongDatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
+    }
+
+    public SongCursor queryRuns() {
+        // Equivalent to "select * from song order by song_title asc"
+        Cursor wrapped = getReadableDatabase().query(TABLE_SONG, null, null,
+                null, null, null, COLUMN_SONG_TITLE + " asc");
+        return new SongCursor(wrapped);
     }
 
     @Override
@@ -78,7 +88,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         // Implement schema changes and data massage here when upgrading
     }
 
-    public long insertRun(Song song) {
+    public long insertSong(Song song) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_SONG_TITLE, song.getTitle());
         cv.put(COLUMN_SONG_DURATION, song.getDuration());
@@ -107,6 +117,30 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_SONG_DATE_MODIFIED, song.getDateModified().toString());
 
         return getWritableDatabase().insert(TABLE_SONG, null, cv);
+    }
+
+    /**
+     * A convenience class to wrap a cursor that returns rows from the "song"
+     * table. The {@link getSong()} method returns a Song instance representing
+     * the current row.
+     */
+    public static class SongCursor extends CursorWrapper {
+        public SongCursor(Cursor cursor) {
+            super(cursor);
+        }
+
+        /**
+         * Returns a Song object configured for the current row, or null if the
+         * current row is invalid
+         */
+        public Song getSong() {
+            if (isBeforeFirst() || isAfterLast()) {
+                return null;
+            }
+            Song song = new Song();
+
+            return song;
+        }
     }
 
 

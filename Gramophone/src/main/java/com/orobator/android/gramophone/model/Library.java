@@ -52,9 +52,12 @@ public class Library {
                 .getContentResolver()
                 .query(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        new String[]{AudioColumns.ALBUM, AudioColumns.ARTIST, AudioColumns.COMPOSER,
-                                AudioColumns.DISPLAY_NAME, AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
-                                AudioColumns.TITLE, AudioColumns.TRACK, AudioColumns.SIZE, AudioColumns.YEAR}, mSelection.toString(), null, Media.DEFAULT_SORT_ORDER);
+                        new String[]{AudioColumns.ALBUM, AudioColumns.ARTIST,
+                                AudioColumns.COMPOSER, AudioColumns.DISPLAY_NAME,
+                                AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
+                                AudioColumns.TITLE, AudioColumns.TRACK,
+                                AudioColumns.SIZE, AudioColumns.YEAR},
+                        mSelection.toString(), null, Media.DEFAULT_SORT_ORDER);
 
         mCursor.moveToNext();
 
@@ -96,7 +99,8 @@ public class Library {
             song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
             song.setDuration(Long.parseLong(mCursor.getString(5)));
             song.setTitle(mCursor.getString(6));
-            Log.i(TAG, "Song " + song.getTitle() + " - " + song.getArtist() + " has track " + mCursor.getString(7));
+            Log.i(TAG, "Song " + song.getTitle() + " - " + song.getArtist()
+                    + " has track " + mCursor.getString(7));
             song.setSize(Long.parseLong(mCursor.getString(8)));
 //            Log.i(TAG, "Year: " + mCursor.getString(9));
             String year = mCursor.getString(9);

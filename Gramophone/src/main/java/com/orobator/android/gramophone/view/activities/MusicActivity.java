@@ -87,6 +87,10 @@ public class MusicActivity extends FragmentActivity {
                 Toast toast3 = Toast.makeText(this, "Sort by Title", Toast.LENGTH_SHORT);
                 toast3.show();
                 return true;
+            case R.id.action_shuffle:
+                Toast toast4 = Toast.makeText(this, "Shuffle Songs", Toast.LENGTH_SHORT);
+                toast4.show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -144,14 +148,14 @@ public class MusicActivity extends FragmentActivity {
 
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        // Set the adapter for the list view
         List<String> items = new ArrayList<String>();
         for (String string : nav_items) {
             items.add(string);
         }
 
-//        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.nav_drawer_list_item, nav_items));
-        mDrawerList.setAdapter(new CustomListAdapter(this, R.layout.nav_drawer_list_item, items, "fonts/robotocondensed_light.ttf"));
+        mDrawerList.setAdapter(new CustomListAdapter(this,
+                R.layout.nav_drawer_list_item, items,
+                "fonts/robotocondensed_light.ttf"));
 
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
