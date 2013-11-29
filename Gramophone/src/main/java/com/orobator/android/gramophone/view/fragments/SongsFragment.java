@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.orobator.android.gramophone.R;
@@ -18,10 +19,12 @@ import com.orobator.android.gramophone.model.Song;
 import com.orobator.android.gramophone.view.activities.SongMetadataActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Vector;
 
 public class SongsFragment extends ListFragment {
-    private static final String TAG = "SongsFragment";
     public static final String KEY_SONG = "song";
+    private static final String TAG = "SongsFragment";
     SongAdapter mAdapter;
 
     @Override
@@ -76,34 +79,40 @@ public class SongsFragment extends ListFragment {
         startActivity(intent);
     }
 
-    private class SongAdapter extends ArrayAdapter<Song> {
+    private class SongAdapter extends ArrayAdapter<Song> implements SectionIndexer {
+        // TODO Fix shitty SectionIndexer
         protected static final int VIEW_TYPE_NO_ALBUM_ART = 0;
         protected static final int VIEW_TYPE_NO_ARTIST_OR_TITLE = 1;
         protected static final int VIEW_TYPE_HAS_ALBUM_ART = 2;
         protected static final int VIEW_TYPE_COUNT = VIEW_TYPE_HAS_ALBUM_ART + 1;
+        private ArrayList<Song> mSongs;
+        private Vector<String> mSections;
+        private HashMap<String, Integer> sectionMap;
 
         public SongAdapter(ArrayList<Song> songs) {
             super(getActivity(), android.R.layout.simple_list_item_1, songs);
+            mSongs = songs;
+            mSections = new Vector<>();
+            sectionMap = new HashMap<>();
+            initializeSections();
         }
 
-        @Override
-        public int getItemViewType(int position) {
-            Song song = getItem(position);
-
-            if (song.getArtist() == null || song.getTitle() == null) {
-                return VIEW_TYPE_NO_ARTIST_OR_TITLE;
+        private void initializeSections() {
+            for (int i = 0; i < mSongs.size(); i++) {
+                String title = mSongs.get(i).getTitle();
+                if (title.toLowerCase().startsWith("the ")) {
+                    title = title.substring(3);
+                }
+                String firstLetter = title.substring(0, 1).toUpperCase();
+                Integer myInt = Integer.getInteger(firstLetter);
+                if (myInt != null) {
+                    firstLetter = "123";
+                }
+                if (!sectionMap.containsKey(firstLetter)) {
+                    sectionMap.put(firstLetter, i);
+                    mSections.add(firstLetter);
+                }
             }
-
-            if (song.hasArtwork()) {
-                return VIEW_TYPE_HAS_ALBUM_ART;
-            } else {
-                return VIEW_TYPE_NO_ALBUM_ART;
-            }
-        }
-
-        @Override
-        public int getViewTypeCount() {
-            return VIEW_TYPE_COUNT;
         }
 
         @Override
@@ -140,5 +149,47 @@ public class SongsFragment extends ListFragment {
             return convertView;
         }
 
+        @Override
+        public int getItemViewType(int position) {
+            Song song = getItem(position);
+
+            if (song.getArtist() == null || song.getTitle() == null) {
+                return VIEW_TYPE_NO_ARTIST_OR_TITLE;
+            }
+
+            if (song.hasArtwork()) {
+                return VIEW_TYPE_HAS_ALBUM_ART;
+            } else {
+                return VIEW_TYPE_NO_ALBUM_ART;
+            }
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return VIEW_TYPE_COUNT;
+        }
+
+        @Override
+        public Object[] getSections() {
+            return mSections.toArray();
+        }
+
+        @Override
+        public int getPositionForSection(int section) {
+            return sectionMap.get(mSections.get(section));
+        }
+
+        @Override
+        public int getSectionForPosition(int position) {
+            Song song = getItem(position);
+            String title = song.getTitle();
+            String firstLetter = title.substring(0, 1);
+            for (int i = 0; i < mSections.size(); i++) {
+                if (firstLetter.equals(mSections.get(i))) {
+                    return i;
+                }
+            }
+            return 0;
+        }
     }
 }

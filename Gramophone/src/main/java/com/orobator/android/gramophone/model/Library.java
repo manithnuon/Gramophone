@@ -8,8 +8,6 @@ import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 
-import com.orobator.android.gramophone.R;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -99,8 +97,6 @@ public class Library {
             song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
             song.setDuration(Long.parseLong(mCursor.getString(5)));
             song.setTitle(mCursor.getString(6));
-            Log.i(TAG, "Song " + song.getTitle() + " - " + song.getArtist()
-                    + " has track " + mCursor.getString(7));
             song.setSize(Long.parseLong(mCursor.getString(8)));
 //            Log.i(TAG, "Year: " + mCursor.getString(9));
             String year = mCursor.getString(9);
@@ -158,26 +154,6 @@ public class Library {
 //        fileSnooper(newFiles);
 //    }
 
-    private boolean isSupportedType(File file) {
-        String filePath = file.getPath();
-        String[] pathArray = filePath.split("\\.");
-        String[] compat = mAppContext.getResources().getStringArray(R.array.supported_file_types);
-
-        if (pathArray.length == 0) {
-            return false;
-        }
-
-        String extension = pathArray[pathArray.length - 1];
-
-        for (String type : compat) {
-            if (type.equals(extension)) {
-                return true;
-            }
-        }
-
-        return false;
-
-    }
 
     private void setSongMetadata(Song song, File songFile) {
         song.setAlbum(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM));
