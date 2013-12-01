@@ -92,8 +92,8 @@ public class SongsFragment extends ListFragment {
         public SongAdapter(ArrayList<Song> songs) {
             super(getActivity(), android.R.layout.simple_list_item_1, songs);
             mSongs = songs;
-            mSections = new Vector<>();
-            sectionMap = new HashMap<>();
+            mSections = new Vector<String>();
+            sectionMap = new HashMap<String, Integer>();
             initializeSections();
         }
 
@@ -109,8 +109,10 @@ public class SongsFragment extends ListFragment {
                     firstLetter = "123";
                 }
                 if (!sectionMap.containsKey(firstLetter)) {
-                    sectionMap.put(firstLetter, i);
-                    mSections.add(firstLetter);
+                    if (startsWithAlphaNum(firstLetter)) {
+                        sectionMap.put(firstLetter, i);
+                        mSections.add(firstLetter);
+                    }
                 }
             }
         }
@@ -162,6 +164,44 @@ public class SongsFragment extends ListFragment {
             } else {
                 return VIEW_TYPE_NO_ALBUM_ART;
             }
+        }
+
+        private boolean startsWithAlphaNum(String str) {
+            if (str == null) return false;
+
+            // TODO Clean up code with REGEX
+            return !(str.toLowerCase().startsWith("~")
+                    || str.toLowerCase().startsWith("!")
+                    || str.toLowerCase().startsWith("@")
+                    || str.toLowerCase().startsWith("#")
+                    || str.toLowerCase().startsWith("$")
+                    || str.toLowerCase().startsWith("%")
+                    || str.toLowerCase().startsWith("^")
+                    || str.toLowerCase().startsWith("&")
+                    || str.toLowerCase().startsWith("*")
+                    || str.toLowerCase().startsWith("(")
+                    || str.toLowerCase().startsWith(")")
+                    || str.toLowerCase().startsWith("_")
+                    || str.toLowerCase().startsWith("-")
+                    || str.toLowerCase().startsWith("+")
+                    || str.toLowerCase().startsWith("=")
+                    || str.toLowerCase().startsWith("`")
+                    || str.toLowerCase().startsWith("[")
+                    || str.toLowerCase().startsWith("]")
+                    || str.toLowerCase().startsWith("{")
+                    || str.toLowerCase().startsWith("}")
+                    || str.toLowerCase().startsWith("\\")
+                    || str.toLowerCase().startsWith("|")
+                    || str.toLowerCase().startsWith(":")
+                    || str.toLowerCase().startsWith(";")
+                    || str.toLowerCase().startsWith("'")
+                    || str.toLowerCase().startsWith("\"")
+                    || str.toLowerCase().startsWith("<")
+                    || str.toLowerCase().startsWith(">")
+                    || str.toLowerCase().startsWith(",")
+                    || str.toLowerCase().startsWith(".")
+                    || str.toLowerCase().startsWith("?")
+                    || str.toLowerCase().startsWith("/"));
         }
 
         @Override
