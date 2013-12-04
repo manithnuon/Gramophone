@@ -80,7 +80,6 @@ public class SongsFragment extends ListFragment {
     }
 
     private class SongAdapter extends ArrayAdapter<Song> implements SectionIndexer {
-        // TODO Fix shitty SectionIndexer
         protected static final int VIEW_TYPE_NO_ALBUM_ART = 0;
         protected static final int VIEW_TYPE_NO_ARTIST_OR_TITLE = 1;
         protected static final int VIEW_TYPE_HAS_ALBUM_ART = 2;
