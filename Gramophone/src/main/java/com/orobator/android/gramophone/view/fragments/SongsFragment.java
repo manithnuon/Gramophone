@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Library;
@@ -39,12 +40,19 @@ public class SongsFragment extends ListFragment {
         Log.i(TAG, "onCreate");
         setRetainInstance(true);
 
-        getActivity();
+//        getActivity();
 
         Library library = Library.getLibrary(getActivity().getApplicationContext());
 
+        long startTime = System.currentTimeMillis();
         mAdapter = new SongAdapter(library.getSongs());
         setListAdapter(mAdapter);
+        long endTime = System.currentTimeMillis();
+        int songCount = mAdapter.mSongs.size();
+        double timeInSeconds = (endTime - startTime) / 1000.0;
+        Toast toast = Toast.makeText(getActivity(), "Loaded " + songCount +
+                " songs in " + timeInSeconds + " seconds", Toast.LENGTH_LONG);
+        toast.show();
     }
 
     @Override

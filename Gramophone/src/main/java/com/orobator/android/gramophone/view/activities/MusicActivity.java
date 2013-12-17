@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.orobator.android.gramophone.R;
+import com.orobator.android.gramophone.view.fragments.AlbumsFragment;
 import com.orobator.android.gramophone.view.fragments.SongsFragment;
 
 import java.util.ArrayList;
@@ -175,7 +176,18 @@ public class MusicActivity extends FragmentActivity {
      */
     private void selectItem(int position) {
         // Create a new fragment based on the new position
-        Fragment fragment = new SongsFragment();
+        Fragment fragment;
+
+        switch (position) {
+            case 0:
+                fragment = new SongsFragment();
+                break;
+            case 1:
+                fragment = new AlbumsFragment();
+                break;
+            default:
+                fragment = new SongsFragment();
+        }
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();

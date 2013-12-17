@@ -42,7 +42,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         super(context, DB_NAME, null, VERSION);
     }
 
-    public SongCursor queryRuns() {
+    public SongCursor querySongs() {
         // Equivalent to "select * from song order by song_title asc"
         Cursor wrapped = getReadableDatabase().query(TABLE_SONG, null, null,
                 null, null, null, COLUMN_SONG_TITLE + " asc");

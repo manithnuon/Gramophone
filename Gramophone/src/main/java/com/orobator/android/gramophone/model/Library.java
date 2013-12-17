@@ -14,12 +14,14 @@ import java.util.Date;
 
 public class Library {
     private static final String TAG = "Library";
-    private static ArrayList<Song> mSongs;
+    private static ArrayList<Song> sSongs;
+    private static ArrayList<Album> sAlbums;
     private static Library sLibrary;
     private static MediaMetadataRetriever sMetadataRetriever;
     private Context mAppContext;
     private SongDatabaseHelper mHelper;
 
+    // TODO Make your own songs table with an Album_Artist column
 
     private Library(Context appContext) {
         mAppContext = appContext;
@@ -34,12 +36,51 @@ public class Library {
         return sLibrary;
     }
 
-    public ArrayList<Song> getSongs() {
-        if (mSongs != null) {
-            return mSongs;
+    public ArrayList<Album> getAlbums() {
+        if (sAlbums != null) {
+            return sAlbums;
         }
 
-        mSongs = new ArrayList<Song>();
+        sAlbums = new ArrayList<Album>();
+
+        final StringBuilder mSelection = new StringBuilder();
+        mSelection.append(AudioColumns.IS_MUSIC + "=1 AND ");
+        mSelection.append(AudioColumns.ALBUM + " != ''");
+        String mProjection[] =
+                {
+                        MediaStore.Audio.AlbumColumns.ALBUM,
+                        MediaStore.Audio.AlbumColumns.ARTIST};
+        Cursor mCursor = mAppContext
+                .getContentResolver()
+                .query(
+                        Media.EXTERNAL_CONTENT_URI,
+                        mProjection,
+                        mSelection.toString(),
+                        null,
+                        AudioColumns.ALBUM_KEY
+                );
+
+        Log.d(TAG, "Found " + mCursor.getCount() + "albums");
+        mCursor.moveToNext();
+        while (!mCursor.isAfterLast()) {
+            Album album = new Album();
+            album.setAlbumName(mCursor.getString(0));
+            album.setAlbumArtist(mCursor.getString(1));
+            if (!sAlbums.contains(album)) {
+                sAlbums.add(album);
+            }
+            mCursor.moveToNext();
+        }
+
+        return sAlbums;
+    }
+
+    public ArrayList<Song> getSongs() {
+        if (sSongs != null) {
+            return sSongs;
+        }
+
+        sSongs = new ArrayList<Song>();
 
         //New Content Provider stuff
 
@@ -58,31 +99,6 @@ public class Library {
                         mSelection.toString(), null, Media.DEFAULT_SORT_ORDER);
 
         mCursor.moveToNext();
-
-        /* The columns to get */
-//        String[] mProjection = {AudioColumns.ALBUM, AudioColumns.ARTIST, AudioColumns.COMPOSER,
-//                AudioColumns.DISPLAY_NAME, AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
-//                AudioColumns.TITLE, AudioColumns.TRACK, AudioColumns.SIZE, AudioColumns.YEAR};
-//        //Display Name = file name
-//
-//        String mSelectionClause = AudioColumns.IS_MUSIC + "=1" + " AND " + AudioColumns.TITLE + " != ''";
-//
-//        /*
-//         * This defines a one-element String array to contain the selection argument.
-//         */
-//        String[] mSelectionArgs = {""};
-//
-//
-//        Cursor mCursor = mAppContext
-//                .getApplicationContext()
-//                .getContentResolver()
-//                .query(
-//                        Media.INTERNAL_CONTENT_URI,// The content uri of the audio media table
-//                        mProjection, //The columns to get
-//                        mSelectionClause,
-//                        mSelectionArgs,
-//                        Media.DEFAULT_SORT_ORDER
-//                );
 
         //TODO fix up metadata + add your own, clean up code
 
@@ -105,55 +121,14 @@ public class Library {
             } else {
                 song.setYear(-1);
             }
-            mSongs.add(song);
+            sSongs.add(song);
             mCursor.moveToNext();
         }
         //Content provider stuff end
 
-        return mSongs;
+        return sSongs;
 
     }
-
-
-//    private void fileSnooper(ArrayList<File> files) {
-//        if (files.isEmpty())
-//            return;
-//
-//        ArrayList<File> newFiles = new ArrayList<File>();
-//
-//        for (File file : files) {
-//            if (!file.isDirectory() && isSupportedType(file)) {
-//                String filePath = file.getAbsolutePath();
-//                if (sMetadataRetriever == null) {
-//                    sMetadataRetriever = new MediaMetadataRetriever();
-//                }
-//                sMetadataRetriever.setDataSource(filePath);
-//                Song song = new Song();
-//                song.setLocation(filePath);
-//
-//                setSongMetadata(song, file);
-//                mSongs.add(song);
-//                if (mSongs.size() % 150 == 0) {
-//                    Log.i(TAG, "Found " + mSongs.size() + " songs");
-//                }
-//            } else if (file.isDirectory()) {
-//                File[] dirContents = file.listFiles();
-//                if (dirContents == null) {
-//                    continue;
-//                }
-//                for (File content : dirContents) {
-//                    newFiles.add(content); //TODO slow, fix this
-//                }
-//            }
-//        }
-//
-//        if (newFiles.isEmpty()) {
-//            return;
-//        }
-//
-//        fileSnooper(newFiles);
-//    }
-
 
     private void setSongMetadata(Song song, File songFile) {
         song.setAlbum(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM));
