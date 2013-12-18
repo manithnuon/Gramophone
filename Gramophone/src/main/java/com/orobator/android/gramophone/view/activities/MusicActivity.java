@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.view.fragments.AlbumsFragment;
+import com.orobator.android.gramophone.view.fragments.ArtistsFragment;
 import com.orobator.android.gramophone.view.fragments.SongsFragment;
 
 import java.util.ArrayList;
@@ -184,6 +185,9 @@ public class MusicActivity extends FragmentActivity {
                 break;
             case 1:
                 fragment = new AlbumsFragment();
+                break;
+            case 2:
+                fragment = new ArtistsFragment();
                 break;
             default:
                 fragment = new SongsFragment();

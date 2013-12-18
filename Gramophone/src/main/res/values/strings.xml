@@ -10,6 +10,8 @@
     <string name="app_name">Gramophone</string>
 
     <string name="no_songs_found">No songs found</string>
+    <string name="no_artists_found">No artists found</string>
+    <string name="no_albums_found">No albums found</string>
 
     <string name="album">Album: %s</string>
     <string name="has_artwork">Has artwork: %s</string>

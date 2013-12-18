@@ -16,6 +16,7 @@ public class Library {
     private static final String TAG = "Library";
     private static ArrayList<Song> sSongs;
     private static ArrayList<Album> sAlbums;
+    private static ArrayList<Artist> sArtists;
     private static Library sLibrary;
     private static MediaMetadataRetriever sMetadataRetriever;
     private Context mAppContext;
@@ -49,7 +50,8 @@ public class Library {
         String mProjection[] =
                 {
                         MediaStore.Audio.AlbumColumns.ALBUM,
-                        MediaStore.Audio.AlbumColumns.ARTIST};
+                        MediaStore.Audio.AlbumColumns.ARTIST
+                };
         Cursor mCursor = mAppContext
                 .getContentResolver()
                 .query(
@@ -71,8 +73,45 @@ public class Library {
             }
             mCursor.moveToNext();
         }
+        mCursor.close();
 
         return sAlbums;
+    }
+
+    public ArrayList<Artist> getArtists() {
+        if (sArtists != null) {
+            return sArtists;
+        }
+
+        sArtists = new ArrayList<Artist>();
+
+        final StringBuilder mSelection = new StringBuilder();
+        mSelection.append(AudioColumns.IS_MUSIC + "=1");
+        mSelection.append(" AND " + AudioColumns.ARTIST + " != ''");
+        String mProjection[] = {AudioColumns.ARTIST};
+        Cursor mCursor = mAppContext
+                .getContentResolver()
+                .query(
+                        Media.EXTERNAL_CONTENT_URI,
+                        mProjection,
+                        mSelection.toString(),
+                        null,
+                        AudioColumns.ARTIST_KEY
+                );
+
+        mCursor.moveToNext();
+        while (!mCursor.isAfterLast()) {
+            Artist artist = new Artist();
+            artist.setName(mCursor.getString(0));
+            if (!sArtists.contains(artist)) {
+                sArtists.add(artist);
+            }
+            mCursor.moveToNext();
+        }
+        mCursor.close();
+
+        return sArtists;
+
     }
 
     public ArrayList<Song> getSongs() {
@@ -82,11 +121,9 @@ public class Library {
 
         sSongs = new ArrayList<Song>();
 
-        //New Content Provider stuff
-
         final StringBuilder mSelection = new StringBuilder();
         mSelection.append(AudioColumns.IS_MUSIC + "=1");
-        mSelection.append(" AND " + AudioColumns.TITLE + " != ''"); //$NON-NLS-2$
+        mSelection.append(" AND " + AudioColumns.TITLE + " != ''");
         Cursor mCursor = mAppContext
                 .getContentResolver()
                 .query(
@@ -124,7 +161,7 @@ public class Library {
             sSongs.add(song);
             mCursor.moveToNext();
         }
-        //Content provider stuff end
+        mCursor.close();
 
         return sSongs;
 
