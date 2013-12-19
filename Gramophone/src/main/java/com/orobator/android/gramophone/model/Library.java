@@ -17,6 +17,7 @@ public class Library {
     private static ArrayList<Song> sSongs;
     private static ArrayList<Album> sAlbums;
     private static ArrayList<Artist> sArtists;
+    private static ArrayList<String> sGenres;
     private static Library sLibrary;
     private static MediaMetadataRetriever sMetadataRetriever;
     private Context mAppContext;
@@ -62,7 +63,7 @@ public class Library {
                         AudioColumns.ALBUM_KEY
                 );
 
-        Log.d(TAG, "Found " + mCursor.getCount() + "albums");
+        Log.d(TAG, "Found " + mCursor.getCount() + " albums");
         mCursor.moveToNext();
         while (!mCursor.isAfterLast()) {
             Album album = new Album();
@@ -112,6 +113,16 @@ public class Library {
 
         return sArtists;
 
+    }
+
+    public ArrayList<String> getGenres() {
+        if (sGenres != null) {
+            return sGenres;
+        }
+
+        sGenres = new ArrayList<String>();
+
+        return sGenres;
     }
 
     public ArrayList<Song> getSongs() {
