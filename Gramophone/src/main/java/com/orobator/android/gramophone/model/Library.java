@@ -121,7 +121,7 @@ public class Library {
         }
 
         sGenres = new ArrayList<String>();
-        String mSelection = MediaStore.Audio.Genres.NAME + " != ''";
+        String mSelection = MediaStore.Audio.Genres.NAME + " != ''"; //TODO Why isn't this working???
         Cursor mCursor = mAppContext
                 .getContentResolver()
                 .query(

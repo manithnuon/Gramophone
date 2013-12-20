@@ -33,6 +33,13 @@ import java.util.List;
 
 public class MusicActivity extends FragmentActivity {
     private static final String TAG = "MusicActivity";
+    private static final int SONGS_FRAGMENT = 0;
+    private static final int ALBUMS_FRAGMENT = 1;
+    private static final int ARTISTS_FRAGMENT = 2;
+    private static final int GENRES_FRAGMENT = 3;
+    private static final int QUEUE_FRAGMENT = 4;
+    private static final int PLAYLISTS_FRAGMENT = 5;
+    private static int CURRENT_FRAGMENT = -1;
     private String[] nav_items;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -164,18 +171,14 @@ public class MusicActivity extends FragmentActivity {
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         // Create initial view
-        selectItem(0);
+        if (CURRENT_FRAGMENT == -1) {
+            selectItem(0);
+        } else {
+            selectItem(CURRENT_FRAGMENT);
+            setTitle(nav_items[CURRENT_FRAGMENT]);
+        }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart");
-    }
-
-    /**
-     * Swaps fragments in the main content view *
-     */
     private void selectItem(int position) {
         // Create a new fragment based on the new position
         Fragment fragment;
@@ -183,16 +186,27 @@ public class MusicActivity extends FragmentActivity {
         switch (position) {
             case 0:
                 fragment = new SongsFragment();
+                CURRENT_FRAGMENT = SONGS_FRAGMENT;
                 break;
             case 1:
                 fragment = new AlbumsFragment();
+                CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
                 break;
             case 2:
                 fragment = new ArtistsFragment();
+                CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
                 break;
             case 3:
                 fragment = new GenresFragment();
+                CURRENT_FRAGMENT = GENRES_FRAGMENT;
                 break;
+            case 4:
+                fragment = new SongsFragment(); // TODO Fix
+                CURRENT_FRAGMENT = QUEUE_FRAGMENT;
+                break;
+            case 5:
+                fragment = new SongsFragment();
+                CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT; //TODO fix
             default:
                 fragment = new SongsFragment();
         }
@@ -211,6 +225,16 @@ public class MusicActivity extends FragmentActivity {
         Toast toast = Toast.makeText(this, nav_items[position], Toast.LENGTH_SHORT);
         toast.show();
         mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    /**
+     * Swaps fragments in the main content view *
+     */
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart");
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
