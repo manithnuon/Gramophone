@@ -87,6 +87,15 @@ public class SongsFragment extends ListFragment {
         startActivity(intent);
     }
 
+    static class NoAlbumArtViewHolder {
+        TextView songTitleTextView;
+        TextView songArtistTextView;
+    }
+
+    static class NoArtistOrTitleViewHolder {
+        TextView fileName;
+    }
+
     private class SongAdapter extends ArrayAdapter<Song> implements SectionIndexer {
         protected static final int VIEW_TYPE_NO_ALBUM_ART = 0;
         protected static final int VIEW_TYPE_NO_ARTIST_OR_TITLE = 1;
@@ -121,55 +130,6 @@ public class SongsFragment extends ListFragment {
                         mSections.add(firstLetter);
                     }
                 }
-            }
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            //TODO if optimization is needed, use ViewHolder pattern
-            Song song = getItem(position);
-
-            int type = getItemViewType(position);
-
-            switch (type) {
-                case VIEW_TYPE_HAS_ALBUM_ART:
-                case VIEW_TYPE_NO_ALBUM_ART:
-                    if (convertView == null) {
-                        convertView = getActivity().getLayoutInflater()
-                                .inflate(R.layout.list_item_no_album_art, null);
-                    }
-
-                    TextView songTitleTextView = (TextView) convertView.findViewById(R.id.songTitle_TextView);
-                    songTitleTextView.setText(song.getTitle());
-                    TextView songArtistTextView = (TextView) convertView.findViewById(R.id.songArtist_TextView);
-                    songArtistTextView.setText(song.getArtist());
-                    break;
-
-                case VIEW_TYPE_NO_ARTIST_OR_TITLE:
-                    if (convertView == null) { // if we weren't given a view, inflate one
-                        convertView = getActivity().getLayoutInflater().inflate(R.layout.list_item_no_title_or_artist, null);
-                    }
-
-                    TextView fileName = (TextView) convertView.findViewById(R.id.fileName_TextView);
-                    fileName.setText(song.getFileName());
-                    break;
-            }
-
-            return convertView;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            Song song = getItem(position);
-
-            if (song.getArtist() == null || song.getTitle() == null) {
-                return VIEW_TYPE_NO_ARTIST_OR_TITLE;
-            }
-
-            if (song.hasArtwork()) {
-                return VIEW_TYPE_HAS_ALBUM_ART;
-            } else {
-                return VIEW_TYPE_NO_ALBUM_ART;
             }
         }
 
@@ -209,6 +169,60 @@ public class SongsFragment extends ListFragment {
                     || str.toLowerCase().startsWith(".")
                     || str.toLowerCase().startsWith("?")
                     || str.toLowerCase().startsWith("/"));
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Song song = getItem(position);
+
+            int type = getItemViewType(position);
+
+            switch (type) {
+                case VIEW_TYPE_HAS_ALBUM_ART:
+                case VIEW_TYPE_NO_ALBUM_ART:
+                    if (convertView == null) {
+                        convertView = getActivity().getLayoutInflater()
+                                .inflate(R.layout.list_item_no_album_art, null);
+                        NoAlbumArtViewHolder holder = new NoAlbumArtViewHolder();
+                        holder.songTitleTextView = (TextView) convertView.findViewById(R.id.songTitle_TextView);
+                        holder.songArtistTextView = (TextView) convertView.findViewById(R.id.songArtist_TextView);
+                        convertView.setTag(holder);
+                    }
+
+                    NoAlbumArtViewHolder holder = (NoAlbumArtViewHolder) convertView.getTag();
+                    holder.songTitleTextView.setText(song.getTitle());
+                    holder.songArtistTextView.setText(song.getArtist());
+                    break;
+
+                case VIEW_TYPE_NO_ARTIST_OR_TITLE:
+                    if (convertView == null) { // if we weren't given a view, inflate one
+                        convertView = getActivity().getLayoutInflater().inflate(R.layout.list_item_no_title_or_artist, null);
+                        NoArtistOrTitleViewHolder holder1 = new NoArtistOrTitleViewHolder();
+                        holder1.fileName = (TextView) convertView.findViewById(R.id.fileName_TextView);
+                        convertView.setTag(holder1);
+                    }
+
+                    NoArtistOrTitleViewHolder holder1 = (NoArtistOrTitleViewHolder) convertView.getTag();
+                    holder1.fileName.setText(song.getFileName());
+                    break;
+            }
+
+            return convertView;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            Song song = getItem(position);
+
+            if (song.getArtist() == null || song.getTitle() == null) {
+                return VIEW_TYPE_NO_ARTIST_OR_TITLE;
+            }
+
+            if (song.hasArtwork()) {
+                return VIEW_TYPE_HAS_ALBUM_ART;
+            } else {
+                return VIEW_TYPE_NO_ALBUM_ART;
+            }
         }
 
         @Override

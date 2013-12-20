@@ -121,6 +121,22 @@ public class Library {
         }
 
         sGenres = new ArrayList<String>();
+        String mSelection = MediaStore.Audio.Genres.NAME + " != ''";
+        Cursor mCursor = mAppContext
+                .getContentResolver()
+                .query(
+                        MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
+                        new String[]{MediaStore.Audio.Genres.NAME},
+                        mSelection,
+                        null,
+                        MediaStore.Audio.Genres.NAME);
+
+        mCursor.moveToNext();
+
+        while (!mCursor.isAfterLast()) {
+            sGenres.add(mCursor.getString(0));
+            mCursor.moveToNext();
+        }
 
         return sGenres;
     }
@@ -148,8 +164,6 @@ public class Library {
 
         mCursor.moveToNext();
 
-        //TODO fix up metadata + add your own, clean up code
-
         Log.i(TAG, "Found " + mCursor.getCount() + " songs");
         while (!mCursor.isAfterLast()) {
             Song song = new Song();
@@ -157,12 +171,10 @@ public class Library {
             song.setAlbum(mCursor.getString(0));
             song.setArtist(mCursor.getString(1));
             song.setComposer(mCursor.getString(2));
-//            Log.i(TAG, "Date Modified: " + mCursor.getString(4));
             song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
             song.setDuration(Long.parseLong(mCursor.getString(5)));
             song.setTitle(mCursor.getString(6));
             song.setSize(Long.parseLong(mCursor.getString(8)));
-//            Log.i(TAG, "Year: " + mCursor.getString(9));
             String year = mCursor.getString(9);
             if (year != null) {
                 song.setYear(Integer.parseInt(mCursor.getString(9)));
