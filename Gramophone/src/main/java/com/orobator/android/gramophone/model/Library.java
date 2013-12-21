@@ -141,6 +141,54 @@ public class Library {
         return sGenres;
     }
 
+    public ArrayList<Song> getSongs(Album album) {
+        ArrayList<Song> songs = new ArrayList<Song>();
+
+        String mSelection = AudioColumns.IS_MUSIC + "=1" + " AND "
+                + AudioColumns.ARTIST + " = " + album.getAlbumArtist()
+                + " AND " + AudioColumns.ALBUM + " = " + album.getAlbumName();
+
+        Cursor mCursor = mAppContext
+                .getContentResolver()
+                .query(
+                        Media.EXTERNAL_CONTENT_URI,
+                        new String[]{AudioColumns.ALBUM, AudioColumns.ARTIST,
+                                AudioColumns.COMPOSER, AudioColumns.DISPLAY_NAME,
+                                AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
+                                AudioColumns.TITLE, AudioColumns.TRACK,
+                                AudioColumns.SIZE, AudioColumns.YEAR},
+                        mSelection, null, Media.DEFAULT_SORT_ORDER);
+
+        mCursor.moveToNext();
+        Log.i(TAG, "Found " + mCursor.getCount() + " songs for album: "
+                + album.getAlbumName() + " - " + album.getAlbumArtist());
+
+        while (!mCursor.isAfterLast()) {
+            Song song = new Song();
+            song.setLocation(mCursor.getString(3));
+            song.setAlbum(mCursor.getString(0));
+            song.setArtist(mCursor.getString(1));
+            song.setComposer(mCursor.getString(2));
+            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
+            song.setDuration(Long.parseLong(mCursor.getString(5)));
+            song.setTitle(mCursor.getString(6));
+            song.setSize(Long.parseLong(mCursor.getString(8)));
+            String year = mCursor.getString(9);
+            if (year != null) {
+                song.setYear(Integer.parseInt(mCursor.getString(9)));
+            } else {
+                song.setYear(-1);
+            }
+            songs.add(song);
+            mCursor.moveToNext();
+        }
+        mCursor.close();
+
+        return songs;
+
+
+    }
+
     public ArrayList<Song> getSongs() {
         if (sSongs != null) {
             return sSongs;

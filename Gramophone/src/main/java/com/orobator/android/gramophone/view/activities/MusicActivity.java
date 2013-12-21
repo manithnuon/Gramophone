@@ -8,6 +8,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -170,6 +171,16 @@ public class MusicActivity extends FragmentActivity {
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
+        // Set the FragmentManager's onBackStackChangedListener
+        final FragmentManager fm = getSupportFragmentManager();
+        fm.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                setTitle(nav_items[CURRENT_FRAGMENT]);
+                mDrawerList.setItemChecked(CURRENT_FRAGMENT, true);
+            }
+        });
+
         // Create initial view
         if (CURRENT_FRAGMENT == -1) {
             selectItem(0);
@@ -177,59 +188,70 @@ public class MusicActivity extends FragmentActivity {
             selectItem(CURRENT_FRAGMENT);
             setTitle(nav_items[CURRENT_FRAGMENT]);
         }
+
     }
+
+    /**
+     * Swaps fragments in the main content view *
+     */
 
     private void selectItem(int position) {
         // Create a new fragment based on the new position
         Fragment fragment;
+        String fragmentName = null;
+        int oldCURRENT_FRAGMENT = CURRENT_FRAGMENT;
 
         switch (position) {
             case 0:
                 fragment = new SongsFragment();
                 CURRENT_FRAGMENT = SONGS_FRAGMENT;
+                fragmentName = "Songs";
                 break;
             case 1:
                 fragment = new AlbumsFragment();
                 CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
+                fragmentName = "Albums";
                 break;
             case 2:
                 fragment = new ArtistsFragment();
                 CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
+                fragmentName = "Artists";
                 break;
             case 3:
                 fragment = new GenresFragment();
                 CURRENT_FRAGMENT = GENRES_FRAGMENT;
+                fragmentName = "Genres";
                 break;
             case 4:
-                fragment = new SongsFragment(); // TODO Fix
+                fragment = new SongsFragment();
                 CURRENT_FRAGMENT = QUEUE_FRAGMENT;
+                fragmentName = "Queue";
                 break;
             case 5:
                 fragment = new SongsFragment();
-                CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT; //TODO fix
+                CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT;
+                fragmentName = "Playlists";
             default:
                 fragment = new SongsFragment();
         }
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.content_frame, fragment);
+        Log.d(TAG, "Current Fragment: " + CURRENT_FRAGMENT);
+        if (oldCURRENT_FRAGMENT != -1) {
+            transaction.addToBackStack(fragmentName);
+        }
+        transaction.commit();
 
         // Update ActionBar title
         mTitle = nav_items[position];
 
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
-        Toast toast = Toast.makeText(this, nav_items[position], Toast.LENGTH_SHORT);
-        toast.show();
         mDrawerLayout.closeDrawer(mDrawerList);
     }
-
-    /**
-     * Swaps fragments in the main content view *
-     */
 
     @Override
     protected void onStart() {
