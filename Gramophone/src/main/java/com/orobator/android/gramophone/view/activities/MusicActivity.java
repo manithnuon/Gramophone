@@ -40,6 +40,7 @@ public class MusicActivity extends FragmentActivity {
     private static final int GENRES_FRAGMENT = 3;
     private static final int QUEUE_FRAGMENT = 4;
     private static final int PLAYLISTS_FRAGMENT = 5;
+    private static String PREVIOUS_TOP_BACK_STACK_ENTRY = "com.orobator.android.gramophone.previousTopBackStackEntryName";
     private static int CURRENT_FRAGMENT = -1;
     private String[] nav_items;
     private DrawerLayout mDrawerLayout;
@@ -48,76 +49,6 @@ public class MusicActivity extends FragmentActivity {
     private CharSequence mTitle;
     private CharSequence mDrawerTitle;
 
-/*  TODO Handle run-time changes:
-    http://developer.android.com/guide/topics/resources/runtime-changes.html
-    Go into a 2nd level fragment view and rotate. */
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occured
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.music, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    /* Called whenever we call invalidateOptionsMenu() */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        menu.findItem(R.id.action_sort_by_artist).setVisible(!drawerOpen);
-        menu.findItem(R.id.action_sort_by_title).setVisible(!drawerOpen);
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled an app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                Toast toast = Toast.makeText(this, "Settings", Toast.LENGTH_SHORT);
-                toast.show();
-                return true;
-            case R.id.action_search:
-                Toast toast1 = Toast.makeText(this, "Search", Toast.LENGTH_SHORT);
-                toast1.show();
-                return true;
-            case R.id.action_sort_by_artist:
-                Toast toast2 = Toast.makeText(this, "Sort by Artist", Toast.LENGTH_SHORT);
-                toast2.show();
-                return true;
-            case R.id.action_sort_by_title:
-                Toast toast3 = Toast.makeText(this, "Sort by Title", Toast.LENGTH_SHORT);
-                toast3.show();
-                return true;
-            case R.id.action_shuffle:
-                Toast toast4 = Toast.makeText(this, "Shuffle Songs", Toast.LENGTH_SHORT);
-                toast4.show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-
-    }
-
-    @Override
-    public void setTitle(CharSequence title) {
-        mTitle = title;
-        getActionBar().setTitle(mTitle);
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -142,13 +73,17 @@ public class MusicActivity extends FragmentActivity {
                 R.string.drawer_close /* "close drawer" description */
         ) {
 
-            /** Called when a drawer has settled in a completely open state */
+            /**
+             * Called when a drawer has settled in a completely open state
+             */
             public void onDrawerOpened(View drawerView) {
                 getActionBar().setTitle(mDrawerTitle);
                 invalidateOptionsMenu(); // Creates a call to onPrepareOptionsMenu()
             }
 
-            /** Called when a drawer has settled in a completely closed state */
+            /**
+             * Called when a drawer has settled in a completely closed state
+             */
             public void onDrawerClosed(View view) {
                 getActionBar().setTitle(mTitle);
                 invalidateOptionsMenu(); // Creates a call to onPrepareOptionsMenu()
@@ -299,9 +234,102 @@ public class MusicActivity extends FragmentActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart");
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        FragmentManager fm = getSupportFragmentManager();
+
+        if (fm.getBackStackEntryCount() == 0) {
+            return;
+        }
+
+        int top = fm.getBackStackEntryCount() - 1;
+
+        FragmentManager.BackStackEntry topEntry = fm.getBackStackEntryAt(top);
+        String topName = topEntry.getName();
+
+        outState.putString(PREVIOUS_TOP_BACK_STACK_ENTRY, topName);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        FragmentManager fm = getSupportFragmentManager();
+
+        if (fm.getBackStackEntryCount() == 0) {
+            return;
+        }
+
+        String prevTopName = savedInstanceState.getString(PREVIOUS_TOP_BACK_STACK_ENTRY);
+        fm.popBackStack(prevTopName, 0);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occured
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.music, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /* Called whenever we call invalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        menu.findItem(R.id.action_sort_by_artist).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_sort_by_title).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Pass the event to ActionBarDrawerToggle, if it returns
+        // true, then it has handled an app icon touch event
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Toast toast = Toast.makeText(this, "Settings", Toast.LENGTH_SHORT);
+                toast.show();
+                return true;
+            case R.id.action_search:
+                Toast toast1 = Toast.makeText(this, "Search", Toast.LENGTH_SHORT);
+                toast1.show();
+                return true;
+            case R.id.action_sort_by_artist:
+                Toast toast2 = Toast.makeText(this, "Sort by Artist", Toast.LENGTH_SHORT);
+                toast2.show();
+                return true;
+            case R.id.action_sort_by_title:
+                Toast toast3 = Toast.makeText(this, "Sort by Title", Toast.LENGTH_SHORT);
+                toast3.show();
+                return true;
+            case R.id.action_shuffle:
+                Toast toast4 = Toast.makeText(this, "Shuffle Songs", Toast.LENGTH_SHORT);
+                toast4.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        getActionBar().setTitle(mTitle);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
