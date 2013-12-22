@@ -176,7 +176,47 @@ public class MusicActivity extends FragmentActivity {
         fm.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                setTitle(nav_items[CURRENT_FRAGMENT]);
+                Log.d(TAG, "Size of fragment back stack: " + fm.getBackStackEntryCount());
+                if (fm.getBackStackEntryCount() == 0) {
+                    setTitle("Songs");
+                    CURRENT_FRAGMENT = SONGS_FRAGMENT;
+                    return;
+                }
+                int top = fm.getBackStackEntryCount() - 1;
+
+                FragmentManager.BackStackEntry topEntry = fm.getBackStackEntryAt(top);
+                String topName = topEntry.getName();
+
+                Log.d(TAG, "Name of top back stack entry: " + topName);
+
+                switch (topName) {
+                    case "com.orobator.android.gramophone.Songs":
+                        topName = "Songs";
+                        CURRENT_FRAGMENT = SONGS_FRAGMENT;
+                        break;
+                    case "com.orobator.android.gramophone.Albums":
+                        topName = "Albums";
+                        CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
+                        break;
+                    case "com.orobator.android.gramophone.Artists":
+                        topName = "Artists";
+                        CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
+                        break;
+                    case "com.orobator.android.gramophone.Genres":
+                        topName = "Genres";
+                        CURRENT_FRAGMENT = GENRES_FRAGMENT;
+                        break;
+                    case "com.orobator.android.gramophone.Queue":
+                        topName = "Queue";
+                        CURRENT_FRAGMENT = QUEUE_FRAGMENT;
+                        break;
+                    case "com.orobator.android.gramophone.Playlists":
+                        topName = "Playlists";
+                        CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT;
+                        break;
+                    default:
+                }
+                setTitle(topName);
                 mDrawerList.setItemChecked(CURRENT_FRAGMENT, true);
             }
         });
@@ -189,6 +229,12 @@ public class MusicActivity extends FragmentActivity {
             setTitle(nav_items[CURRENT_FRAGMENT]);
         }
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart");
     }
 
     /**
@@ -205,32 +251,32 @@ public class MusicActivity extends FragmentActivity {
             case 0:
                 fragment = new SongsFragment();
                 CURRENT_FRAGMENT = SONGS_FRAGMENT;
-                fragmentName = "Songs";
+                fragmentName = "com.orobator.android.gramophone.Songs";
                 break;
             case 1:
                 fragment = new AlbumsFragment();
                 CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
-                fragmentName = "Albums";
+                fragmentName = "com.orobator.android.gramophone.Albums";
                 break;
             case 2:
                 fragment = new ArtistsFragment();
                 CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
-                fragmentName = "Artists";
+                fragmentName = "com.orobator.android.gramophone.Artists";
                 break;
             case 3:
                 fragment = new GenresFragment();
                 CURRENT_FRAGMENT = GENRES_FRAGMENT;
-                fragmentName = "Genres";
+                fragmentName = "com.orobator.android.gramophone.Genres";
                 break;
             case 4:
                 fragment = new SongsFragment();
                 CURRENT_FRAGMENT = QUEUE_FRAGMENT;
-                fragmentName = "Queue";
+                fragmentName = "com.orobator.android.gramophone.Queue";
                 break;
             case 5:
                 fragment = new SongsFragment();
                 CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT;
-                fragmentName = "Playlists";
+                fragmentName = "com.orobator.android.gramophone.Playlists";
             default:
                 fragment = new SongsFragment();
         }
@@ -251,12 +297,6 @@ public class MusicActivity extends FragmentActivity {
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerList);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart");
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

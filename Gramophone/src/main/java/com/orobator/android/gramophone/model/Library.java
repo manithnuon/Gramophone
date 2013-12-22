@@ -144,9 +144,10 @@ public class Library {
     public ArrayList<Song> getSongs(Album album) {
         ArrayList<Song> songs = new ArrayList<Song>();
 
-        String mSelection = AudioColumns.IS_MUSIC + "=1" + " AND "
-                + AudioColumns.ARTIST + " = " + album.getAlbumArtist()
-                + " AND " + AudioColumns.ALBUM + " = " + album.getAlbumName();
+        final StringBuilder mSelection = new StringBuilder();
+        mSelection.append(AudioColumns.IS_MUSIC + "=1");
+        mSelection.append(" AND " + AudioColumns.ARTIST + " = ?");
+        mSelection.append(" AND " + AudioColumns.ALBUM + " = ?");
 
         Cursor mCursor = mAppContext
                 .getContentResolver()
@@ -157,7 +158,9 @@ public class Library {
                                 AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
                                 AudioColumns.TITLE, AudioColumns.TRACK,
                                 AudioColumns.SIZE, AudioColumns.YEAR},
-                        mSelection, null, Media.DEFAULT_SORT_ORDER);
+                        mSelection.toString(),
+                        new String[]{album.getAlbumArtist(), album.getAlbumName()},
+                        AudioColumns.TRACK);
 
         mCursor.moveToNext();
         Log.i(TAG, "Found " + mCursor.getCount() + " songs for album: "

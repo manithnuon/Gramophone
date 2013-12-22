@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Song;
+import com.orobator.android.gramophone.view.adapters.SongAdapter;
 
 public class SongMetadataFragment extends Fragment {
     private static final String TAG = "SongMetadataFragment";
@@ -46,7 +47,7 @@ public class SongMetadataFragment extends Fragment {
 
         setRetainInstance(true);
 
-        mSong = (Song) getActivity().getIntent().getSerializableExtra(SongsFragment.KEY_SONG);
+        mSong = (Song) getActivity().getIntent().getSerializableExtra(SongAdapter.KEY_SONG);
 
     }
 
