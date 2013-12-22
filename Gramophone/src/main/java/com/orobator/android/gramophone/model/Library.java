@@ -38,6 +38,43 @@ public class Library {
         return sLibrary;
     }
 
+    public ArrayList<Album> getAlbums(Artist artist) {
+        ArrayList<Album> albums = new ArrayList<Album>();
+
+        String mSelection = AudioColumns.IS_MUSIC + "=1 AND "
+                + AudioColumns.ALBUM + " != '' AND "
+                + AudioColumns.ARTIST + " = ? ";
+
+        String mProjection[] = {AudioColumns.ALBUM};
+        String mSelectionArgs[] = {artist.getName()};
+
+        Cursor mCursor = mAppContext
+                .getContentResolver()
+                .query(
+                        Media.EXTERNAL_CONTENT_URI,
+                        mProjection,
+                        mSelection,
+                        mSelectionArgs,
+                        AudioColumns.ALBUM_KEY
+                );
+
+        Log.d(TAG, "Found " + mCursor.getCount() + " albums");
+        mCursor.moveToNext();
+        while (!mCursor.isAfterLast()) {
+            Album album = new Album();
+            album.setAlbumName(mCursor.getString(0));
+            album.setAlbumArtist(artist.getName());
+            if (!albums.contains(album)) {
+                albums.add(album);
+            }
+            mCursor.moveToNext();
+        }
+        mCursor.close();
+
+        return albums;
+
+    }
+
     public ArrayList<Album> getAlbums() {
         if (sAlbums != null) {
             return sAlbums;
@@ -190,6 +227,52 @@ public class Library {
         return songs;
 
 
+    }
+
+    public ArrayList<Song> getSongs(Artist artist) {
+        ArrayList<Song> songs = new ArrayList<Song>();
+
+        String mSelection = AudioColumns.IS_MUSIC + "=1 AND "
+                + AudioColumns.TITLE + " != ''"
+                + AudioColumns.ARTIST + "=?";
+
+        String selectionArgs[] = {artist.getName()};
+        Cursor mCursor = mAppContext
+                .getContentResolver()
+                .query(
+                        Media.EXTERNAL_CONTENT_URI,
+                        new String[]{AudioColumns.ALBUM, AudioColumns.ARTIST,
+                                AudioColumns.COMPOSER, AudioColumns.DISPLAY_NAME,
+                                AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
+                                AudioColumns.TITLE, AudioColumns.TRACK,
+                                AudioColumns.SIZE, AudioColumns.YEAR},
+                        mSelection, selectionArgs, Media.DEFAULT_SORT_ORDER);
+
+        mCursor.moveToNext();
+
+        Log.i(TAG, "Found " + mCursor.getCount() + " songs");
+        while (!mCursor.isAfterLast()) {
+            Song song = new Song();
+            song.setLocation(mCursor.getString(3));
+            song.setAlbum(mCursor.getString(0));
+            song.setArtist(mCursor.getString(1));
+            song.setComposer(mCursor.getString(2));
+            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
+            song.setDuration(Long.parseLong(mCursor.getString(5)));
+            song.setTitle(mCursor.getString(6));
+            song.setSize(Long.parseLong(mCursor.getString(8)));
+            String year = mCursor.getString(9);
+            if (year != null) {
+                song.setYear(Integer.parseInt(mCursor.getString(9)));
+            } else {
+                song.setYear(-1);
+            }
+            songs.add(song);
+            mCursor.moveToNext();
+        }
+        mCursor.close();
+
+        return songs;
     }
 
     public ArrayList<Song> getSongs() {

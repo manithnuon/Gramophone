@@ -48,6 +48,10 @@ public class MusicActivity extends FragmentActivity {
     private CharSequence mTitle;
     private CharSequence mDrawerTitle;
 
+/*  TODO Handle run-time changes:
+    http://developer.android.com/guide/topics/resources/runtime-changes.html
+    Go into a 2nd level fragment view and rotate. */
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -179,6 +183,7 @@ public class MusicActivity extends FragmentActivity {
                 Log.d(TAG, "Size of fragment back stack: " + fm.getBackStackEntryCount());
                 if (fm.getBackStackEntryCount() == 0) {
                     setTitle("Songs");
+                    mDrawerList.setItemChecked(SONGS_FRAGMENT, true);
                     CURRENT_FRAGMENT = SONGS_FRAGMENT;
                     return;
                 }
@@ -229,12 +234,6 @@ public class MusicActivity extends FragmentActivity {
             setTitle(nav_items[CURRENT_FRAGMENT]);
         }
 
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart");
     }
 
     /**
@@ -297,6 +296,12 @@ public class MusicActivity extends FragmentActivity {
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart");
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Library;
@@ -34,9 +33,7 @@ public class SongsFragment extends ListFragment {
         long endTime = System.currentTimeMillis();
         int songCount = mAdapter.getSize();
         double timeInSeconds = (endTime - startTime) / 1000.0;
-        Toast toast = Toast.makeText(getActivity(), "Loaded " + songCount +
-                " songs in " + timeInSeconds + " seconds", Toast.LENGTH_LONG);
-        toast.show();
+        Log.i(TAG, "Loaded " + songCount + " songs in " + timeInSeconds + " seconds");
     }
 
     @Override
