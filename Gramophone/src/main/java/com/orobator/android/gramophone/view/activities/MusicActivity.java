@@ -49,7 +49,6 @@ public class MusicActivity extends FragmentActivity {
     private CharSequence mTitle;
     private CharSequence mDrawerTitle;
 
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -69,8 +68,8 @@ public class MusicActivity extends FragmentActivity {
                 this,                     /* host activity */
                 mDrawerLayout,            /* DrawerLayout object */
                 R.drawable.ic_drawer,     /* nav drawer icon to replace "Up" caret */
-                R.string.drawer_open, /* "open drawer" description */
-                R.string.drawer_close /* "close drawer" description */
+                R.string.drawer_open,     /* "open drawer" description */
+                R.string.drawer_close     /* "close drawer" description */
         ) {
 
             /**
@@ -171,6 +170,24 @@ public class MusicActivity extends FragmentActivity {
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        FragmentManager fm = getSupportFragmentManager();
+
+        if (fm.getBackStackEntryCount() == 0) {
+            return;
+        }
+
+        int top = fm.getBackStackEntryCount() - 1;
+
+        FragmentManager.BackStackEntry topEntry = fm.getBackStackEntryAt(top);
+        String topName = topEntry.getName();
+
+        outState.putString(PREVIOUS_TOP_BACK_STACK_ENTRY, topName);
+
+    }
+
     /**
      * Swaps fragments in the main content view *
      */
@@ -231,24 +248,6 @@ public class MusicActivity extends FragmentActivity {
         // Highlight the selected item, update the title, and close the drawer
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerList);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        FragmentManager fm = getSupportFragmentManager();
-
-        if (fm.getBackStackEntryCount() == 0) {
-            return;
-        }
-
-        int top = fm.getBackStackEntryCount() - 1;
-
-        FragmentManager.BackStackEntry topEntry = fm.getBackStackEntryAt(top);
-        String topName = topEntry.getName();
-
-        outState.putString(PREVIOUS_TOP_BACK_STACK_ENTRY, topName);
-
     }
 
     @Override
