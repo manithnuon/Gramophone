@@ -8,9 +8,7 @@ import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Library {
     private static final String TAG = "Library";
@@ -252,7 +250,7 @@ public class Library {
             song.setAlbum(mCursor.getString(0));
             song.setArtist(mCursor.getString(1));
             song.setComposer(mCursor.getString(2));
-            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
+            song.setDateModified(Long.parseLong(mCursor.getString(4)));
             song.setDuration(Long.parseLong(mCursor.getString(5)));
             song.setTitle(mCursor.getString(6));
             song.setSize(Long.parseLong(mCursor.getString(8)));
@@ -315,7 +313,7 @@ public class Library {
             song.setAlbum(mCursor.getString(0));
             song.setArtist(mCursor.getString(1));
             song.setComposer(mCursor.getString(2));
-            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
+            song.setDateModified(Long.parseLong(mCursor.getString(4)));
             song.setDuration(Long.parseLong(mCursor.getString(5)));
             song.setTitle(mCursor.getString(6));
             song.setSize(Long.parseLong(mCursor.getString(8)));
@@ -371,7 +369,7 @@ public class Library {
             song.setAlbum(mCursor.getString(0));
             song.setArtist(mCursor.getString(1));
             song.setComposer(mCursor.getString(2));
-            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
+            song.setDateModified(Long.parseLong(mCursor.getString(4)));
             song.setDuration(Long.parseLong(mCursor.getString(5)));
             song.setTitle(mCursor.getString(6));
             song.setSize(Long.parseLong(mCursor.getString(8)));
@@ -389,117 +387,64 @@ public class Library {
         return songs;
     }
 
-    public ArrayList<Song> getSongs() {
-        if (sSongs != null) {
-            return sSongs;
-        }
-
-        sSongs = new ArrayList<Song>();
-
-        final StringBuilder mSelection = new StringBuilder();
-        mSelection.append(AudioColumns.IS_MUSIC + "=1");
-        mSelection.append(" AND " + AudioColumns.TITLE + " != ''");
-        Cursor mCursor = mAppContext
-                .getContentResolver()
-                .query(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        new String[]{AudioColumns.ALBUM, AudioColumns.ARTIST,
-                                AudioColumns.COMPOSER, AudioColumns.DISPLAY_NAME,
-                                AudioColumns.DATE_MODIFIED, AudioColumns.DURATION,
-                                AudioColumns.TITLE, AudioColumns.TRACK,
-                                AudioColumns.SIZE, AudioColumns.YEAR},
-                        mSelection.toString(), null, Media.DEFAULT_SORT_ORDER);
-
-        mCursor.moveToNext();
-
-        Log.i(TAG, "Found " + mCursor.getCount() + " songs");
-        while (!mCursor.isAfterLast()) {
-            Song song = new Song();
-            song.setLocation(mCursor.getString(3));
-            song.setAlbum(mCursor.getString(0));
-            song.setArtist(mCursor.getString(1));
-            song.setComposer(mCursor.getString(2));
-            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
-            song.setDuration(Long.parseLong(mCursor.getString(5)));
-            song.setTitle(mCursor.getString(6));
-            song.setSize(Long.parseLong(mCursor.getString(8)));
-            String year = mCursor.getString(9);
-            if (year != null) {
-                song.setYear(Integer.parseInt(mCursor.getString(9)));
-            } else {
-                song.setYear(-1);
-            }
-            sSongs.add(song);
-            mCursor.moveToNext();
-        }
-        mCursor.close();
-
-        return sSongs;
-
+    public SongDatabaseHelper.SongCursor getSongs() {
+        SongDatabaseHelper helper = new SongDatabaseHelper(mAppContext);
+        return helper.querySongs();
     }
 
-    private void setSongMetadata(Song song, File songFile) {
-        song.setAlbum(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM));
-        song.setAlbumArtist(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST));
-        song.setArtist(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
+//    public ArrayList<Song> getSongs() {
+//        if (sSongs != null) {
+//            return sSongs;
+//        }
+//
+//        sSongs = new ArrayList<Song>();
+//
+//        final StringBuilder mSelection = new StringBuilder();
+//        mSelection.append(AudioColumns.IS_MUSIC + "=1");
+//        mSelection.append(" AND " + AudioColumns.TITLE + " != ''");
+//        Cursor mCursor = mAppContext
+//                .getContentResolver()
+//                .query(
+//                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+//                        new String[]{AudioColumns.ALBUM,
+//                                AudioColumns.ARTIST,
+//                                AudioColumns.COMPOSER,
+//                                AudioColumns.DISPLAY_NAME,
+//                                AudioColumns.DATE_MODIFIED,
+//                                AudioColumns.DURATION,
+//                                AudioColumns.TITLE,
+//                                AudioColumns.TRACK,
+//                                AudioColumns.SIZE,
+//                                AudioColumns.YEAR},
+//                        mSelection.toString(), null, Media.DEFAULT_SORT_ORDER);
+//
+//        mCursor.moveToNext();
+//
+//        Log.i(TAG, "Found " + mCursor.getCount() + " songs");
+//        while (!mCursor.isAfterLast()) {
+//            Song song = new Song();
+//            song.setLocation(mCursor.getString(3));
+//            song.setAlbum(mCursor.getString(0));
+//            song.setArtist(mCursor.getString(1));
+//            song.setComposer(mCursor.getString(2));
+//            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
+//            song.setDuration(Long.parseLong(mCursor.getString(5)));
+//            song.setTitle(mCursor.getString(6));
+//            song.setSize(Long.parseLong(mCursor.getString(8)));
+//            String year = mCursor.getString(9);
+//            if (year != null) {
+//                song.setYear(Integer.parseInt(mCursor.getString(9)));
+//            } else {
+//                song.setYear(-1);
+//            }
+//            sSongs.add(song);
+//            mCursor.moveToNext();
+//        }
+//        mCursor.close();
+//
+//        return sSongs;
+//
+//    }
 
-        String bitRate = sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
-        if (bitRate != null) {
-            song.setBitRate(Integer.parseInt(bitRate));
-        }
-
-        String trackNumber = sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
-        if (trackNumber != null) {
-            String[] trackInfo = trackNumber.split("/");
-            song.setTrackNumber(Integer.parseInt(trackInfo[0]));
-            if (trackInfo.length > 1) {
-                song.setTrackCount(Integer.parseInt(trackInfo[1]));
-            }
-        }
-
-        String dateModified = sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
-        if (dateModified != null) {
-            song.setDateModified(new Date(dateModified));
-        } else {
-            song.setDateModified(new Date());
-        }
-
-        song.setCompilationStatus(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPILATION));
-        song.setComposer(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER));
-
-        String discNumber = sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER);
-        if (discNumber != null) {
-            String[] discNumberInfo = discNumber.split("/");
-            song.setDiscNumber(Integer.parseInt(discNumberInfo[0]));
-            if (discNumber.length() > 1) {
-                song.setDiscCount(Integer.parseInt(discNumberInfo[1]));
-            }
-        }
-
-        song.setDuration(Long.parseLong(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
-        song.setGenre(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE));
-
-        String numTracks = sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS);
-        if (numTracks != null) {
-            song.setNumTracks(Integer.parseInt(numTracks));
-        }
-
-        song.setTitle(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
-        song.setWriter(sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_WRITER));
-        String year = sMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR);
-        if (year != null) {
-            song.setYear(Integer.parseInt(year));
-        }
-
-        song.setSize(songFile.length());
-        song.setFileName(songFile.getName());
-
-        song.setHasArtwork(sMetadataRetriever.getEmbeddedPicture() == null);
-
-        //Free resources when done
-        sMetadataRetriever.release();
-        sMetadataRetriever = null;
-
-    }
 
 }

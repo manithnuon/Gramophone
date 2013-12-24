@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Song;
-import com.orobator.android.gramophone.view.adapters.SongAdapter;
+import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
 public class SongMetadataFragment extends Fragment {
     private static final String TAG = "SongMetadataFragment";
@@ -47,7 +47,7 @@ public class SongMetadataFragment extends Fragment {
 
         setRetainInstance(true);
 
-        mSong = (Song) getActivity().getIntent().getSerializableExtra(SongAdapter.KEY_SONG);
+        mSong = (Song) getActivity().getIntent().getSerializableExtra(SongCursorAdapter.KEY_SONG);
 
     }
 
@@ -90,7 +90,7 @@ public class SongMetadataFragment extends Fragment {
         mComposerTextView.setText(composer);
 
         mDateModifiedTextView = (TextView) view.findViewById(R.id.date_modified_textView);
-        String dateModified = getString(R.string.date_modified, mSong.getDateModified().toString());
+        String dateModified = getString(R.string.date_modified, mSong.getDateModified());
         mDateModifiedTextView.setText(dateModified);
 
         mDiscNumberTextView = (TextView) view.findViewById(R.id.disc_number_textView);
@@ -98,7 +98,7 @@ public class SongMetadataFragment extends Fragment {
         mDiscNumberTextView.setText(discNumber);
 
         mDiscCountTextView = (TextView) view.findViewById(R.id.disc_count_textView);
-        String discCount = getString(R.string.disc_count, mSong.getDiscCount());
+        String discCount = getString(R.string.disc_count, mSong.getDiscTotal());
         mDiscCountTextView.setText(discCount);
 
         mDurationTextView = (TextView) view.findViewById(R.id.duration_textView);

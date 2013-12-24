@@ -2,37 +2,63 @@ package com.orobator.android.gramophone.model;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.Date;
 
 public class Song implements Serializable {
-    boolean hasArtwork;
+    private int hasArtwork;
     private int discNumber = 0;
-    private int discCount = 0;
+    private int discTotal = 0;
     private int trackNumber = 0;
     private int trackCount = 0;
     private int year = 0;
-    private int numTracks = 0; //Number of tracks on the album
-    private int bitRate = 0; //bits per second
+    private int numTracks = 0; // Number of tracks on the album
+    private int bitRate = 0; // bits/second
     private int sampleRate = 0;
     private int playCount = 0;
     private int skipCount = 0;
+    private int skipOnShuffle = 0;
     private int rating = 0;
-    private long trackID = 0;
-    private long size = 0; //Size of song in bytes
-    private long duration; //Time in milliseconds
+    private long songID = 0;
+    private long size = 0; // Size of song in bytes
+    private long dateModified; // Seconds since Jan 1, 1970
+    private long lastPlayed; // Seconds since Jan 1, 1970
+    private long duration; // Time in milliseconds
     private String title;
     private String artist;
     private String albumArtist;
     private String album;
+    private String equalizerPreset;
     private String genre;
     private String compilationStatus;
     private String composer;
     private String writer;
     private String fileName;
     private String location;
-    private Date dateModified;
 
     public Song() {
+    }
+
+    public boolean skipOnShuffle() {
+        return skipOnShuffle == 1;
+    }
+
+    public void setSkipOnShuffle(boolean skip) {
+        skipOnShuffle = skip ? 1 : 0;
+    }
+
+    public long getLastPlayed() {
+        return lastPlayed;
+    }
+
+    public void setLastPlayed(long lastPlayed) {
+        this.lastPlayed = lastPlayed;
+    }
+
+    public String getEqualizerPreset() {
+        return equalizerPreset;
+    }
+
+    public void setEqualizerPreset(String equalizerPreset) {
+        this.equalizerPreset = equalizerPreset;
     }
 
     public int getRating() {
@@ -55,6 +81,10 @@ public class Song implements Serializable {
         return skipCount;
     }
 
+    public void setSkipCount(int skipCount) {
+        this.skipCount = skipCount;
+    }
+
     public String getFileName() {
         return fileName;
     }
@@ -65,6 +95,10 @@ public class Song implements Serializable {
 
     public int getPlayCount() {
         return playCount;
+    }
+
+    public void setPlayCount(int playCount) {
+        this.playCount = playCount;
     }
 
     public void incrPlayCount() {
@@ -115,12 +149,12 @@ public class Song implements Serializable {
         this.compilationStatus = compilationStatus;
     }
 
-    public long getTrackID() {
-        return trackID;
+    public long getSongID() {
+        return songID;
     }
 
-    public void setTrackID(long trackID) {
-        this.trackID = trackID;
+    public void setSongID(long songID) {
+        this.songID = songID;
     }
 
     public String getTitle() {
@@ -179,12 +213,12 @@ public class Song implements Serializable {
         this.discNumber = discNumber;
     }
 
-    public int getDiscCount() {
-        return discCount;
+    public int getDiscTotal() {
+        return discTotal;
     }
 
-    public void setDiscCount(int discCount) {
-        this.discCount = discCount;
+    public void setDiscTotal(int discTotal) {
+        this.discTotal = discTotal;
     }
 
     public int getTrackNumber() {
@@ -211,11 +245,11 @@ public class Song implements Serializable {
         this.year = year;
     }
 
-    public Date getDateModified() {
+    public long getDateModified() {
         return dateModified;
     }
 
-    public void setDateModified(Date dateModified) {
+    public void setDateModified(long dateModified) {
         this.dateModified = dateModified;
     }
 
@@ -236,11 +270,11 @@ public class Song implements Serializable {
     }
 
     public boolean hasArtwork() {
-        return hasArtwork;
+        return hasArtwork == 1;
     }
 
     public void setHasArtwork(boolean hasArtwork) {
-        this.hasArtwork = hasArtwork;
+        this.hasArtwork = hasArtwork ? 1 : 0;
     }
 
     public String getLocation() {

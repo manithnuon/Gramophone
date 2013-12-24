@@ -13,11 +13,11 @@ import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Library;
 import com.orobator.android.gramophone.model.Song;
 import com.orobator.android.gramophone.view.activities.SongMetadataActivity;
-import com.orobator.android.gramophone.view.adapters.SongAdapter;
+import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
 public class SongsFragment extends ListFragment {
     private static final String TAG = "SongsFragment";
-    SongAdapter mAdapter;
+    SongCursorAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,13 +27,13 @@ public class SongsFragment extends ListFragment {
 
         Library library = Library.getLibrary(getActivity().getApplicationContext());
 
-        long startTime = System.currentTimeMillis();
-        mAdapter = new SongAdapter(library.getSongs(), this);
+//        long startTime = System.currentTimeMillis();
+        mAdapter = new SongCursorAdapter(getActivity().getApplicationContext(), library.getSongs());
         setListAdapter(mAdapter);
-        long endTime = System.currentTimeMillis();
-        int songCount = mAdapter.getSize();
-        double timeInSeconds = (endTime - startTime) / 1000.0;
-        Log.i(TAG, "Loaded " + songCount + " songs in " + timeInSeconds + " seconds");
+//        long endTime = System.currentTimeMillis();
+//        int songCount = mAdapter.getSize();
+//        double timeInSeconds = (endTime - startTime) / 1000.0;
+//        Log.i(TAG, "Loaded " + songCount + " songs in " + timeInSeconds + " seconds");
     }
 
     @Override
@@ -49,7 +49,7 @@ public class SongsFragment extends ListFragment {
         Song song = (Song) getListAdapter().getItem(position);
 
         Intent intent = new Intent(getActivity(), SongMetadataActivity.class);
-        intent.putExtra(SongAdapter.KEY_SONG, song);
+        intent.putExtra(SongCursorAdapter.KEY_SONG, song);
 
         startActivity(intent);
     }
