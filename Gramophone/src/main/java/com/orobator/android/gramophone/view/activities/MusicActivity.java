@@ -1,14 +1,14 @@
 package com.orobator.android.gramophone.view.activities;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,7 +32,7 @@ import com.orobator.android.gramophone.view.fragments.SongsFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicActivity extends FragmentActivity {
+public class MusicActivity extends Activity {
     private static final String TAG = "MusicActivity";
     private static final int SONGS_FRAGMENT = 0;
     private static final int ALBUMS_FRAGMENT = 1;
@@ -110,7 +110,7 @@ public class MusicActivity extends FragmentActivity {
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         // Set the FragmentManager's onBackStackChangedListener
-        final FragmentManager fm = getSupportFragmentManager();
+        final FragmentManager fm = getFragmentManager();
         fm.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
@@ -173,7 +173,7 @@ public class MusicActivity extends FragmentActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        FragmentManager fm = getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
 
         if (fm.getBackStackEntryCount() == 0) {
             return;
@@ -233,7 +233,7 @@ public class MusicActivity extends FragmentActivity {
         }
 
         // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.content_frame, fragment);
         Log.d(TAG, "Current Fragment: " + CURRENT_FRAGMENT);
@@ -254,7 +254,7 @@ public class MusicActivity extends FragmentActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        FragmentManager fm = getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
 
         if (fm.getBackStackEntryCount() == 0) {
             return;
