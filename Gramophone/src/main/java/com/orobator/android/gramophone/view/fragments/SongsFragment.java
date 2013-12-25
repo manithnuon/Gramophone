@@ -35,6 +35,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         // Create an adapter to point at this cursor
         SongCursorAdapter mAdapter = new SongCursorAdapter(getActivity().getApplicationContext(), library.getSongs());
         setListAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -51,16 +52,6 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
         // Initialize the loader to load the list of runs
         getLoaderManager().initLoader(0, null, this);
-
-//        Library library = Library.getLibrary(getActivity().getApplicationContext());
-
-//        long startTime = System.currentTimeMillis();
-//        mAdapter = new SongCursorAdapter(getActivity().getApplicationContext(), library.getSongs());
-//        setListAdapter(mAdapter);
-//        long endTime = System.currentTimeMillis();
-//        int songCount = mAdapter.getSize();
-//        double timeInSeconds = (endTime - startTime) / 1000.0;
-//        Log.i(TAG, "Loaded " + songCount + " songs in " + timeInSeconds + " seconds");
     }
 
     @Override
