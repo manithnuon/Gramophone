@@ -20,8 +20,6 @@ public class Library {
     private Context mAppContext;
     private SongDatabaseHelper mHelper;
 
-    // TODO Make your own songs table with an Album_Artist column
-
     private Library(Context appContext) {
         mAppContext = appContext;
         sMetadataRetriever = new MediaMetadataRetriever();
@@ -75,47 +73,6 @@ public class Library {
     public SongDatabaseHelper.AlbumCursor getAlbums() {
         return mHelper.queryAlbums();
     }
-
-//    public ArrayList<Album> getAlbums() {
-//        if (sAlbums != null) {
-//            return sAlbums;
-//        }
-//
-//        sAlbums = new ArrayList<Album>();
-//
-//        final StringBuilder mSelection = new StringBuilder();
-//        mSelection.append(AudioColumns.IS_MUSIC + "=1 AND ");
-//        mSelection.append(AudioColumns.ALBUM + " != ''");
-//        String mProjection[] =
-//                {
-//                        MediaStore.Audio.AlbumColumns.ALBUM,
-//                        MediaStore.Audio.AlbumColumns.ARTIST
-//                };
-//        Cursor mCursor = mAppContext
-//                .getContentResolver()
-//                .query(
-//                        Media.EXTERNAL_CONTENT_URI,
-//                        mProjection,
-//                        mSelection.toString(),
-//                        null,
-//                        AudioColumns.ALBUM_KEY
-//                );
-//
-//        Log.d(TAG, "Found " + mCursor.getCount() + " albums");
-//        mCursor.moveToNext();
-//        while (!mCursor.isAfterLast()) {
-//            Album album = new Album();
-//            album.setAlbumName(mCursor.getString(0));
-//            album.setAlbumArtist(mCursor.getString(1));
-//            if (!sAlbums.contains(album)) {
-//                sAlbums.add(album);
-//            }
-//            mCursor.moveToNext();
-//        }
-//        mCursor.close();
-//
-//        return sAlbums;
-//    }
 
     public ArrayList<Artist> getArtists(String genre) {
         ArrayList<Artist> artists = new ArrayList<Artist>();
