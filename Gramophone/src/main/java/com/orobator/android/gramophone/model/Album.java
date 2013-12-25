@@ -31,4 +31,12 @@ public class Album {
                 && other.getAlbumName().equals(mAlbumName);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash += mAlbumName.hashCode();
+        hash += mAlbumArtist.hashCode();
+        return hash;
+    }
+
 }

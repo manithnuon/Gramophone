@@ -27,13 +27,13 @@ public class SongsFragment extends ListFragment {
 
         Library library = Library.getLibrary(getActivity().getApplicationContext());
 
-//        long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         mAdapter = new SongCursorAdapter(getActivity().getApplicationContext(), library.getSongs());
         setListAdapter(mAdapter);
-//        long endTime = System.currentTimeMillis();
-//        int songCount = mAdapter.getSize();
-//        double timeInSeconds = (endTime - startTime) / 1000.0;
-//        Log.i(TAG, "Loaded " + songCount + " songs in " + timeInSeconds + " seconds");
+        long endTime = System.currentTimeMillis();
+        int songCount = mAdapter.getSize();
+        double timeInSeconds = (endTime - startTime) / 1000.0;
+        Log.i(TAG, "Loaded " + songCount + " songs in " + timeInSeconds + " seconds");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class SongsFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
 
-        Song song = (Song) getListAdapter().getItem(position);
+        Song song = (Song) mAdapter.getItem(position);
 
         Intent intent = new Intent(getActivity(), SongMetadataActivity.class);
         intent.putExtra(SongCursorAdapter.KEY_SONG, song);

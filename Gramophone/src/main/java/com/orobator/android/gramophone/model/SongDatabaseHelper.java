@@ -12,7 +12,10 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.util.Log;
 
+import com.orobator.android.gramophone.model.LibraryContract.AlbumEntry;
 import com.orobator.android.gramophone.model.LibraryContract.SongEntry;
+
+import java.util.HashSet;
 
 public class SongDatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "SongDatabaseHelper";
@@ -22,7 +25,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
     private static final String INT_TYPE = " INT";
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
-    private static final String SQL_CREATE_ENTRIES =
+    private static final String SQL_CREATE_SONG_ENTRIES =
             "CREATE TABLE " + SongEntry.TABLE_NAME + " (" +
                     SongEntry._ID + " INTEGER PRIMARY KEY," +
                     SongEntry.COLUMN_NAME_ALBUM + TEXT_TYPE + COMMA_SEP +
@@ -49,6 +52,11 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                     SongEntry.COLUMN_NAME_TRACK_NUMBER + INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_TRACK_TOTAL + INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_YEAR + INT_TYPE + ")";
+    private static final String SQL_CREATE_ALBUM_ENTRIES =
+            "CREATE TABLE " + AlbumEntry.TABLE_NAME + " (" +
+                    AlbumEntry._ID + " INTEGER PRIMARY KEY," +
+                    AlbumEntry.COLUM_NAME_ALBUM_NAME + TEXT_TYPE + COMMA_SEP +
+                    AlbumEntry.COLUMN_NAME_ALBUM_ARTIST + TEXT_TYPE + ")";
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + LibraryContract.SongEntry.TABLE_NAME;
     private Context sContext;
@@ -72,23 +80,29 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return new SongCursor(wrapped);
     }
 
-//    public AlbumCursor queryAlbums() {
-//        String tableName = SongEntry.TABLE_NAME;
-//        String columns[] =
-//                {
-//                        SongEntry.COLUMN_NAME_ALBUM,
-//                        SongEntry.COLUMN_NAME_ALBUM_ARTIST,
-//                };
-//        String selection = null;
-//
-//
-//    }
+    public AlbumCursor queryAlbums() {
+        Cursor wrapped = getReadableDatabase()
+                .query(
+                        AlbumEntry.TABLE_NAME,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        AlbumEntry.COLUM_NAME_ALBUM_NAME + " asc");
+        return new AlbumCursor(wrapped);
+
+
+    }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         long startTime = System.currentTimeMillis();
         // Create the "song" table
-        db.execSQL(SQL_CREATE_ENTRIES);
+        db.execSQL(SQL_CREATE_SONG_ENTRIES);
+        db.execSQL(SQL_CREATE_ALBUM_ENTRIES);
+
+        HashSet<Album> albumSet = new HashSet<Album>();
 
         // Populate
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -122,8 +136,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         mCursor.moveToNext();
         Log.i(TAG, "Found " + mCursor.getCount() + " songs");
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-
-        int count = 0;
 
         while (!mCursor.isAfterLast()) {
             retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
@@ -191,9 +203,23 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             }
             cv.put(SongEntry.COLUMN_NAME_YEAR, year);
             db.insert(SongEntry.TABLE_NAME, null, cv);
+
+            Album album = new Album();
+            album.setAlbumName(mCursor.getString(mCursor.getColumnIndex(AudioColumns.ALBUM)));
+            String albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
+            if (albumArtist == null || "".equals(albumArtist)) {
+                albumArtist = mCursor.getString(mCursor.getColumnIndex(AudioColumns.ARTIST));
+            }
+            album.setAlbumArtist(albumArtist);
+            if (!albumSet.contains(album)) {
+                albumSet.add(album);
+                ContentValues values = new ContentValues();
+                values.put(AlbumEntry.COLUM_NAME_ALBUM_NAME, album.getAlbumName());
+                values.put(AlbumEntry.COLUMN_NAME_ALBUM_ARTIST, albumArtist);
+                db.insert(AlbumEntry.TABLE_NAME, null, values);
+            }
+            Log.i(TAG, "Processed " + mCursor.getPosition() + " songs");
             mCursor.moveToNext();
-            count++;
-            Log.i(TAG, "Finished " + count + " songs");
         }
 
         retriever.release();
@@ -340,6 +366,22 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             song.setYear(year);
 
             return song;
+        }
+    }
+
+    public static class AlbumCursor extends CursorWrapper {
+        public AlbumCursor(Cursor cursor) {
+            super(cursor);
+        }
+
+        public Album getAlbum() {
+            if (isBeforeFirst() || isAfterLast()) {
+                return null;
+            }
+            Album album = new Album();
+            album.setAlbumName(getString(getColumnIndex(AlbumEntry.COLUM_NAME_ALBUM_NAME)));
+            album.setAlbumArtist(getString(getColumnIndex(AlbumEntry.COLUMN_NAME_ALBUM_ARTIST)));
+            return album;
         }
     }
 

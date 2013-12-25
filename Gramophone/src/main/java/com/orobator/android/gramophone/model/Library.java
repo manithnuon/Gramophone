@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 public class Library {
     private static final String TAG = "Library";
-    private static ArrayList<Song> sSongs;
     private static ArrayList<Album> sAlbums;
     private static ArrayList<Artist> sArtists;
     private static ArrayList<String> sGenres;
@@ -73,46 +72,50 @@ public class Library {
 
     }
 
-    public ArrayList<Album> getAlbums() {
-        if (sAlbums != null) {
-            return sAlbums;
-        }
-
-        sAlbums = new ArrayList<Album>();
-
-        final StringBuilder mSelection = new StringBuilder();
-        mSelection.append(AudioColumns.IS_MUSIC + "=1 AND ");
-        mSelection.append(AudioColumns.ALBUM + " != ''");
-        String mProjection[] =
-                {
-                        MediaStore.Audio.AlbumColumns.ALBUM,
-                        MediaStore.Audio.AlbumColumns.ARTIST
-                };
-        Cursor mCursor = mAppContext
-                .getContentResolver()
-                .query(
-                        Media.EXTERNAL_CONTENT_URI,
-                        mProjection,
-                        mSelection.toString(),
-                        null,
-                        AudioColumns.ALBUM_KEY
-                );
-
-        Log.d(TAG, "Found " + mCursor.getCount() + " albums");
-        mCursor.moveToNext();
-        while (!mCursor.isAfterLast()) {
-            Album album = new Album();
-            album.setAlbumName(mCursor.getString(0));
-            album.setAlbumArtist(mCursor.getString(1));
-            if (!sAlbums.contains(album)) {
-                sAlbums.add(album);
-            }
-            mCursor.moveToNext();
-        }
-        mCursor.close();
-
-        return sAlbums;
+    public SongDatabaseHelper.AlbumCursor getAlbums() {
+        return mHelper.queryAlbums();
     }
+
+//    public ArrayList<Album> getAlbums() {
+//        if (sAlbums != null) {
+//            return sAlbums;
+//        }
+//
+//        sAlbums = new ArrayList<Album>();
+//
+//        final StringBuilder mSelection = new StringBuilder();
+//        mSelection.append(AudioColumns.IS_MUSIC + "=1 AND ");
+//        mSelection.append(AudioColumns.ALBUM + " != ''");
+//        String mProjection[] =
+//                {
+//                        MediaStore.Audio.AlbumColumns.ALBUM,
+//                        MediaStore.Audio.AlbumColumns.ARTIST
+//                };
+//        Cursor mCursor = mAppContext
+//                .getContentResolver()
+//                .query(
+//                        Media.EXTERNAL_CONTENT_URI,
+//                        mProjection,
+//                        mSelection.toString(),
+//                        null,
+//                        AudioColumns.ALBUM_KEY
+//                );
+//
+//        Log.d(TAG, "Found " + mCursor.getCount() + " albums");
+//        mCursor.moveToNext();
+//        while (!mCursor.isAfterLast()) {
+//            Album album = new Album();
+//            album.setAlbumName(mCursor.getString(0));
+//            album.setAlbumArtist(mCursor.getString(1));
+//            if (!sAlbums.contains(album)) {
+//                sAlbums.add(album);
+//            }
+//            mCursor.moveToNext();
+//        }
+//        mCursor.close();
+//
+//        return sAlbums;
+//    }
 
     public ArrayList<Artist> getArtists(String genre) {
         ArrayList<Artist> artists = new ArrayList<Artist>();
@@ -388,63 +391,8 @@ public class Library {
     }
 
     public SongDatabaseHelper.SongCursor getSongs() {
-        SongDatabaseHelper helper = new SongDatabaseHelper(mAppContext);
-        return helper.querySongs();
+        return mHelper.querySongs();
     }
-
-//    public ArrayList<Song> getSongs() {
-//        if (sSongs != null) {
-//            return sSongs;
-//        }
-//
-//        sSongs = new ArrayList<Song>();
-//
-//        final StringBuilder mSelection = new StringBuilder();
-//        mSelection.append(AudioColumns.IS_MUSIC + "=1");
-//        mSelection.append(" AND " + AudioColumns.TITLE + " != ''");
-//        Cursor mCursor = mAppContext
-//                .getContentResolver()
-//                .query(
-//                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-//                        new String[]{AudioColumns.ALBUM,
-//                                AudioColumns.ARTIST,
-//                                AudioColumns.COMPOSER,
-//                                AudioColumns.DISPLAY_NAME,
-//                                AudioColumns.DATE_MODIFIED,
-//                                AudioColumns.DURATION,
-//                                AudioColumns.TITLE,
-//                                AudioColumns.TRACK,
-//                                AudioColumns.SIZE,
-//                                AudioColumns.YEAR},
-//                        mSelection.toString(), null, Media.DEFAULT_SORT_ORDER);
-//
-//        mCursor.moveToNext();
-//
-//        Log.i(TAG, "Found " + mCursor.getCount() + " songs");
-//        while (!mCursor.isAfterLast()) {
-//            Song song = new Song();
-//            song.setLocation(mCursor.getString(3));
-//            song.setAlbum(mCursor.getString(0));
-//            song.setArtist(mCursor.getString(1));
-//            song.setComposer(mCursor.getString(2));
-//            song.setDateModified(new Date(Long.parseLong(mCursor.getString(4))));
-//            song.setDuration(Long.parseLong(mCursor.getString(5)));
-//            song.setTitle(mCursor.getString(6));
-//            song.setSize(Long.parseLong(mCursor.getString(8)));
-//            String year = mCursor.getString(9);
-//            if (year != null) {
-//                song.setYear(Integer.parseInt(mCursor.getString(9)));
-//            } else {
-//                song.setYear(-1);
-//            }
-//            sSongs.add(song);
-//            mCursor.moveToNext();
-//        }
-//        mCursor.close();
-//
-//        return sSongs;
-//
-//    }
 
 
 }

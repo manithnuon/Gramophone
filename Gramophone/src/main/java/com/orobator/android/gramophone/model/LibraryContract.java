@@ -44,7 +44,12 @@ public final class LibraryContract {
         public static final String COLUMN_NAME_TRACK_NUMBER = "track_number";
         public static final String COLUMN_NAME_TRACK_TOTAL = "total_tracks";
         public static final String COLUMN_NAME_YEAR = "year";
+    }
 
+    public static abstract class AlbumEntry implements BaseColumns {
+        public static final String TABLE_NAME = "albums";
+        public static final String COLUM_NAME_ALBUM_NAME = "album_name";
+        public static final String COLUMN_NAME_ALBUM_ARTIST = "album_artist";
     }
 
 }
