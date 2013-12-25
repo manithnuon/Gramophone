@@ -284,8 +284,7 @@ public class MusicActivity extends FragmentActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         // If the nav drawer is open, hide action items related to the content view
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        menu.findItem(R.id.action_sort_by_artist).setVisible(!drawerOpen);
-        menu.findItem(R.id.action_sort_by_title).setVisible(!drawerOpen);
+//        menu.findItem(R.id.action_sort_by_artist).setVisible(!drawerOpen);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -305,14 +304,6 @@ public class MusicActivity extends FragmentActivity {
             case R.id.action_search:
                 Toast toast1 = Toast.makeText(this, "Search", Toast.LENGTH_SHORT);
                 toast1.show();
-                return true;
-            case R.id.action_sort_by_artist:
-                Toast toast2 = Toast.makeText(this, "Sort by Artist", Toast.LENGTH_SHORT);
-                toast2.show();
-                return true;
-            case R.id.action_sort_by_title:
-                Toast toast3 = Toast.makeText(this, "Sort by Title", Toast.LENGTH_SHORT);
-                toast3.show();
                 return true;
             case R.id.action_shuffle:
                 Toast toast4 = Toast.makeText(this, "Shuffle Songs", Toast.LENGTH_SHORT);
