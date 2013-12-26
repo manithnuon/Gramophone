@@ -8,13 +8,15 @@ import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 
+import com.orobator.android.gramophone.model.SongDatabaseHelper.AlbumCursor;
+import com.orobator.android.gramophone.model.SongDatabaseHelper.ArtistCursor;
+import com.orobator.android.gramophone.model.SongDatabaseHelper.GenreCursor;
+import com.orobator.android.gramophone.model.SongDatabaseHelper.SongCursor;
+
 import java.util.ArrayList;
 
 public class Library {
     private static final String TAG = "Library";
-    private static ArrayList<Album> sAlbums;
-    private static ArrayList<Artist> sArtists;
-    private static ArrayList<String> sGenres;
     private static Library sLibrary;
     private static MediaMetadataRetriever sMetadataRetriever;
     private Context mAppContext;
@@ -32,6 +34,23 @@ public class Library {
         }
         return sLibrary;
     }
+
+    public AlbumCursor getAlbums() {
+        return mHelper.queryAlbums();
+    }
+
+    public ArtistCursor getArtists() {
+        return mHelper.queryArtists();
+    }
+
+    public SongCursor getSongs() {
+        return mHelper.querySongs();
+    }
+
+    public GenreCursor getGenres() {
+        return mHelper.queryGenres();
+    }
+
 
     public ArrayList<Album> getAlbums(Artist artist) {
         ArrayList<Album> albums = new ArrayList<Album>();
@@ -70,9 +89,6 @@ public class Library {
 
     }
 
-    public SongDatabaseHelper.AlbumCursor getAlbums() {
-        return mHelper.queryAlbums();
-    }
 
     public ArrayList<Artist> getArtists(String genre) {
         ArrayList<Artist> artists = new ArrayList<Artist>();
@@ -108,70 +124,7 @@ public class Library {
 
     }
 
-    //    public ArrayList<Artist> getArtists() {
-//        if (sArtists != null) {
-//            return sArtists;
-//        }
-//
-//        sArtists = new ArrayList<Artist>();
-//
-//        final StringBuilder mSelection = new StringBuilder();
-//        mSelection.append(AudioColumns.IS_MUSIC + "=1");
-//        mSelection.append(" AND " + AudioColumns.ARTIST + " != ''");
-//        String mProjection[] = {AudioColumns.ARTIST};
-//        Cursor mCursor = mAppContext
-//                .getContentResolver()
-//                .query(
-//                        Media.EXTERNAL_CONTENT_URI,
-//                        mProjection,
-//                        mSelection.toString(),
-//                        null,
-//                        AudioColumns.ARTIST_KEY
-//                );
-//
-//        mCursor.moveToNext();
-//        while (!mCursor.isAfterLast()) {
-//            Artist artist = new Artist();
-//            artist.setName(mCursor.getString(0));
-//            if (!sArtists.contains(artist)) {
-//                sArtists.add(artist);
-//            }
-//            mCursor.moveToNext();
-//        }
-//        mCursor.close();
-//
-//        return sArtists;
-//
-//    }
-    public SongDatabaseHelper.ArtistCursor getArtists() {
-        return mHelper.queryArtists();
-    }
 
-    public ArrayList<String> getGenres() {
-        if (sGenres != null) {
-            return sGenres;
-        }
-
-        sGenres = new ArrayList<String>();
-        String mSelection = MediaStore.Audio.Genres.NAME + " != ''"; //TODO Why isn't this working???
-        Cursor mCursor = mAppContext
-                .getContentResolver()
-                .query(
-                        MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
-                        new String[]{MediaStore.Audio.Genres.NAME},
-                        mSelection,
-                        null,
-                        MediaStore.Audio.Genres.NAME);
-
-        mCursor.moveToNext();
-
-        while (!mCursor.isAfterLast()) {
-            sGenres.add(mCursor.getString(0));
-            mCursor.moveToNext();
-        }
-
-        return sGenres;
-    }
 
     public ArrayList<Song> getSongs(Album album) {
         ArrayList<Song> songs = new ArrayList<Song>();
@@ -348,10 +301,6 @@ public class Library {
         mCursor.close();
 
         return songs;
-    }
-
-    public SongDatabaseHelper.SongCursor getSongs() {
-        return mHelper.querySongs();
     }
 
 

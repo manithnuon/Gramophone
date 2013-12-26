@@ -57,4 +57,9 @@ public final class LibraryContract {
         public static final String COLUMN_NAME_ARTIST_NAME = "artist_name";
     }
 
+    public static abstract class GenreEntry implements BaseColumns {
+        public static final String TABLE_NAME = "genres";
+        public static final String COLUMN_NAME_GENRE_NAME = "genre_name";
+    }
+
 }
