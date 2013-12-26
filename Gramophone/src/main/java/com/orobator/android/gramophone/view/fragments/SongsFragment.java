@@ -15,7 +15,7 @@ import android.widget.ListView;
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Song;
 import com.orobator.android.gramophone.model.SongDatabaseHelper.SongCursor;
-import com.orobator.android.gramophone.model.loaders.SongsListCursorLoader;
+import com.orobator.android.gramophone.model.loaders.SongCursorLoader;
 import com.orobator.android.gramophone.view.activities.SongMetadataActivity;
 import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
@@ -24,7 +24,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new SongsListCursorLoader(getActivity(), id, args);
+        return new SongCursorLoader(getActivity(), id, args);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         setRetainInstance(true);
 
         // Initialize the loader to load the list of runs
-        getLoaderManager().initLoader(SongsListCursorLoader.ALL_SONGS_ID, null, this);
+        getLoaderManager().initLoader(SongCursorLoader.ALL_SONGS_ID, null, this);
     }
 
     @Override

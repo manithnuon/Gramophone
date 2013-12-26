@@ -103,6 +103,21 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return new AlbumCursor(wrapped);
     }
 
+    public AlbumCursor queryAlbumsForArtist(String artist) {
+        String selection = AlbumEntry.COLUMN_NAME_ALBUM_ARTIST + " =?";
+        String selectionArgs[] = {artist};
+        Cursor wrapped = getReadableDatabase()
+                .query(
+                        AlbumEntry.TABLE_NAME,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        AlbumEntry.COLUMN_NAME_ALBUM_NAME);
+        return new AlbumCursor(wrapped);
+    }
+
     public ArtistCursor queryArtists() {
         Cursor wrapped = getReadableDatabase()
                 .query(
@@ -405,10 +420,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                         selectionArgs,
                         null, null,
                         SongEntry.COLUMN_NAME_ALBUM + " asc");
-
-        Log.d(TAG, "Query songs for album: " + album.getAlbumName() + " - "
-                + album.getAlbumArtist() + " returned " + wrapped.getCount()
-                + " results");
 
         return new SongCursor(wrapped);
     }
