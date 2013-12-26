@@ -114,7 +114,7 @@ public class MusicActivity extends Activity {
         fm.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                Log.d(TAG, "Size of fragment back stack: " + fm.getBackStackEntryCount());
+                Log.i(TAG, "Size of fragment back stack: " + fm.getBackStackEntryCount());
                 if (fm.getBackStackEntryCount() == 0) {
                     setTitle("Songs");
                     mDrawerList.setItemChecked(SONGS_FRAGMENT, true);
@@ -126,7 +126,7 @@ public class MusicActivity extends Activity {
                 FragmentManager.BackStackEntry topEntry = fm.getBackStackEntryAt(top);
                 String topName = topEntry.getName();
 
-                Log.d(TAG, "Name of top back stack entry: " + topName);
+                Log.i(TAG, "Name of top back stack entry: " + topName);
 
                 switch (topName) {
                     case "com.orobator.android.gramophone.Songs":
@@ -236,7 +236,7 @@ public class MusicActivity extends Activity {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.content_frame, fragment);
-        Log.d(TAG, "Current Fragment: " + CURRENT_FRAGMENT);
+        Log.i(TAG, "Current Fragment: " + CURRENT_FRAGMENT);
         if (oldCURRENT_FRAGMENT != -1) {
             transaction.addToBackStack(fragmentName);
         }

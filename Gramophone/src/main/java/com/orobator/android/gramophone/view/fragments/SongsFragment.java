@@ -2,7 +2,6 @@ package com.orobator.android.gramophone.view.fragments;
 
 import android.app.ListFragment;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -14,10 +13,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.orobator.android.gramophone.R;
-import com.orobator.android.gramophone.model.Library;
 import com.orobator.android.gramophone.model.Song;
-import com.orobator.android.gramophone.model.SongDatabaseHelper;
-import com.orobator.android.gramophone.model.loaders.SQLiteCursorLoader;
+import com.orobator.android.gramophone.model.SongDatabaseHelper.SongCursor;
+import com.orobator.android.gramophone.model.loaders.SongsListCursorLoader;
 import com.orobator.android.gramophone.view.activities.SongMetadataActivity;
 import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
@@ -26,14 +24,12 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new SongsListCursorLoader(getActivity());
+        return new SongsListCursorLoader(getActivity(), id, args);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Library library = Library.getLibrary(getActivity().getApplicationContext());
-        // Create an adapter to point at this cursor
-        SongCursorAdapter mAdapter = new SongCursorAdapter(getActivity().getApplicationContext(), library.getSongs());
+        SongCursorAdapter mAdapter = new SongCursorAdapter(getActivity().getApplicationContext(), (SongCursor) cursor);
         setListAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
     }
@@ -51,7 +47,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         setRetainInstance(true);
 
         // Initialize the loader to load the list of runs
-        getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(SongsListCursorLoader.ALL_SONGS_ID, null, this);
     }
 
     @Override
@@ -70,18 +66,6 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         intent.putExtra(SongCursorAdapter.KEY_SONG, song);
 
         startActivity(intent);
-    }
-
-    private static class SongsListCursorLoader extends SQLiteCursorLoader {
-
-        public SongsListCursorLoader(Context context) {
-            super(context);
-        }
-
-        @Override
-        protected Cursor loadCursor() {
-            return new SongDatabaseHelper(getContext()).querySongs();
-        }
     }
 
 }

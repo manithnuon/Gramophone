@@ -1,23 +1,22 @@
 package com.orobator.android.gramophone.model;
 
 public class Album {
+    public static final String KEY_ALBUM_NAME = "album name";
+    public static final String KEY_ALBUM_ARTIST = "album artist";
     private String mAlbumName;
     private String mAlbumArtist;
+
+    public Album(String albumName, String albumArtist) {
+        mAlbumName = albumName;
+        mAlbumArtist = albumArtist;
+    }
 
     public String getAlbumName() {
         return mAlbumName;
     }
 
-    public void setAlbumName(String albumName) {
-        mAlbumName = albumName;
-    }
-
     public String getAlbumArtist() {
         return mAlbumArtist;
-    }
-
-    public void setAlbumArtist(String albumArtist) {
-        mAlbumArtist = albumArtist;
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.orobator.android.gramophone.model;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.Audio.Media;
@@ -18,13 +17,11 @@ import java.util.ArrayList;
 public class Library {
     private static final String TAG = "Library";
     private static Library sLibrary;
-    private static MediaMetadataRetriever sMetadataRetriever;
     private Context mAppContext;
     private SongDatabaseHelper mHelper;
 
     private Library(Context appContext) {
         mAppContext = appContext;
-        sMetadataRetriever = new MediaMetadataRetriever();
         mHelper = new SongDatabaseHelper(mAppContext);
     }
 
@@ -47,10 +44,13 @@ public class Library {
         return mHelper.querySongs();
     }
 
+    public SongCursor getSongsForAlbum(Album album) {
+        return mHelper.querySongsForAlbum(album);
+    }
+
     public GenreCursor getGenres() {
         return mHelper.queryGenres();
     }
-
 
     public ArrayList<Album> getAlbums(Artist artist) {
         ArrayList<Album> albums = new ArrayList<Album>();
@@ -75,9 +75,7 @@ public class Library {
         Log.d(TAG, "Found " + mCursor.getCount() + " albums");
         mCursor.moveToNext();
         while (!mCursor.isAfterLast()) {
-            Album album = new Album();
-            album.setAlbumName(mCursor.getString(0));
-            album.setAlbumArtist(artist.getName());
+            Album album = new Album(mCursor.getString(0), artist.getName());
             if (!albums.contains(album)) {
                 albums.add(album);
             }
@@ -88,7 +86,6 @@ public class Library {
         return albums;
 
     }
-
 
     public ArrayList<Artist> getArtists(String genre) {
         ArrayList<Artist> artists = new ArrayList<Artist>();
@@ -123,8 +120,6 @@ public class Library {
         return artists;
 
     }
-
-
 
     public ArrayList<Song> getSongs(Album album) {
         ArrayList<Song> songs = new ArrayList<Song>();

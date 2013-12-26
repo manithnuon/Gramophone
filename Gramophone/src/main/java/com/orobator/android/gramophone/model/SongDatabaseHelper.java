@@ -163,71 +163,35 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Implement schema changes and data massage here when upgrading
-    }
+    public int createGenres(SQLiteDatabase db) {
+        Uri uri = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
+        String projection[] = {MediaStore.Audio.Genres.NAME};
+        String selection = MediaStore.Audio.Genres.NAME + " != ''";
+        String sortOrder = MediaStore.Audio.Genres.NAME + " asc";
 
-    public int createAlbums(SQLiteDatabase db) {
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String mProjection[] =
-                {
-                        AudioColumns.ARTIST,
-                        AudioColumns.DATA
-                };
-
-        String mSelection = AudioColumns.IS_MUSIC + "=1 AND "
-                + AudioColumns.ALBUM + " != ''";
-
-        Cursor mCursor = sContext
+        Cursor cursor = sContext
                 .getContentResolver()
-                .query(
-                        uri,
-                        mProjection,
-                        mSelection,
-                        null,
-                        AudioColumns.ALBUM_KEY
-                );
+                .query(uri, projection, selection, null, sortOrder);
 
-        mCursor.moveToFirst();
-        Log.i(TAG, "Found " + mCursor.getCount() + " albums");
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        cursor.moveToNext();
 
-        HashSet<Album> albumSet = new HashSet<Album>();
+        HashSet<String> genres = new HashSet<String>();
 
-        while (!mCursor.isAfterLast()) {
-            retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
+        while (!cursor.isAfterLast()) {
+            String genre = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres.NAME));
 
-            Album album = new Album();
-            String albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
-
-            if (albumArtist == null) {
-                String songArtist = mCursor.getString(mCursor.getColumnIndex(AudioColumns.ARTIST));
-                album.setAlbumArtist(songArtist);
-            } else {
-                album.setAlbumArtist(albumArtist);
-            }
-            String albumName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-            if (albumName == null || "".equals(albumName)) {
-                albumName = "<unknown>";
-            }
-            album.setAlbumName(albumName);
-
-            if (!albumSet.contains(album)
-                    && !album.getAlbumName().equals("<unknown>")) {
-                albumSet.add(album);
+            if (!genres.contains(genre) && !"".equals(genre)) {
+                genres.add(genre);
                 ContentValues values = new ContentValues();
-                values.put(AlbumEntry.COLUMN_NAME_ALBUM_ARTIST, album.getAlbumArtist());
-                values.put(AlbumEntry.COLUMN_NAME_ALBUM_NAME, album.getAlbumName());
-                db.insert(AlbumEntry.TABLE_NAME, null, values);
-                Log.i(TAG, "Processed " + albumSet.size() + " albums");
+                values.put(GenreEntry.COLUMN_NAME_GENRE_NAME, genre);
+                db.insert(GenreEntry.TABLE_NAME, null, values);
+                Log.i(TAG, "Created " + genres.size() + " genres");
             }
 
-            mCursor.moveToNext();
+            cursor.moveToNext();
         }
-        int count = mCursor.getCount();
-        mCursor.close();
-        return count;
+
+        return genres.size();
     }
 
     public int createSongsAndArtists(SQLiteDatabase db) {
@@ -274,10 +238,15 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             }
 
             cv.put(SongEntry.COLUMN_NAME_ALBUM, albumName);
-            cv.put(SongEntry.COLUMN_NAME_ALBUM_ARTIST, retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST));
 
+            String albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
             String artistName = mCursor.getString(mCursor.getColumnIndex(AudioColumns.ARTIST));
 
+            if (albumArtist == null) {
+                albumArtist = artistName;
+            }
+
+            cv.put(SongEntry.COLUMN_NAME_ALBUM_ARTIST, albumArtist);
             cv.put(SongEntry.COLUMN_NAME_ARTIST, artistName);
             cv.put(SongEntry.COLUMN_NAME_BIT_RATE, Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)));
             cv.put(SongEntry.COLUMN_NAME_COMPOSER, mCursor.getString(mCursor.getColumnIndex(AudioColumns.COMPOSER)));
@@ -358,35 +327,90 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public int createGenres(SQLiteDatabase db) {
-        Uri uri = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
-        String projection[] = {MediaStore.Audio.Genres.NAME};
-        String selection = MediaStore.Audio.Genres.NAME + " != ''";
-        String sortOrder = MediaStore.Audio.Genres.NAME + " asc";
+    public int createAlbums(SQLiteDatabase db) {
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String mProjection[] =
+                {
+                        AudioColumns.ARTIST,
+                        AudioColumns.DATA
+                };
 
-        Cursor cursor = sContext
+        String mSelection = AudioColumns.IS_MUSIC + "=1 AND "
+                + AudioColumns.ALBUM + " != ''";
+
+        Cursor mCursor = sContext
                 .getContentResolver()
-                .query(uri, projection, selection, null, sortOrder);
+                .query(
+                        uri,
+                        mProjection,
+                        mSelection,
+                        null,
+                        AudioColumns.ALBUM_KEY
+                );
 
-        cursor.moveToNext();
+        mCursor.moveToFirst();
+        Log.i(TAG, "Found " + mCursor.getCount() + " albums");
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 
-        HashSet<String> genres = new HashSet<String>();
+        HashSet<Album> albumSet = new HashSet<Album>();
 
-        while (!cursor.isAfterLast()) {
-            String genre = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres.NAME));
+        while (!mCursor.isAfterLast()) {
+            retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
 
-            if (!genres.contains(genre) && !"".equals(genre)) {
-                genres.add(genre);
-                ContentValues values = new ContentValues();
-                values.put(GenreEntry.COLUMN_NAME_GENRE_NAME, genre);
-                db.insert(GenreEntry.TABLE_NAME, null, values);
-                Log.i(TAG, "Created " + genres.size() + " genres");
+            String albumName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+            if (albumName == null || "".equals(albumName)) {
+                albumName = "<unknown>";
             }
 
-            cursor.moveToNext();
-        }
+            String albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
+            if (albumArtist == null) {
+                String songArtist = mCursor.getString(mCursor.getColumnIndex(AudioColumns.ARTIST));
+                albumArtist = songArtist;
+            }
 
-        return genres.size();
+            Album album = new Album(albumName, albumArtist);
+
+            if (!albumSet.contains(album)
+                    && !album.getAlbumName().equals("<unknown>")) {
+                albumSet.add(album);
+                ContentValues values = new ContentValues();
+                values.put(AlbumEntry.COLUMN_NAME_ALBUM_ARTIST, album.getAlbumArtist());
+                values.put(AlbumEntry.COLUMN_NAME_ALBUM_NAME, album.getAlbumName());
+                db.insert(AlbumEntry.TABLE_NAME, null, values);
+                Log.i(TAG, "Processed " + albumSet.size() + " albums");
+            }
+
+            mCursor.moveToNext();
+        }
+        int count = mCursor.getCount();
+        mCursor.close();
+        return count;
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Implement schema changes and data massage here when upgrading
+    }
+
+    public SongCursor querySongsForAlbum(Album album) {
+        String selection =
+                SongEntry.COLUMN_NAME_ALBUM + " =? AND "
+                        + SongEntry.COLUMN_NAME_ALBUM_ARTIST + " =?";
+        String selectionArgs[] = {album.getAlbumName(), album.getAlbumArtist()};
+        Cursor wrapped = getReadableDatabase()
+                .query(
+                        SongEntry.TABLE_NAME,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null, null,
+                        SongEntry.COLUMN_NAME_ALBUM + " asc");
+
+        Log.d(TAG, "Query songs for album: " + album.getAlbumName() + " - "
+                + album.getAlbumArtist() + " returned " + wrapped.getCount()
+                + " results");
+
+        return new SongCursor(wrapped);
     }
 
     /**
@@ -499,10 +523,9 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             if (isBeforeFirst() || isAfterLast()) {
                 return null;
             }
-            Album album = new Album();
-            album.setAlbumName(getString(getColumnIndex(AlbumEntry.COLUMN_NAME_ALBUM_NAME)));
-            album.setAlbumArtist(getString(getColumnIndex(AlbumEntry.COLUMN_NAME_ALBUM_ARTIST)));
-            return album;
+            String albumName = getString(getColumnIndex(AlbumEntry.COLUMN_NAME_ALBUM_NAME));
+            String albumArtist = getString(getColumnIndex(AlbumEntry.COLUMN_NAME_ALBUM_ARTIST));
+            return new Album(albumName, albumArtist);
         }
     }
 
