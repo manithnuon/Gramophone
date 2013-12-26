@@ -8,10 +8,10 @@ import android.provider.BaseColumns;
  */
 public final class LibraryContract {
 
-
-
-    // To prevent someone from accidentally instantiating the contract class,
-    // give it an empty constructor.
+    /**
+     * LibraryContract has an empty constructor to avoid accidental
+     * instantiation.
+     */
     public LibraryContract() {
     }
 
@@ -48,8 +48,13 @@ public final class LibraryContract {
 
     public static abstract class AlbumEntry implements BaseColumns {
         public static final String TABLE_NAME = "albums";
-        public static final String COLUM_NAME_ALBUM_NAME = "album_name";
+        public static final String COLUMN_NAME_ALBUM_NAME = "album_name";
         public static final String COLUMN_NAME_ALBUM_ARTIST = "album_artist";
+    }
+
+    public static abstract class ArtistEntry implements BaseColumns {
+        public static final String TABLE_NAME = "artists";
+        public static final String COLUMN_NAME_ARTIST_NAME = "artist_name";
     }
 
 }

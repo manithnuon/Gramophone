@@ -108,40 +108,43 @@ public class Library {
 
     }
 
-    public ArrayList<Artist> getArtists() {
-        if (sArtists != null) {
-            return sArtists;
-        }
-
-        sArtists = new ArrayList<Artist>();
-
-        final StringBuilder mSelection = new StringBuilder();
-        mSelection.append(AudioColumns.IS_MUSIC + "=1");
-        mSelection.append(" AND " + AudioColumns.ARTIST + " != ''");
-        String mProjection[] = {AudioColumns.ARTIST};
-        Cursor mCursor = mAppContext
-                .getContentResolver()
-                .query(
-                        Media.EXTERNAL_CONTENT_URI,
-                        mProjection,
-                        mSelection.toString(),
-                        null,
-                        AudioColumns.ARTIST_KEY
-                );
-
-        mCursor.moveToNext();
-        while (!mCursor.isAfterLast()) {
-            Artist artist = new Artist();
-            artist.setName(mCursor.getString(0));
-            if (!sArtists.contains(artist)) {
-                sArtists.add(artist);
-            }
-            mCursor.moveToNext();
-        }
-        mCursor.close();
-
-        return sArtists;
-
+    //    public ArrayList<Artist> getArtists() {
+//        if (sArtists != null) {
+//            return sArtists;
+//        }
+//
+//        sArtists = new ArrayList<Artist>();
+//
+//        final StringBuilder mSelection = new StringBuilder();
+//        mSelection.append(AudioColumns.IS_MUSIC + "=1");
+//        mSelection.append(" AND " + AudioColumns.ARTIST + " != ''");
+//        String mProjection[] = {AudioColumns.ARTIST};
+//        Cursor mCursor = mAppContext
+//                .getContentResolver()
+//                .query(
+//                        Media.EXTERNAL_CONTENT_URI,
+//                        mProjection,
+//                        mSelection.toString(),
+//                        null,
+//                        AudioColumns.ARTIST_KEY
+//                );
+//
+//        mCursor.moveToNext();
+//        while (!mCursor.isAfterLast()) {
+//            Artist artist = new Artist();
+//            artist.setName(mCursor.getString(0));
+//            if (!sArtists.contains(artist)) {
+//                sArtists.add(artist);
+//            }
+//            mCursor.moveToNext();
+//        }
+//        mCursor.close();
+//
+//        return sArtists;
+//
+//    }
+    public SongDatabaseHelper.ArtistCursor getArtists() {
+        return mHelper.queryArtists();
     }
 
     public ArrayList<String> getGenres() {

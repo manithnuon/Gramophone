@@ -13,6 +13,7 @@ import android.provider.MediaStore.Audio.AudioColumns;
 import android.util.Log;
 
 import com.orobator.android.gramophone.model.LibraryContract.AlbumEntry;
+import com.orobator.android.gramophone.model.LibraryContract.ArtistEntry;
 import com.orobator.android.gramophone.model.LibraryContract.SongEntry;
 
 import java.util.HashSet;
@@ -55,10 +56,14 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ALBUM_ENTRIES =
             "CREATE TABLE " + AlbumEntry.TABLE_NAME + " (" +
                     AlbumEntry._ID + " INTEGER PRIMARY KEY," +
-                    AlbumEntry.COLUM_NAME_ALBUM_NAME + TEXT_TYPE + COMMA_SEP +
+                    AlbumEntry.COLUMN_NAME_ALBUM_NAME + TEXT_TYPE + COMMA_SEP +
                     AlbumEntry.COLUMN_NAME_ALBUM_ARTIST + TEXT_TYPE + ")";
-    private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + LibraryContract.SongEntry.TABLE_NAME;
+    private static final String SQL_CREATE_ARTIST_ENTRIES =
+            "CREATE TABLE " + ArtistEntry.TABLE_NAME + " (" +
+                    ArtistEntry._ID + " INTEGER PRIMARY KEY," +
+                    ArtistEntry.COLUMN_NAME_ARTIST_NAME + TEXT_TYPE + ")";
+    private static final String SQL_DELETE_SONG_ENTRIES =
+            "DROP TABLE IF EXISTS " + SongEntry.TABLE_NAME;
     private Context sContext;
 
     public SongDatabaseHelper(Context context) {
@@ -89,21 +94,33 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                         null,
                         null,
                         null,
-                        AlbumEntry.COLUM_NAME_ALBUM_NAME + " asc");
+                        AlbumEntry.COLUMN_NAME_ALBUM_NAME + " asc");
         return new AlbumCursor(wrapped);
-
-
     }
+
+    public ArtistCursor queryArtists() {
+        Cursor wrapped = getReadableDatabase()
+                .query(
+                        ArtistEntry.TABLE_NAME,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ArtistEntry.COLUMN_NAME_ARTIST_NAME + " asc");
+        return new ArtistCursor(wrapped);
+    }
+
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_SONG_ENTRIES);
         db.execSQL(SQL_CREATE_ALBUM_ENTRIES);
-
+        db.execSQL(SQL_CREATE_ARTIST_ENTRIES);
 
         // Populate
         long startTime = System.currentTimeMillis();
-        int songCount = createSongs(db);
+        int songCount = createSongsAndArtists(db);
 
         long endTime = System.currentTimeMillis();
         double duration1 = (endTime - startTime) / 1000.0;
@@ -121,7 +138,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public int createSongs(SQLiteDatabase db) {
+    public int createSongsAndArtists(SQLiteDatabase db) {
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String mProjection[] =
                 {
@@ -153,6 +170,8 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         Log.i(TAG, "Found " + mCursor.getCount() + " songs");
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 
+        HashSet<String> artistSet = new HashSet<String>();
+
         while (!mCursor.isAfterLast()) {
             retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
             ContentValues cv = new ContentValues();
@@ -164,7 +183,10 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
 
             cv.put(SongEntry.COLUMN_NAME_ALBUM, albumName);
             cv.put(SongEntry.COLUMN_NAME_ALBUM_ARTIST, retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST));
-            cv.put(SongEntry.COLUMN_NAME_ARTIST, mCursor.getString(mCursor.getColumnIndex(AudioColumns.ARTIST)));
+
+            String artistName = mCursor.getString(mCursor.getColumnIndex(AudioColumns.ARTIST));
+
+            cv.put(SongEntry.COLUMN_NAME_ARTIST, artistName);
             cv.put(SongEntry.COLUMN_NAME_BIT_RATE, Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)));
             cv.put(SongEntry.COLUMN_NAME_COMPOSER, mCursor.getString(mCursor.getColumnIndex(AudioColumns.COMPOSER)));
             cv.put(SongEntry.COLUMN_NAME_DATE_MODIFIED, mCursor.getLong(mCursor.getColumnIndex(AudioColumns.DATE_MODIFIED))); // seconds since 1970 (type long)
@@ -226,6 +248,14 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             cv.put(SongEntry.COLUMN_NAME_YEAR, year);
             db.insert(SongEntry.TABLE_NAME, null, cv);
 
+            if (!artistSet.contains(artistName)) {
+                artistSet.add(artistName);
+                ContentValues values = new ContentValues();
+                values.put(ArtistEntry.COLUMN_NAME_ARTIST_NAME, artistName);
+                db.insert(ArtistEntry.TABLE_NAME, null, values);
+            }
+
+
             Log.i(TAG, "Processed " + mCursor.getPosition() + " songs");
             mCursor.moveToNext();
         }
@@ -286,7 +316,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                 albumSet.add(album);
                 ContentValues values = new ContentValues();
                 values.put(AlbumEntry.COLUMN_NAME_ALBUM_ARTIST, album.getAlbumArtist());
-                values.put(AlbumEntry.COLUM_NAME_ALBUM_NAME, album.getAlbumName());
+                values.put(AlbumEntry.COLUMN_NAME_ALBUM_NAME, album.getAlbumName());
                 db.insert(AlbumEntry.TABLE_NAME, null, values);
                 Log.i(TAG, "Processed " + albumSet.size() + " albums");
             }
@@ -414,9 +444,22 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                 return null;
             }
             Album album = new Album();
-            album.setAlbumName(getString(getColumnIndex(AlbumEntry.COLUM_NAME_ALBUM_NAME)));
+            album.setAlbumName(getString(getColumnIndex(AlbumEntry.COLUMN_NAME_ALBUM_NAME)));
             album.setAlbumArtist(getString(getColumnIndex(AlbumEntry.COLUMN_NAME_ALBUM_ARTIST)));
             return album;
+        }
+    }
+
+    public static class ArtistCursor extends CursorWrapper {
+        public ArtistCursor(Cursor cursor) {
+            super(cursor);
+        }
+
+        public String getArtist() {
+            if (isBeforeFirst() || isAfterLast()) {
+                return null;
+            }
+            return getString(getColumnIndex(ArtistEntry.COLUMN_NAME_ARTIST_NAME));
         }
     }
 
