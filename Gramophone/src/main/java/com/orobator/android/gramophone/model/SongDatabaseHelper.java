@@ -90,6 +90,21 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return new SongCursor(wrapped);
     }
 
+    public SongCursor querySongsForGenre(String genre) {
+        String selection = SongEntry.COLUMN_NAME_GENRE + " =?";
+        String selectionArgs[] = {genre};
+        Cursor wrapped = getReadableDatabase()
+                .query(
+                        SongEntry.TABLE_NAME,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        SongEntry.COLUMN_NAME_TITLE + " asc");
+        return new SongCursor(wrapped);
+    }
+
     public AlbumCursor queryAlbums() {
         Cursor wrapped = getReadableDatabase()
                 .query(

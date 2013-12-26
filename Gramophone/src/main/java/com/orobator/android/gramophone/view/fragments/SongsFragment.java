@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import com.orobator.android.gramophone.R;
@@ -29,9 +30,10 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        SongCursorAdapter mAdapter = new SongCursorAdapter(getActivity().getApplicationContext(), (SongCursor) cursor);
-        setListAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
+        SongCursor songCursor = (SongCursor) cursor;
+        SongCursorAdapter adapter = new SongCursorAdapter(getActivity().getApplicationContext(), songCursor);
+        setListAdapter(adapter);
+//        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -66,6 +68,18 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         intent.putExtra(SongCursorAdapter.KEY_SONG, song);
 
         startActivity(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        CursorAdapter cursorAdapter = (CursorAdapter) getListAdapter();
+        Cursor cursor = cursorAdapter.getCursor();
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        super.onDestroy();
     }
 
 }
