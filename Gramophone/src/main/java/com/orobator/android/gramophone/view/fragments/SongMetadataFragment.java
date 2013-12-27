@@ -12,9 +12,11 @@ import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Song;
 import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
+/**
+ * This fragment displays metadata for a selected song.
+ */
 public class SongMetadataFragment extends Fragment {
     private static final String TAG = "SongMetadataFragment";
-
     private TextView mAlbumTextView;
     private TextView mAlbumArtistTextView;
     private TextView mArtistTextView;

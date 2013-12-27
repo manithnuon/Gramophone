@@ -3,6 +3,9 @@ package com.orobator.android.gramophone.model;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
+/**
+ * Represents a single song on a device.
+ */
 public class Song implements Serializable {
     private int hasArtwork;
     private int discNumber = 0;
@@ -315,7 +318,8 @@ public class Song implements Serializable {
      *
      * @param duration the duration of a song in milliseconds
      * @param precise  if true, the result string will contain milliseconds
-     * @return a string in the format of hh:mm:ss(.mmm). Leading zeros are not shown
+     * @return a string in the format of hh:mm:ss(.mmm). Leading zeros are not
+     * shown
      */
     public String displayTime(long duration, boolean precise) {
         if (!precise) {

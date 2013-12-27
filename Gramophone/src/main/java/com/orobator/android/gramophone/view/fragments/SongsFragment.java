@@ -20,6 +20,9 @@ import com.orobator.android.gramophone.model.loaders.SongCursorLoader;
 import com.orobator.android.gramophone.view.activities.SongMetadataActivity;
 import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
+/**
+ * Fragment used to display all of the songs on the device.
+ */
 public class SongsFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "SongsFragment";
 
@@ -53,19 +56,11 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_view_songs, parent, false);
-    }
+    public void onStart() {
+        super.onStart();
 
-    @Override
-    public void onListItemClick(ListView listView, View view, int position, long id) {
-
-        Song song = (Song) getListAdapter().getItem(position);
-
-        Intent intent = new Intent(getActivity(), SongMetadataActivity.class);
-        intent.putExtra(SongCursorAdapter.KEY_SONG, song);
-
-        startActivity(intent);
+//        getListView().setFastScrollEnabled(true);
+        Log.d(TAG, "Fast scroll enabled: " + getListView().isFastScrollEnabled());
     }
 
     @Override
@@ -81,25 +76,18 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.list_view_songs, parent, false);
+    }
 
-//        getListView().setFastScrollEnabled(true);
-        Log.d(TAG, "Fast scroll enabled: " + getListView().isFastScrollEnabled());
+    @Override
+    public void onListItemClick(ListView listView, View view, int position, long id) {
+        Song song = (Song) getListAdapter().getItem(position);
 
-        int choiceMode = getListView().getChoiceMode();
-        switch (choiceMode) {
-            case ListView.CHOICE_MODE_NONE:
-                Log.d(TAG, "Choice mode none");
-                break;
-            case ListView.CHOICE_MODE_MULTIPLE:
-                Log.d(TAG, "Choice mode multiple");
-                break;
-            case ListView.CHOICE_MODE_SINGLE:
-                Log.d(TAG, "Choice mode single");
-                break;
-            default:
-        }
+        Intent intent = new Intent(getActivity(), SongMetadataActivity.class);
+        intent.putExtra(SongCursorAdapter.KEY_SONG, song);
+
+        startActivity(intent);
     }
 
 }

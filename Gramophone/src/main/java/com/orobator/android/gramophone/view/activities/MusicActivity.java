@@ -32,6 +32,10 @@ import com.orobator.android.gramophone.view.fragments.SongsFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MusicActivity is the startup Activity and provides views and navigation to
+ * the top level fragments.
+ */
 public class MusicActivity extends Activity {
     private static final String TAG = "MusicActivity";
     private static final int SONGS_FRAGMENT = 0;
@@ -50,12 +54,6 @@ public class MusicActivity extends Activity {
     private CharSequence mDrawerTitle;
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nav_drawer);
@@ -65,11 +63,11 @@ public class MusicActivity extends Activity {
         nav_items = getResources().getStringArray(R.array.nav_drawer_menu_items);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(
-                this,                     /* host activity */
-                mDrawerLayout,            /* DrawerLayout object */
-                R.drawable.ic_drawer,     /* nav drawer icon to replace "Up" caret */
-                R.string.drawer_open,     /* "open drawer" description */
-                R.string.drawer_close     /* "close drawer" description */
+                this,                   /* host activity */
+                mDrawerLayout,          /* DrawerLayout object */
+                R.drawable.ic_drawer,   /* nav drawer icon to replace "Up" caret */
+                R.string.drawer_open,   /* "open drawer" description */
+                R.string.drawer_close   /* "close drawer" description */
         ) {
 
             /**
@@ -164,34 +162,16 @@ public class MusicActivity extends Activity {
         if (CURRENT_FRAGMENT == -1) {
             selectItem(0);
         } else {
+            // A view already exists
             selectItem(CURRENT_FRAGMENT);
             setTitle(nav_items[CURRENT_FRAGMENT]);
         }
 
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        FragmentManager fm = getFragmentManager();
-
-        if (fm.getBackStackEntryCount() == 0) {
-            return;
-        }
-
-        int top = fm.getBackStackEntryCount() - 1;
-
-        FragmentManager.BackStackEntry topEntry = fm.getBackStackEntryAt(top);
-        String topName = topEntry.getName();
-
-        outState.putString(PREVIOUS_TOP_BACK_STACK_ENTRY, topName);
-
-    }
-
     /**
      * Swaps fragments in the main content view *
      */
-
     private void selectItem(int position) {
         // Create a new fragment based on the new position
         Fragment fragment;
@@ -266,8 +246,32 @@ public class MusicActivity extends Activity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occured
+        // Sync the toggle state after onRestoreInstanceState has occurred
         mDrawerToggle.syncState();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        FragmentManager fm = getFragmentManager();
+
+        if (fm.getBackStackEntryCount() == 0) {
+            return;
+        }
+
+        int top = fm.getBackStackEntryCount() - 1;
+
+        FragmentManager.BackStackEntry topEntry = fm.getBackStackEntryAt(top);
+        String topName = topEntry.getName();
+
+        outState.putString(PREVIOUS_TOP_BACK_STACK_ENTRY, topName);
+
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override

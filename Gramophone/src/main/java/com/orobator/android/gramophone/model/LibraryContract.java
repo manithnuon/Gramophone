@@ -28,7 +28,7 @@ public final class LibraryContract {
         public static final String COLUMN_NAME_DATE_MODIFIED = "modified";
         public static final String COLUMN_NAME_DISC_NUMBER = "disc_number";
         public static final String COLUMN_NAME_DISC_TOTAL = "total_discs";
-        public static final String COLUMN_NAME_DURATION = "duration"; // in milliseconds
+        public static final String COLUMN_NAME_DURATION = "duration";
         public static final String COLUMN_NAME_EQUALIZER_PRESET = "equalizer_preset";
         public static final String COLUMN_NAME_FILE_LOCATION = "location";
         public static final String COLUMN_NAME_GENRE = "genre";
