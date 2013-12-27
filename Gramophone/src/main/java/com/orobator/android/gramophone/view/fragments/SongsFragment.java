@@ -51,7 +51,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        // Initialize the loader to load the list of runs
+        // Initialize the loader to load the list of songs 
         getLoaderManager().initLoader(SongCursorLoader.ALL_SONGS_ID, null, this);
     }
 
