@@ -30,6 +30,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.d(TAG, "Haven't set the adapter yet. Fast scroll enabled: " + getListView().isFastScrollEnabled());
         SongCursor songCursor = (SongCursor) cursor;
         SongCursorAdapter adapter = new SongCursorAdapter(getActivity().getApplicationContext(), songCursor);
         setListAdapter(adapter);
@@ -45,7 +46,6 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "onCreate");
         setRetainInstance(true);
 
         // Initialize the loader to load the list of runs
@@ -54,9 +54,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.list_view_songs, parent, false);
-
-        return view;
+        return inflater.inflate(R.layout.list_view_songs, parent, false);
     }
 
     @Override
@@ -80,6 +78,28 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         }
 
         super.onDestroy();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+//        getListView().setFastScrollEnabled(true);
+        Log.d(TAG, "Fast scroll enabled: " + getListView().isFastScrollEnabled());
+
+        int choiceMode = getListView().getChoiceMode();
+        switch (choiceMode) {
+            case ListView.CHOICE_MODE_NONE:
+                Log.d(TAG, "Choice mode none");
+                break;
+            case ListView.CHOICE_MODE_MULTIPLE:
+                Log.d(TAG, "Choice mode multiple");
+                break;
+            case ListView.CHOICE_MODE_SINGLE:
+                Log.d(TAG, "Choice mode single");
+                break;
+            default:
+        }
     }
 
 }

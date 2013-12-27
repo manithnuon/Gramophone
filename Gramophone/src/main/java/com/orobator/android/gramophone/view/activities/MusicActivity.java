@@ -236,7 +236,6 @@ public class MusicActivity extends Activity {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.content_frame, fragment);
-        Log.i(TAG, "Current Fragment: " + CURRENT_FRAGMENT);
         if (oldCURRENT_FRAGMENT != -1) {
             transaction.addToBackStack(fragmentName);
         }
