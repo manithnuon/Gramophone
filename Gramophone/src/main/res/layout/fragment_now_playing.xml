@@ -1,0 +1,71 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <ImageView
+            android:id="@+id/album_art_imageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:layout_below="@id/action_bar"
+            android:contentDescription="@string/album_cover"
+            android:src="@drawable/replacement_album_art"
+            android:maxHeight="10dp"/>
+
+    <SeekBar
+            android:id="@+id/nowPlaying_seekBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/album_art_imageView"/>
+
+    <TextView
+            android:id="@+id/upNextHeader_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/up_next"
+            android:layout_below="@id/nowPlaying_seekBar"
+            android:padding="4dp"
+            android:textSize="14sp"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_toRightOf="@+id/space"
+            android:layout_toLeftOf="@+id/space2"/>
+
+    <TextView
+            android:id="@+id/upNextTitle_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/upNextHeader_textView"
+            android:text="Sample Song Title"
+            android:paddingTop="4dp"
+            android:paddingLeft="10dp"
+            android:textSize="18sp"/>
+
+    <TextView
+            android:id="@+id/upNextArtist_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/upNextTitle_textView"
+            android:text="Sample Song Artist"
+            android:paddingLeft="10dp"
+            android:textSize="14sp"/>
+
+    <Space
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_below="@+id/nowPlaying_seekBar"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/space"/>
+
+    <Space
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_below="@+id/nowPlaying_seekBar"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:id="@+id/space2"/>
+
+
+</RelativeLayout>

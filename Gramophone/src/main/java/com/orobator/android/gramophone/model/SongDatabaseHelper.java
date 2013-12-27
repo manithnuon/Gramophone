@@ -497,7 +497,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             song.setEqualizerPreset(equalizerPreset);
 
             String fileLocation = getString(getColumnIndex(SongEntry.COLUMN_NAME_FILE_LOCATION));
-            song.setLocation(fileLocation);
+            song.setFilePath(fileLocation);
 
             String genre = getString(getColumnIndex(SongEntry.COLUMN_NAME_GENRE));
             song.setGenre(genre);

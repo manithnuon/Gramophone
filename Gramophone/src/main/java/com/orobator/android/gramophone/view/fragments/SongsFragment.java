@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,7 @@ import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Song;
 import com.orobator.android.gramophone.model.SongDatabaseHelper.SongCursor;
 import com.orobator.android.gramophone.model.loaders.SongCursorLoader;
-import com.orobator.android.gramophone.view.activities.SongMetadataActivity;
+import com.orobator.android.gramophone.view.activities.NowPlayingActivity;
 import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
 /**
@@ -33,7 +32,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d(TAG, "Haven't set the adapter yet. Fast scroll enabled: " + getListView().isFastScrollEnabled());
+//        Log.d(TAG, "Haven't set the adapter yet. Fast scroll enabled: " + getListView().isFastScrollEnabled());
         SongCursor songCursor = (SongCursor) cursor;
         SongCursorAdapter adapter = new SongCursorAdapter(getActivity().getApplicationContext(), songCursor);
         setListAdapter(adapter);
@@ -60,7 +59,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         super.onStart();
 
 //        getListView().setFastScrollEnabled(true);
-        Log.d(TAG, "Fast scroll enabled: " + getListView().isFastScrollEnabled());
+//        Log.d(TAG, "Fast scroll enabled: " + getListView().isFastScrollEnabled());
     }
 
     @Override
@@ -84,8 +83,8 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
     public void onListItemClick(ListView listView, View view, int position, long id) {
         Song song = (Song) getListAdapter().getItem(position);
 
-        Intent intent = new Intent(getActivity(), SongMetadataActivity.class);
-        intent.putExtra(SongCursorAdapter.KEY_SONG, song);
+        Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
+        intent.putExtra(Song.KEY_SONG, song);
 
         startActivity(intent);
     }

@@ -1,5 +1,9 @@
 package com.orobator.android.gramophone.model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
+
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
@@ -7,6 +11,7 @@ import java.text.DecimalFormat;
  * Represents a single song on a device.
  */
 public class Song implements Serializable {
+    public static final String KEY_SONG = "song";
     private int hasArtwork;
     private int discNumber = 0;
     private int discTotal = 0;
@@ -35,9 +40,21 @@ public class Song implements Serializable {
     private String composer;
     private String writer;
     private String fileName;
-    private String location;
+    private String filePath;
 
     public Song() {
+    }
+
+    public Bitmap getArtwork() {
+        if (!hasArtwork()) {
+            return null;
+        }
+
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(filePath);
+
+        byte albumBytes[] = retriever.getEmbeddedPicture();
+        return BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
     }
 
     public boolean skipOnShuffle() {
@@ -280,12 +297,12 @@ public class Song implements Serializable {
         this.hasArtwork = hasArtwork ? 1 : 0;
     }
 
-    public String getLocation() {
-        return location;
+    public String getFilePath() {
+        return filePath;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     @Override

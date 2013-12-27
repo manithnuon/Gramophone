@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Song;
-import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
 /**
  * This fragment displays metadata for a selected song.
@@ -49,7 +48,7 @@ public class SongMetadataFragment extends Fragment {
 
         setRetainInstance(true);
 
-        mSong = (Song) getActivity().getIntent().getSerializableExtra(SongCursorAdapter.KEY_SONG);
+        mSong = (Song) getActivity().getIntent().getSerializableExtra(Song.KEY_SONG);
 
     }
 
@@ -112,7 +111,7 @@ public class SongMetadataFragment extends Fragment {
         mGenreTextView.setText(genre);
 
         mLocationTextView = (TextView) view.findViewById(R.id.location_textView);
-        String location = getString(R.string.location, mSong.getLocation());
+        String location = getString(R.string.filePath, mSong.getFilePath());
         mLocationTextView.setText(location);
 
         mTrackCountTextView = (TextView) view.findViewById(R.id.track_count_textView);
