@@ -9,8 +9,9 @@
             android:scaleType="centerCrop"
             android:layout_below="@id/action_bar"
             android:contentDescription="@string/album_cover"
-            android:src="@drawable/replacement_album_art"
             android:maxHeight="10dp"/>
+    <!--android:src="@drawable/replacement_album_art"-->
+
 
     <SeekBar
             android:id="@+id/nowPlaying_seekBar"

@@ -56,7 +56,13 @@ public class MusicActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        long start = System.currentTimeMillis();
+
         setContentView(R.layout.nav_drawer);
+
+        long end = System.currentTimeMillis();
+        double duration = (end - start) / 1000.0;
+        Log.d(TAG, "Call to onCreate(...) took " + duration + " seconds on thread " + Thread.currentThread().getName());
 
         mTitle = mDrawerTitle = getTitle();
 
