@@ -76,7 +76,14 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_view_songs, parent, false);
+        View view = inflater.inflate(R.layout.list_view_songs, parent, false);
+
+        if (view != null) {
+            ListView listView = (ListView) view.findViewById(android.R.id.list);
+            listView.setFastScrollAlwaysVisible(true);
+        }
+
+        return view;
     }
 
     @Override
