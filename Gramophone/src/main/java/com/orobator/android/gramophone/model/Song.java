@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
  */
 public class Song implements Serializable {
     public static final String KEY_SONG = "song";
+    public static final String KEY_CURSOR_POSITION = "position";
     private int hasArtwork;
     private int discNumber = 0;
     private int discTotal = 0;

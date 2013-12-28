@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import com.orobator.android.gramophone.R;
@@ -64,13 +63,12 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
     @Override
     public void onDestroy() {
-        CursorAdapter cursorAdapter = (CursorAdapter) getListAdapter();
-        Cursor cursor = cursorAdapter.getCursor();
-
-        if (cursor != null) {
-            cursor.close();
-        }
-
+//        CursorAdapter cursorAdapter = (CursorAdapter) getListAdapter();
+//        Cursor cursor = cursorAdapter.getCursor();
+//
+//        if (cursor != null) {
+//            cursor.close();
+//        }
         super.onDestroy();
     }
 
@@ -92,6 +90,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
 
         Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
         intent.putExtra(Song.KEY_SONG, song);
+        intent.putExtra(Song.KEY_CURSOR_POSITION, position);
 
         startActivity(intent);
     }
