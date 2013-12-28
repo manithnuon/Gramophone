@@ -25,6 +25,43 @@ public class Song implements Serializable {
     private int playCount = 0;
     private int skipCount = 0;
     private int skipOnShuffle = 0;
+    private int backgroundColor;
+    private int primaryColor;
+    private int secondaryColor;
+    private int detailColor;
+
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public int getPrimaryColor() {
+        return primaryColor;
+    }
+
+    public void setPrimaryColor(int primaryColor) {
+        this.primaryColor = primaryColor;
+    }
+
+    public int getSecondaryColor() {
+        return secondaryColor;
+    }
+
+    public void setSecondaryColor(int secondaryColor) {
+        this.secondaryColor = secondaryColor;
+    }
+
+    public int getDetailColor() {
+        return detailColor;
+    }
+
+    public void setDetailColor(int detailColor) {
+        this.detailColor = detailColor;
+    }
+
     private int rating = 0;
     private long songID = 0;
     private long size = 0; // Size of song in bytes

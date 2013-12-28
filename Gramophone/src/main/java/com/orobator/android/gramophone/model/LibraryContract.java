@@ -24,6 +24,10 @@ public final class LibraryContract {
         public static final String COLUMN_NAME_ALBUM_ARTIST = "album_artist";
         public static final String COLUMN_NAME_ARTIST = "artist";
         public static final String COLUMN_NAME_BIT_RATE = "bit_rate";
+        public static final String COLUMN_NAME_COLOR_BACKGROUND = "background_color";
+        public static final String COLUMN_NAME_COLOR_PRIMARY = "primary_color";
+        public static final String COLUMN_NAME_COLOR_SECONDARY = "secondary_color";
+        public static final String COLUMN_NAME_COLOR_DETAIL = "detail_color";
         public static final String COLUMN_NAME_COMPOSER = "composer";
         public static final String COLUMN_NAME_DATE_MODIFIED = "modified";
         public static final String COLUMN_NAME_DISC_NUMBER = "disc_number";

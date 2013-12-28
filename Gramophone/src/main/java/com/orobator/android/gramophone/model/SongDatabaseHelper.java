@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -16,6 +18,8 @@ import com.orobator.android.gramophone.model.LibraryContract.AlbumEntry;
 import com.orobator.android.gramophone.model.LibraryContract.ArtistEntry;
 import com.orobator.android.gramophone.model.LibraryContract.GenreEntry;
 import com.orobator.android.gramophone.model.LibraryContract.SongEntry;
+
+import org.michaelevans.colorart.library.ColorArt;
 
 import java.util.HashSet;
 
@@ -37,6 +41,10 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                     SongEntry.COLUMN_NAME_ALBUM_ARTIST + TEXT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_ARTIST + TEXT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_BIT_RATE + INT_TYPE + COMMA_SEP +
+                    SongEntry.COLUMN_NAME_COLOR_BACKGROUND + INT_TYPE + COMMA_SEP +
+                    SongEntry.COLUMN_NAME_COLOR_PRIMARY + INT_TYPE + COMMA_SEP +
+                    SongEntry.COLUMN_NAME_COLOR_SECONDARY + INT_TYPE + COMMA_SEP +
+                    SongEntry.COLUMN_NAME_COLOR_DETAIL + INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_COMPOSER + TEXT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_DATE_MODIFIED + BIG_INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_DISC_NUMBER + INT_TYPE + COMMA_SEP +
@@ -72,6 +80,10 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                     GenreEntry.COLUMN_NAME_GENRE_NAME + ")";
     private static final String SQL_DELETE_SONG_ENTRIES =
             "DROP TABLE IF EXISTS " + SongEntry.TABLE_NAME;
+    private static final int DEFAULT_BACKGROUND_COLOR = -8104660;
+    private static final int DEFAULT_PRIMARY_COLOR = -268633;
+    private static final int DEFAULT_SECONDARY_COLOR = -3826113;
+    private static final int DEFAULT_DETAIL_COLOR = -4479338;
     private static SongCursor allSongs;
     private Context sContext;
 
@@ -303,9 +315,19 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
 
             cv.put(SongEntry.COLUMN_NAME_ALBUM_ARTIST, albumArtist);
             cv.put(SongEntry.COLUMN_NAME_ARTIST, artistName);
-            cv.put(SongEntry.COLUMN_NAME_BIT_RATE, Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)));
+
+            try {
+                cv.put(SongEntry.COLUMN_NAME_BIT_RATE, Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)));
+            } catch (NumberFormatException nfe) {
+                cv.put(SongEntry.COLUMN_NAME_BIT_RATE, -1);
+            }
+
             cv.put(SongEntry.COLUMN_NAME_COMPOSER, mCursor.getString(mCursor.getColumnIndex(AudioColumns.COMPOSER)));
-            cv.put(SongEntry.COLUMN_NAME_DATE_MODIFIED, mCursor.getLong(mCursor.getColumnIndex(AudioColumns.DATE_MODIFIED))); // seconds since 1970 (type long)
+            int dateModified = mCursor.getColumnIndex(AudioColumns.DATE_MODIFIED);
+//            if (dateModifiedString.equals("null")) {
+//                dateModifiedString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
+//            }
+            cv.put(SongEntry.COLUMN_NAME_DATE_MODIFIED, dateModified/*mCursor.getLong(dateModifiedString)*/); // seconds since 1970 (type long)
 
             if (retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER) == null) {
                 cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, 0);
@@ -328,7 +350,32 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             cv.put(SongEntry.COLUMN_NAME_EQUALIZER_PRESET, "");
             cv.put(SongEntry.COLUMN_NAME_FILE_LOCATION, mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
             cv.put(SongEntry.COLUMN_NAME_GENRE, retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE));
-            cv.put(SongEntry.COLUMN_NAME_HAS_ARTWORK, retriever.getEmbeddedPicture() == null ? 0 : 1);
+
+            byte albumBytes[] = retriever.getEmbeddedPicture();
+
+            int backGroundColor, primaryColor, secondaryColor, detailColor;
+
+            if (albumBytes != null) {
+                Bitmap albumCover = BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
+                ColorArt colorArt = new ColorArt(albumCover);
+                backGroundColor = colorArt.getBackgroundColor();
+                primaryColor = colorArt.getPrimaryColor();
+                secondaryColor = colorArt.getSecondaryColor();
+                detailColor = colorArt.getDetailColor();
+            } else {
+                backGroundColor = DEFAULT_BACKGROUND_COLOR;
+                primaryColor = DEFAULT_PRIMARY_COLOR;
+                secondaryColor = DEFAULT_SECONDARY_COLOR;
+                detailColor = DEFAULT_DETAIL_COLOR;
+            }
+
+            cv.put(SongEntry.COLUMN_NAME_COLOR_BACKGROUND, backGroundColor);
+            cv.put(SongEntry.COLUMN_NAME_COLOR_PRIMARY, primaryColor);
+            cv.put(SongEntry.COLUMN_NAME_COLOR_SECONDARY, secondaryColor);
+            cv.put(SongEntry.COLUMN_NAME_COLOR_DETAIL, detailColor);
+
+            cv.put(SongEntry.COLUMN_NAME_HAS_ARTWORK, albumBytes == null ? 0 : 1);
+
             cv.put(SongEntry.COLUMN_NAME_LAST_PLAYED, 0L);
             cv.put(SongEntry.COLUMN_NAME_PLAY_COUNT, 0);
             cv.put(SongEntry.COLUMN_NAME_RATING, 0);
@@ -480,6 +527,18 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
 
             int bitRate = getInt(getColumnIndex(SongEntry.COLUMN_NAME_BIT_RATE));
             song.setBitRate(bitRate);
+
+            int backgroundColor = getInt(getColumnIndex(SongEntry.COLUMN_NAME_COLOR_BACKGROUND));
+            song.setBackgroundColor(backgroundColor);
+
+            int primaryColor = getInt(getColumnIndex(SongEntry.COLUMN_NAME_COLOR_PRIMARY));
+            song.setPrimaryColor(primaryColor);
+
+            int secondaryColor = getInt(getColumnIndex(SongEntry.COLUMN_NAME_COLOR_SECONDARY));
+            song.setSecondaryColor(secondaryColor);
+
+            int detailColor = getInt(getColumnIndex(SongEntry.COLUMN_NAME_COLOR_DETAIL));
+            song.setDetailColor(detailColor);
 
             String composer = getString(getColumnIndex(SongEntry.COLUMN_NAME_COMPOSER));
             song.setComposer(composer);
