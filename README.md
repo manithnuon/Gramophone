@@ -11,4 +11,4 @@ This project is built using Android Studio.
 
 ### Libraries Used
 
-* [ColorArt](https://github.com/MichaelEvans/ColorArt)
+* [ColorArt by Michael Evans](https://github.com/MichaelEvans/ColorArt)

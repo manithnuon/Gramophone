@@ -9,33 +9,47 @@
             android:scaleType="centerCrop"
             android:layout_below="@id/action_bar"
             android:contentDescription="@string/album_cover"
+            android:minHeight="150dp"
             android:maxHeight="10dp"/>
 
     <TextView
             android:id="@+id/nowPlayingTimePlayed_textView"
-            android:layout_alignParentLeft="true"
             android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="15sp"/>
+            android:textSize="18sp"
+            android:text="0:00"
+            android:gravity="center_vertical"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="18dp"
+            android:layout_alignBottom="@+id/nowPlaying_seekBar"
+            android:layout_below="@+id/nowPlayingAlbumArt_imageView"/>
+
+    <SeekBar
+            android:id="@+id/nowPlaying_seekBar"
+            android:layout_width="wrap_content"
+            android:layout_below="@id/nowPlayingAlbumArt_imageView"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:layout_toRightOf="@id/nowPlayingTimePlayed_textView"
+            android:layout_toLeftOf="@+id/nowPlayingTimeLeft_textView"/>
+
 
     <TextView
             android:id="@+id/nowPlayingTimeLeft_textView"
             android:layout_alignParentRight="true"
             android:layout_below="@id/nowPlayingAlbumArt_imageView"
             android:paddingRight="8dp"
+            android:paddingLeft="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="15sp"/>
-
-    <SeekBar
-            android:id="@+id/nowPlaying_seekBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/nowPlayingTimeLeft_textView"
-            android:layout_toRightOf="@id/nowPlayingTimePlayed_textView"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/nowPlayingAlbumArt_imageView"/>
+            android:textSize="18sp"
+            android:text="4:44"
+            android:gravity="center_vertical"
+            android:layout_marginRight="18dp"
+            android:layout_alignBottom="@+id/nowPlaying_seekBar"/>
 
 
     <TextView
@@ -46,16 +60,22 @@
             android:layout_centerHorizontal="true"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
-            android:textSize="32sp"/>
+            android:textSize="32sp"
+            android:ellipsize="marquee"
+            android:gravity="center_horizontal"
+            android:marqueeRepeatLimit="marquee_forever"/>
 
     <TextView
             android:id="@+id/nowPlayingArtistAlbum_textView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:layout_below="@id/nowPlayingTitle_textView"
+            android:gravity="center_horizontal"
             android:layout_centerHorizontal="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
             android:textSize="18sp"/>
 
 
