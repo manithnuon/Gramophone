@@ -11,8 +11,21 @@ import java.text.DecimalFormat;
  * Represents a single song on a device.
  */
 public class Song implements Serializable {
+    public static final long serialVersionUID = 0L;
     public static final String KEY_SONG = "song";
     public static final String KEY_CURSOR_POSITION = "position";
+    public static final String KEY_SONG_COLLECTION_TYPE = "song_collection_type";
+    public static final String KEY_COLLECTION_TYPE_ALL = "all_songs";
+    public static final String KEY_COLLECTION_TYPE_ALBUMS = "album_songs";
+    public static final String KEY_COLLECTION_TYPE_ARTISTS = "artist_songs";
+    public static final String KEY_COLLECTION_TYPE_GENRES = "genre_songs";
+    public static final String KEY_ALBUM = "song_album";
+    public static final String KEY_ALBUM_ARTIST = "song_album_artist";
+    public static final String KEY_GENRE = "song_genre";
+    public static final int DEFAULT_BACKGROUND_COLOR = 0xff22596d;
+    public static final int DEFAULT_PRIMARY_COLOR = -268633;
+    public static final int DEFAULT_SECONDARY_COLOR = -3826113;
+    public static final int DEFAULT_DETAIL_COLOR = -4479338;
     private int hasArtwork;
     private int discNumber = 0;
     private int discTotal = 0;
@@ -29,6 +42,26 @@ public class Song implements Serializable {
     private int primaryColor;
     private int secondaryColor;
     private int detailColor;
+    private int rating = 0;
+    private long songID = 0;
+    private long size = 0; // Size of song in bytes
+    private long dateModified; // Seconds since Jan 1, 1970
+    private long lastPlayed; // Seconds since Jan 1, 1970
+    private long duration; // Time in milliseconds
+    private String title;
+    private String artist;
+    private String albumArtist;
+    private String album;
+    private String equalizerPreset;
+    private String genre;
+    private String compilationStatus;
+    private String composer;
+    private String writer;
+    private String fileName;
+    private String filePath;
+
+    public Song() {
+    }
 
     public int getBackgroundColor() {
         return backgroundColor;
@@ -62,27 +95,6 @@ public class Song implements Serializable {
         this.detailColor = detailColor;
     }
 
-    private int rating = 0;
-    private long songID = 0;
-    private long size = 0; // Size of song in bytes
-    private long dateModified; // Seconds since Jan 1, 1970
-    private long lastPlayed; // Seconds since Jan 1, 1970
-    private long duration; // Time in milliseconds
-    private String title;
-    private String artist;
-    private String albumArtist;
-    private String album;
-    private String equalizerPreset;
-    private String genre;
-    private String compilationStatus;
-    private String composer;
-    private String writer;
-    private String fileName;
-    private String filePath;
-
-    public Song() {
-    }
-
     public Bitmap getArtwork() {
         if (!hasArtwork()) {
             return null;
@@ -93,6 +105,10 @@ public class Song implements Serializable {
 
         byte albumBytes[] = retriever.getEmbeddedPicture();
         return BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
+    }
+
+    public boolean hasArtwork() {
+        return hasArtwork == 1;
     }
 
     public boolean skipOnShuffle() {
@@ -325,10 +341,6 @@ public class Song implements Serializable {
 
     public void setSampleRate(int sampleRate) {
         this.sampleRate = sampleRate;
-    }
-
-    public boolean hasArtwork() {
-        return hasArtwork == 1;
     }
 
     public void setHasArtwork(boolean hasArtwork) {

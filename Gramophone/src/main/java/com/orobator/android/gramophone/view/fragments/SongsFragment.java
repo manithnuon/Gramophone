@@ -91,6 +91,7 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
         intent.putExtra(Song.KEY_SONG, song);
         intent.putExtra(Song.KEY_CURSOR_POSITION, position);
+        intent.putExtra(Song.KEY_SONG_COLLECTION_TYPE, Song.KEY_COLLECTION_TYPE_ALL);
 
         startActivity(intent);
     }
