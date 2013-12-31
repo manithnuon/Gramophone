@@ -1,6 +1,9 @@
 package com.orobator.android.gramophone.view.activities;
 
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -9,16 +12,20 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 
 import com.orobator.android.gramophone.R;
+import com.orobator.android.gramophone.controller.services.MusicPlayerService;
 import com.orobator.android.gramophone.model.Album;
 import com.orobator.android.gramophone.model.Song;
 import com.orobator.android.gramophone.model.SongDatabaseHelper;
 import com.orobator.android.gramophone.model.SongDatabaseHelper.SongCursor;
 import com.orobator.android.gramophone.view.fragments.NowPlayingFragment;
 
+import java.io.File;
+
 public class NowPlayingActivity extends FragmentActivity {
     private static final String TAG = "NowPlayingActivity";
     private ViewPager mViewPager;
     private SongCursor mSongCursor;
+    private MediaPlayer mMediaPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,6 +56,12 @@ public class NowPlayingActivity extends FragmentActivity {
         setTitle("");
         int backgroundColor = song.getBackgroundColor();
         getActionBar().setBackgroundDrawable(new ColorDrawable(backgroundColor));
+
+        Uri songUri = Uri.fromFile(new File(song.getFilePath()));
+        Intent intent = new Intent(MusicPlayerService.ACTION_PLAY, songUri, getApplicationContext(), MusicPlayerService.class);
+
+        intent.putExtra(Song.KEY_SONG, song);
+        startService(intent);
 
         FragmentManager fm = getSupportFragmentManager();
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fm) {

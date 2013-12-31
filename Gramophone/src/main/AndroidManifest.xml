@@ -37,6 +37,12 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="MusicActivity"/>
         </activity>
+
+        <service
+                android:name=".controller.services.MusicPlayerService"
+                android:enabled="true"
+                android:exported="false">
+        </service>
     </application>
 
 </manifest>
