@@ -175,66 +175,6 @@ public class MusicActivity extends Activity {
 
     }
 
-    /**
-     * Swaps fragments in the main content view *
-     */
-    private void selectItem(int position) {
-        // Create a new fragment based on the new position
-        Fragment fragment;
-        String fragmentName = null;
-        int oldCURRENT_FRAGMENT = CURRENT_FRAGMENT;
-
-        switch (position) {
-            case 0:
-                fragment = new SongsFragment();
-                CURRENT_FRAGMENT = SONGS_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Songs";
-                break;
-            case 1:
-                fragment = new AlbumsFragment();
-                CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Albums";
-                break;
-            case 2:
-                fragment = new ArtistsFragment();
-                CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Artists";
-                break;
-            case 3:
-                fragment = new GenresFragment();
-                CURRENT_FRAGMENT = GENRES_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Genres";
-                break;
-            case 4:
-                fragment = new SongsFragment();
-                CURRENT_FRAGMENT = QUEUE_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Queue";
-                break;
-            case 5:
-                fragment = new SongsFragment();
-                CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Playlists";
-            default:
-                fragment = new SongsFragment();
-        }
-
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.content_frame, fragment);
-        if (oldCURRENT_FRAGMENT != -1) {
-            transaction.addToBackStack(fragmentName);
-        }
-        transaction.commit();
-
-        // Update ActionBar title
-        mTitle = nav_items[position];
-
-        // Highlight the selected item, update the title, and close the drawer
-        mDrawerList.setItemChecked(position, true);
-        mDrawerLayout.closeDrawer(mDrawerList);
-    }
-
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -329,6 +269,66 @@ public class MusicActivity extends Activity {
     public void setTitle(CharSequence title) {
         mTitle = title;
         getActionBar().setTitle(mTitle);
+    }
+
+    /**
+     * Swaps fragments in the main content view *
+     */
+    private void selectItem(int position) {
+        // Create a new fragment based on the new position
+        Fragment fragment;
+        String fragmentName = null;
+        int oldCURRENT_FRAGMENT = CURRENT_FRAGMENT;
+
+        switch (position) {
+            case 0:
+                fragment = new SongsFragment();
+                CURRENT_FRAGMENT = SONGS_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Songs";
+                break;
+            case 1:
+                fragment = new AlbumsFragment();
+                CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Albums";
+                break;
+            case 2:
+                fragment = new ArtistsFragment();
+                CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Artists";
+                break;
+            case 3:
+                fragment = new GenresFragment();
+                CURRENT_FRAGMENT = GENRES_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Genres";
+                break;
+            case 4:
+                fragment = new SongsFragment();
+                CURRENT_FRAGMENT = QUEUE_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Queue";
+                break;
+            case 5:
+                fragment = new SongsFragment();
+                CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Playlists";
+            default:
+                fragment = new SongsFragment();
+        }
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.content_frame, fragment);
+        if (oldCURRENT_FRAGMENT != -1) {
+            transaction.addToBackStack(fragmentName);
+        }
+        transaction.commit();
+
+        // Update ActionBar title
+        mTitle = nav_items[position];
+
+        // Highlight the selected item, update the title, and close the drawer
+        mDrawerList.setItemChecked(position, true);
+        mDrawerLayout.closeDrawer(mDrawerList);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

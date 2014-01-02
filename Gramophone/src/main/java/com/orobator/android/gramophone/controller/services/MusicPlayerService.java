@@ -16,6 +16,7 @@ import java.io.IOException;
 public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener {
     private static final String TAG = "MusicPlayerService";
     public static final String ACTION_PLAY = "com.orobator.android.gramophone.ACTION_PLAY";
+    public static final String ACTION_TOGGLE_PLAYBACK = "com.orobator.android.gramophone.ACTION_TOGGLE_PLAYBACK";
     MediaPlayer mMediaPlayer = null;
 
     @Override
@@ -40,6 +41,14 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
                 Log.d(TAG, "Prepared the MediaPlayer asynchronously");
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        } else if (intent.getAction().equals(ACTION_TOGGLE_PLAYBACK)) {
+            if (mMediaPlayer != null) {
+                if (mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.pause();
+                } else {
+                    mMediaPlayer.start();
+                }
             }
         }
         return Service.START_REDELIVER_INTENT;
