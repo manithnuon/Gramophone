@@ -17,6 +17,8 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private static final String TAG = "MusicPlayerService";
     public static final String ACTION_PLAY = "com.orobator.android.gramophone.ACTION_PLAY";
     public static final String ACTION_TOGGLE_PLAYBACK = "com.orobator.android.gramophone.ACTION_TOGGLE_PLAYBACK";
+    public static final String ACTION_SEEK_TO = "com.orobator.android.gramophone.ACTION_SEEK_TO";
+    public static final String KEY_SEEK_TO = "com.orobator.android.gramophone.KEY_SEEK_TO";
     MediaPlayer mMediaPlayer = null;
 
     @Override
@@ -50,7 +52,13 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
                     mMediaPlayer.start();
                 }
             }
+        } else if (intent.getAction().equals(ACTION_SEEK_TO)) {
+            if (mMediaPlayer != null) {
+                int seek = intent.getIntExtra(KEY_SEEK_TO, 0);
+                mMediaPlayer.seekTo(seek);
+            }
         }
+
         return Service.START_REDELIVER_INTENT;
     }
 

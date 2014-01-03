@@ -411,7 +411,7 @@ public class Song implements Serializable {
         if (displayMinutes != 0) {
             minutes = Long.toString(displayMinutes);
         } else {
-            minutes = "00";
+            minutes = "0";
         }
 
         long displaySeconds = totalSeconds - displayHours * hour - displayMinutes * minute;
