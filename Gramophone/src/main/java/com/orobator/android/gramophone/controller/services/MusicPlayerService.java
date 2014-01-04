@@ -59,7 +59,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
             }
         }
 
-        return Service.START_REDELIVER_INTENT;
+        return Service.START_NOT_STICKY;
     }
 
     @Override

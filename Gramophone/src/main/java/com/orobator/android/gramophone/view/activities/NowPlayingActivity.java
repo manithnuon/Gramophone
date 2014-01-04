@@ -1,8 +1,9 @@
 package com.orobator.android.gramophone.view.activities;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.media.MediaPlayer;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,7 +26,6 @@ public class NowPlayingActivity extends FragmentActivity {
     private static final String TAG = "NowPlayingActivity";
     private ViewPager mViewPager;
     private SongCursor mSongCursor;
-    private MediaPlayer mMediaPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,15 @@ public class NowPlayingActivity extends FragmentActivity {
         setTitle("");
         int backgroundColor = song.getBackgroundColor();
         getActionBar().setBackgroundDrawable(new ColorDrawable(backgroundColor));
+        final Drawable launcherIcon = getResources().getDrawable(R.drawable.ic_launcher);
+        launcherIcon.setColorFilter(song.getPrimaryColor(), PorterDuff.Mode.SRC_ATOP);
+        getActionBar().setIcon(launcherIcon);
+
+        final Drawable upButton = getResources().getDrawable(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_holo_light);
+        upButton.setAlpha(0xff);
+        upButton.setColorFilter(song.getSecondaryColor(), PorterDuff.Mode.SRC_ATOP);
+        getActionBar().setHomeAsUpIndicator(upButton);
+
 
         Uri songUri = Uri.fromFile(new File(song.getFilePath()));
         Intent intent = new Intent(MusicPlayerService.ACTION_PLAY, songUri, getApplicationContext(), MusicPlayerService.class);
@@ -96,6 +105,10 @@ public class NowPlayingActivity extends FragmentActivity {
                 Song songCurrent = mSongCursor.getSong();
                 int backgroundColor = songCurrent.getBackgroundColor();
                 getActionBar().setBackgroundDrawable(new ColorDrawable(backgroundColor));
+                upButton.setColorFilter(songCurrent.getSecondaryColor(), PorterDuff.Mode.SRC_ATOP);
+                getActionBar().setHomeAsUpIndicator(upButton);
+                launcherIcon.setColorFilter(songCurrent.getPrimaryColor(), PorterDuff.Mode.SRC_ATOP);
+                getActionBar().setIcon(launcherIcon);
             }
 
             @Override
