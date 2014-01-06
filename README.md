@@ -12,3 +12,7 @@ This project is built using Android Studio.
 ### Libraries Used
 
 * [ColorArt by Michael Evans](https://github.com/MichaelEvans/ColorArt)
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/AOrobator/gramophone/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
