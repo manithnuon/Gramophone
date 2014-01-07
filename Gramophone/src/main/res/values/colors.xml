@@ -21,4 +21,5 @@
     <color name="concrete">#95a5a6</color>
     <color name="asbestos">#7f8c8d</color>
     <color name="black">#000000</color>
+    <color name="default_background">#fcfcfc</color>
 </resources>

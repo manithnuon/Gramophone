@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="swipelistview-1.0-20130701.103547-12-jar-with-dependencies">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Gramophone/libs/swipelistview-1.0-20130701.103547-12-jar-with-dependencies.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/Desktop/android-swipelistview-master/swipelistview/src" />
+      <root url="jar://$USER_HOME$/Desktop/android-swipelistview-master.zip!/android-swipelistview-master/swipelistview/src" />
+      <root url="file://$USER_HOME$/Desktop/android-swipelistview-master/swipelistview/src" />
+      <root url="file://$USER_HOME$/Desktop/android-swipelistview-master/swipelistview/src" />
+      <root url="file://$PROJECT_DIR$/swipelistview_sources/src" />
+    </SOURCES>
+  </library>
+</component>

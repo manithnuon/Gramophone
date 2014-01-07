@@ -1,28 +1,29 @@
 package com.orobator.android.gramophone.view.fragments;
 
-import android.app.ListFragment;
+import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 
+import com.fortysevendeg.android.swipelistview.SwipeListView;
 import com.orobator.android.gramophone.R;
-import com.orobator.android.gramophone.model.Song;
+import com.orobator.android.gramophone.controller.listeners.SongClickListener;
+import com.orobator.android.gramophone.controller.listeners.SongSwipeViewListener;
 import com.orobator.android.gramophone.model.SongDatabaseHelper.SongCursor;
 import com.orobator.android.gramophone.model.loaders.SongCursorLoader;
-import com.orobator.android.gramophone.view.activities.NowPlayingActivity;
 import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
 
 /**
  * Fragment used to display all of the songs on the device.
  */
-public class SongsFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class SongsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "SongsFragment";
+    private SwipeListView mSwipeListView;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -33,15 +34,16 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 //        Log.d(TAG, "Haven't set the adapter yet. Fast scroll enabled: " + getListView().isFastScrollEnabled());
         SongCursor songCursor = (SongCursor) cursor;
-        SongCursorAdapter adapter = new SongCursorAdapter(getActivity().getApplicationContext(), songCursor);
-        setListAdapter(adapter);
-//        adapter.notifyDataSetChanged();
+        SongCursorAdapter adapter = new SongCursorAdapter(getActivity().getApplicationContext(), songCursor, this);
+        mSwipeListView.setAdapter(adapter);
+        mSwipeListView.setOnItemClickListener(new SongClickListener(adapter, this));
+        mSwipeListView.setSwipeListViewListener(new SongSwipeViewListener(adapter, this));
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         // Stop using the cursor (via the adapter)
-        setListAdapter(null);
+        mSwipeListView.setAdapter(null);
     }
 
     @Override
@@ -49,27 +51,9 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
+
         // Initialize the loader to load the list of songs 
         getLoaderManager().initLoader(SongCursorLoader.ALL_SONGS_ID, null, this);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-//        getListView().setFastScrollEnabled(true);
-//        Log.d(TAG, "Fast scroll enabled: " + getListView().isFastScrollEnabled());
-    }
-
-    @Override
-    public void onDestroy() {
-//        CursorAdapter cursorAdapter = (CursorAdapter) getListAdapter();
-//        Cursor cursor = cursorAdapter.getCursor();
-//
-//        if (cursor != null) {
-//            cursor.close();
-//        }
-        super.onDestroy();
     }
 
     @Override
@@ -77,23 +61,15 @@ public class SongsFragment extends ListFragment implements LoaderManager.LoaderC
         View view = inflater.inflate(R.layout.list_view_songs, parent, false);
 
         if (view != null) {
-            ListView listView = (ListView) view.findViewById(android.R.id.list);
-            listView.setFastScrollAlwaysVisible(true);
+            mSwipeListView = (SwipeListView) view.findViewById(R.id.list_view_songs);
         }
 
+        LinearLayout emptyView = (LinearLayout) inflater.inflate(R.layout.list_view_songs_empty, parent, false);
+
+        // TODO get this working.
+        mSwipeListView.setEmptyView(emptyView);
+
         return view;
-    }
-
-    @Override
-    public void onListItemClick(ListView listView, View view, int position, long id) {
-        Song song = (Song) getListAdapter().getItem(position);
-
-        Intent intent = new Intent(getActivity(), NowPlayingActivity.class);
-        intent.putExtra(Song.KEY_SONG, song);
-        intent.putExtra(Song.KEY_CURSOR_POSITION, position);
-        intent.putExtra(Song.KEY_SONG_COLLECTION_TYPE, Song.KEY_COLLECTION_TYPE_ALL);
-
-        startActivity(intent);
     }
 
 }

@@ -49,5 +49,10 @@
     <string name="album_cover">Album Cover</string>
 
     <string name="search_hint">Search Songs, Artists, or Albums</string>
+    <string name="play_next">Play Next</string>
+    <string name="add_to_queue">Add to Queue</string>
+    <string name="more">More</string>
+    <string name="go_to_artist">Artist</string>
+    <string name="go_to_album">Album</string>
 
 </resources>
