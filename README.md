@@ -23,18 +23,13 @@ This project is built using Android Studio.
 #### Basic Songs View
 
 ![Songs View](https://github.com/AOrobator/Gramophone/raw/master/img/SongsView.png)
-
 ![Navigation Drawer](https://github.com/AOrobator/Gramophone/raw/master/img/nav_drawer.png)
-
 ![Song Options](https://github.com/AOrobator/Gramophone/raw/master/img/Song_Options_More.png)
 
 #### Now Playing Screen
 
 ![Lisztomania](https://github.com/AOrobator/Gramophone/raw/master/img/Lisztomania.png)
-
 ![A Star Is Born](https://github.com/AOrobator/Gramophone/raw/master/img/A_Star_Is_Born.png)
-
 ![Fix You](https://github.com/AOrobator/Gramophone/raw/master/img/Fix_You.png)
-
 ![Chasing_Pavements](https://github.com/AOrobator/Gramophone/raw/master/img/Chasing_Pavements.png)
 
