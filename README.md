@@ -13,6 +13,8 @@ This project is built using Android Studio.
 
 * [ColorArt by Michael Evans](https://github.com/MichaelEvans/ColorArt)
 
+* [SwipeListView by 47 degrees](https://github.com/47deg/android-swipelistview)
+
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/AOrobator/gramophone/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
