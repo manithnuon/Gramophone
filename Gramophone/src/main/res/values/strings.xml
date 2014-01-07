@@ -50,9 +50,18 @@
 
     <string name="search_hint">Search Songs, Artists, or Albums</string>
     <string name="play_next">Play Next</string>
-    <string name="add_to_queue">Add to Queue</string>
+    <string name="add_to_queue">Enqueue</string>
     <string name="more">More</string>
     <string name="go_to_artist">Artist</string>
     <string name="go_to_album">Album</string>
+
+    <string-array name="swipeview_song_more">
+        <item>View Metadata</item>
+        <item>Enqueue Artist</item>
+        <item>Enqueue Album</item>
+        <item>Add to Playlist</item>
+        <item>Show File</item>
+        <item>Delete</item>
+    </string-array>
 
 </resources>

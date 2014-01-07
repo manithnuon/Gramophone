@@ -95,6 +95,17 @@ public class Song implements Serializable {
         this.detailColor = detailColor;
     }
 
+    public byte[] getArtworkByteArray() {
+        if (!hasArtwork()) {
+            return null;
+        }
+
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(filePath);
+
+        return retriever.getEmbeddedPicture();
+    }
+
     public Bitmap getArtwork() {
         if (!hasArtwork()) {
             return null;

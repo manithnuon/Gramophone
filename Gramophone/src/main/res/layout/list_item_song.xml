@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="fill_parent"
-             android:layout_height="fill_parent"
-        >
+             android:layout_height="fill_parent">
 
     <RelativeLayout
             android:id="@+id/swipelist_backview"
@@ -21,17 +20,15 @@
 
         <TextView
                 android:id="@+id/playNext_textView"
-
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/play_next"
                 android:textColor="@color/black"
                 android:layout_below="@+id/playNext_imageButton"
-                android:layout_alignRight="@+id/playNext_imageButton"
-                android:layout_alignEnd="@+id/playNext_imageButton"
-                android:layout_alignLeft="@+id/playNext_imageButton"
-                android:layout_alignStart="@+id/playNext_imageButton"
-                android:gravity="center_horizontal"/>
+                android:gravity="center_horizontal"
+                android:layout_alignParentStart="true"
+                android:layout_toLeftOf="@+id/textView"
+                android:paddingBottom="20dp"/>
 
         <ImageButton
                 android:id="@+id/addToQueue_imageButton"
@@ -56,7 +53,8 @@
                 android:layout_alignStart="@+id/addToQueue_imageButton"
                 android:id="@+id/textView"
                 android:layout_alignRight="@+id/addToQueue_imageButton"
-                android:layout_alignEnd="@+id/addToQueue_imageButton"/>
+                android:layout_alignEnd="@+id/addToQueue_imageButton"
+                android:paddingBottom="20dp"/>
 
         <ImageButton
                 android:id="@+id/goToArtist_imageButon"
@@ -79,7 +77,8 @@
                 android:layout_alignRight="@+id/goToArtist_imageButon"
                 android:layout_alignEnd="@+id/goToArtist_imageButon"
                 android:layout_alignLeft="@+id/goToArtist_imageButon"
-                android:layout_alignStart="@+id/goToArtist_imageButon"/>
+                android:layout_alignStart="@+id/goToArtist_imageButon"
+                android:paddingBottom="20dp"/>
 
         <ImageButton
                 android:id="@+id/goToAlbum_imageButton"
@@ -102,7 +101,8 @@
                 android:layout_alignStart="@+id/goToAlbum_imageButton"
                 android:layout_alignRight="@+id/goToAlbum_imageButton"
                 android:layout_alignEnd="@+id/goToAlbum_imageButton"
-                android:gravity="center_horizontal"/>
+                android:gravity="center_horizontal"
+                android:paddingBottom="20dp"/>
 
         <ImageButton
                 android:id="@+id/viewMore_imageButton"
@@ -126,7 +126,8 @@
                 android:layout_alignStart="@+id/viewMore_imageButton"
                 android:layout_alignRight="@+id/viewMore_imageButton"
                 android:gravity="center_horizontal"
-                android:layout_alignEnd="@+id/viewMore_imageButton"/>
+                android:layout_alignEnd="@+id/viewMore_imageButton"
+                android:paddingBottom="20dp"/>
 
 
     </RelativeLayout>
@@ -140,16 +141,16 @@
 
         <ImageView
                 android:id="@+id/songListItemAlbumArt_imageView"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:maxWidth="64dp"
-                android:maxHeight="64dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:maxWidth="80dp"
+                android:maxHeight="80dp"
                 android:src="@drawable/ic_launcher"
                 android:layout_alignParentRight="true"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
-                android:layout_alignTop="@+id/songTitle_TextView"
-                android:layout_alignBottom="@+id/songArtist_TextView"/>
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"/>
 
         <TextView
                 android:id="@+id/songTitle_TextView"
@@ -171,12 +172,21 @@
                 android:textColor="@color/black"
                 android:text="Song Artist"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginBottom="16dp"
-                android:paddingBottom="16dp"
                 android:layout_below="@id/songTitle_TextView"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@id/songListItemAlbumArt_imageView"/>
 
+        <TextView
+                android:id="@+id/songAlbum_TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:text="Song Album"
+                android:layout_alignStart="@+id/songArtist_TextView"
+                android:layout_below="@id/songArtist_TextView"
+                android:layout_toLeftOf="@+id/songListItemAlbumArt_imageView"
+                android:paddingBottom="8dp"/>
 
     </RelativeLayout>
 </FrameLayout>
