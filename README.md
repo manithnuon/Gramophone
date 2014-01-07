@@ -24,7 +24,7 @@ This project is built using Android Studio.
 
 ![Songs View](https://github.com/AOrobator/Gramophone/blob/master/img/SongsView.png)
 
-![Navigation Drawer)(https://github.com/AOrobator/Gramophone/blob/master/img/nav_drawer.png)
+![Navigation Drawer](https://github.com/AOrobator/Gramophone/blob/master/img/nav_drawer.png)
 
 ![Song Options](https://github.com/AOrobator/Gramophone/blob/master/img/Song_Options_More.png)
 
