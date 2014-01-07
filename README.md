@@ -18,3 +18,23 @@ This project is built using Android Studio.
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/AOrobator/gramophone/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
+### Screenshots
+
+#### Basic Songs View
+
+![Songs View](https://github.com/AOrobator/Gramophone/blob/master/img/SongsView.png)
+
+![Navigation Drawer)(https://github.com/AOrobator/Gramophone/blob/master/img/nav_drawer.png)
+
+![Song Options](https://github.com/AOrobator/Gramophone/blob/master/img/Song_Options_More.png)
+
+#### Now Playing Screen
+
+![Lisztomania](https://github.com/AOrobator/Gramophone/blob/master/img/Lisztomania.png)
+
+![A Star Is Born](https://github.com/AOrobator/Gramophone/blob/master/img/A_Star_Is_Born.png
+
+![Fix You](https://github.com/AOrobator/Gramophone/blob/master/img/Fix_You.png)
+
+![Chasing_Pavements](https://github.com/AOrobator/Gramophone/blob/master/img/Chasing_Pavements.png]
+
