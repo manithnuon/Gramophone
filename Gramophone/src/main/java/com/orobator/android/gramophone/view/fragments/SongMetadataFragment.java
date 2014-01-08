@@ -1,21 +1,30 @@
 package com.orobator.android.gramophone.view.fragments;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.model.Song;
+import com.orobator.android.gramophone.model.SongDatabaseHelper;
 
 /**
  * This fragment displays metadata for a selected song.
  */
 public class SongMetadataFragment extends Fragment {
     private static final String TAG = "SongMetadataFragment";
+    private static final String PREVIOUS_VALUE = "previous value";
+    private static final String PREVIOUS_VALUE_TITLE = "title";
     private TextView mAlbumTextView;
     private TextView mAlbumArtistTextView;
     private TextView mArtistTextView;
@@ -34,12 +43,13 @@ public class SongMetadataFragment extends Fragment {
     private TextView mTrackNumberTextView;
     private TextView mfileNameTextView;
     private TextView mWriterTextView;
-    private TextView mNumTracksTextView;
+    private TextView mRatingTextView;
     private TextView mSizeTextView;
     private TextView mTitleTextView;
     private TextView mHasArtworkTextView;
     private TextView mPlayCountTextView;
     private TextView mYearTextView;
+    private Button mEditTitleButton;
     private Song mSong;
 
     @Override
@@ -54,7 +64,7 @@ public class SongMetadataFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.song_metadata, parent, false);
+        View view = inflater.inflate(R.layout.fragment_song_metadata, parent, false);
         Log.i(TAG, "onCreateView");
 
 
@@ -110,7 +120,7 @@ public class SongMetadataFragment extends Fragment {
         String genre = getString(R.string.genre, mSong.getGenre());
         mGenreTextView.setText(genre);
 
-        mLocationTextView = (TextView) view.findViewById(R.id.location_textView);
+        mLocationTextView = (TextView) view.findViewById(R.id.filename_textView);
         String location = getString(R.string.filePath, mSong.getFilePath());
         mLocationTextView.setText(location);
 
@@ -129,10 +139,6 @@ public class SongMetadataFragment extends Fragment {
         mWriterTextView = (TextView) view.findViewById(R.id.writer_textView);
         String writer = getString(R.string.writer, mSong.getWriter());
         mWriterTextView.setText(writer);
-
-        mNumTracksTextView = (TextView) view.findViewById(R.id.num_tracks_textView);
-        String numTracks = getString(R.string.num_tracks, mSong.getNumTracks());
-        mNumTracksTextView.setText(numTracks);
 
         mSizeTextView = (TextView) view.findViewById(R.id.size_textView);
         String size = getString(R.string.size, mSong.displaySize());
@@ -154,6 +160,70 @@ public class SongMetadataFragment extends Fragment {
         String playCount = getString(R.string.play_count, mSong.getPlayCount());
         mPlayCountTextView.setText(playCount);
 
+        mRatingTextView = (TextView) view.findViewById(R.id.rating_textView);
+        String rating = getString(R.string.rating, mSong.getRating());
+        mRatingTextView.setText(rating);
+
+        mEditTitleButton = (Button) view.findViewById(R.id.editTitle_button);
+        mEditTitleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment fragment = new EditDialogFragment();
+                Bundle args = new Bundle();
+                args.putString(PREVIOUS_VALUE, PREVIOUS_VALUE_TITLE);
+                fragment.setArguments(args);
+                fragment.show(getFragmentManager(), "Edit Title");
+            }
+        });
+
         return view;
+    }
+
+    class EditDialogFragment extends DialogFragment {
+        EditText mEditText;
+        SongDatabaseHelper mHelper;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            mHelper = new SongDatabaseHelper(getActivity().getApplicationContext());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+
+            View dialogView = inflater.inflate(R.layout.dialog_fragment_edit_metadata, null);
+            mEditText = (EditText) dialogView.findViewById(R.id.metadata_editText);
+
+            switch (getArguments().getString(PREVIOUS_VALUE)) {
+                case PREVIOUS_VALUE_TITLE:
+                    mEditText.setText(mSong.getTitle());
+                    break;
+                default:
+            }
+
+            builder.setTitle(getTag())
+                    .setView(dialogView)
+                    .setPositiveButton(R.string.confirm_metadata_edit, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String newTitle = mEditText.getText().toString();
+                            mTitleTextView.setText(newTitle);
+                            mSong.setTitle(newTitle);
+                            mHelper.updateSongMetadata(mSong.getSongID(), SongDatabaseHelper.UPDATE_TITLE, newTitle, mSong.getFilePath());
+                        }
+                    }).setNegativeButton(R.string.cancel_metadata_edit, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+
+            return builder.create();
+
+
+        }
+
     }
 }

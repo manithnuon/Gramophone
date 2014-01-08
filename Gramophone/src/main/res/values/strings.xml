@@ -32,6 +32,7 @@
     <string name="size">Size: %s</string>
     <string name="samplerate">Sample Rate: %s</string>
     <string name="play_count">Play Count: %s</string>
+    <string name="rating">Rating: %s/5</string>
 
     <string-array name="nav_drawer_menu_items">
         <item>Songs</item>
@@ -63,5 +64,9 @@
         <item>Show File</item>
         <item>Delete</item>
     </string-array>
+
+    <string name="edit_title">Edit Title</string>
+    <string name="confirm_metadata_edit">OK</string>
+    <string name="cancel_metadata_edit">Cancel</string>
 
 </resources>

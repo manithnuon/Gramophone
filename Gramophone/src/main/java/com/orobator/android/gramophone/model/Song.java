@@ -29,10 +29,9 @@ public class Song implements Serializable {
     private int hasArtwork;
     private int discNumber = 0;
     private int discTotal = 0;
-    private int trackNumber = 0;
-    private int trackCount = 0;
+    private int trackNumber = 0; // track number on album
+    private int trackCount = 0;  // total tracks on album
     private int year = 0;
-    private int numTracks = 0; // Number of tracks on the album
     private int bitRate = 0; // bits/second
     private int sampleRate = 0;
     private int playCount = 0;
@@ -200,14 +199,6 @@ public class Song implements Serializable {
 
     public void setWriter(String writer) {
         this.writer = writer;
-    }
-
-    public int getNumTracks() {
-        return numTracks;
-    }
-
-    public void setNumTracks(int numTracks) {
-        this.numTracks = numTracks;
     }
 
     public long getDuration() {
