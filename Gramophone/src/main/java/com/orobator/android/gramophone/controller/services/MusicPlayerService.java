@@ -5,8 +5,12 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
+import android.widget.SeekBar;
 
 import com.orobator.android.gramophone.model.Song;
 
@@ -14,12 +18,17 @@ import java.io.File;
 import java.io.IOException;
 
 public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener {
-    private static final String TAG = "MusicPlayerService";
     public static final String ACTION_PLAY = "com.orobator.android.gramophone.ACTION_PLAY";
     public static final String ACTION_TOGGLE_PLAYBACK = "com.orobator.android.gramophone.ACTION_TOGGLE_PLAYBACK";
     public static final String ACTION_SEEK_TO = "com.orobator.android.gramophone.ACTION_SEEK_TO";
     public static final String KEY_SEEK_TO = "com.orobator.android.gramophone.KEY_SEEK_TO";
-    MediaPlayer mMediaPlayer = null;
+    private static final String TAG = "MusicPlayerService";
+    static MediaPlayer sMediaPlayer = null;
+    private static long currentSongId = -1;
+
+    public static long getCurrentSongId() {
+        return currentSongId;
+    }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
@@ -33,29 +42,30 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         if (intent.getAction().equals(ACTION_PLAY)) {
             Log.d(TAG, "Received ACTION_PLAY");
             Song song = (Song) intent.getSerializableExtra(Song.KEY_SONG);
+            currentSongId = song.getSongID();
             Uri songUri = Uri.fromFile(new File(song.getFilePath()));
-            mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setOnPreparedListener(this);
+            sMediaPlayer = new MediaPlayer();
+            sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            sMediaPlayer.setOnPreparedListener(this);
             try {
-                mMediaPlayer.setDataSource(getApplicationContext(), songUri);
-                mMediaPlayer.prepareAsync();
+                sMediaPlayer.setDataSource(getApplicationContext(), songUri);
+                sMediaPlayer.prepareAsync();
                 Log.d(TAG, "Prepared the MediaPlayer asynchronously");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else if (intent.getAction().equals(ACTION_TOGGLE_PLAYBACK)) {
-            if (mMediaPlayer != null) {
-                if (mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.pause();
+            if (sMediaPlayer != null) {
+                if (sMediaPlayer.isPlaying()) {
+                    sMediaPlayer.pause();
                 } else {
-                    mMediaPlayer.start();
+                    sMediaPlayer.start();
                 }
             }
         } else if (intent.getAction().equals(ACTION_SEEK_TO)) {
-            if (mMediaPlayer != null) {
+            if (sMediaPlayer != null) {
                 int seek = intent.getIntExtra(KEY_SEEK_TO, 0);
-                mMediaPlayer.seekTo(seek);
+                sMediaPlayer.seekTo(seek);
             }
         }
 
@@ -65,5 +75,70 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    /**
+     * SeekBarUpdaterThread makes sure to update the SeekBar on the
+     * NowPlayingFragment
+     */
+    public static class SeekBarUpdaterThread extends HandlerThread {
+        private static final String TAG = "SeekbarUpdaterThread";
+        private static final int UPDATE_SEEKBAR = 0;
+        private SeekBar mSeekBar;
+        private Listener mListener;
+        /**
+         * The handler for this SeekBarUpdaterThread
+         */
+        private Handler mThreadHandler;
+
+        /**
+         * UI can only be updated on main thread, so a Handler to the main
+         * thread is needed
+         */
+        private Handler mMainThreadHandler;
+
+        public SeekBarUpdaterThread(Handler handler) {
+            super(TAG);
+            mMainThreadHandler = handler;
+        }
+
+        @Override
+        protected void onLooperPrepared() {
+            mThreadHandler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    if (msg.what == UPDATE_SEEKBAR) {
+                        mMainThreadHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (sMediaPlayer != null && sMediaPlayer.isPlaying()) {
+                                    mListener.onUpdateReceived(mSeekBar, sMediaPlayer.getCurrentPosition());
+                                }
+                            }
+                        });
+                    }
+                    Message message = mThreadHandler.obtainMessage(UPDATE_SEEKBAR);
+                    sendMessageDelayed(message, 100);
+                }
+            };
+        }
+
+        public void setListener(Listener listener) {
+            mListener = listener;
+            mThreadHandler.obtainMessage(UPDATE_SEEKBAR).sendToTarget();
+        }
+
+        public void setSeekBar(SeekBar seekBar) {
+            mSeekBar = seekBar;
+        }
+
+        /**
+         * Used as callback to the main thread so the seekbar can be updated
+         */
+        public interface Listener {
+            void onUpdateReceived(SeekBar seekBar, int progress);
+        }
+
+
     }
 }

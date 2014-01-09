@@ -383,6 +383,7 @@ public class Song implements Serializable {
      */
     public String displayTime(long duration, boolean precise) {
         if (!precise) {
+            // Round up
             duration += 500;
         }
 

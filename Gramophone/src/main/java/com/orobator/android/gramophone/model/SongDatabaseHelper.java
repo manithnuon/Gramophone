@@ -388,6 +388,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             } catch (RuntimeException re) {
                 Log.e(TAG, "Failed retriever.setDataSource(" + mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)) + ")");
                 // MetadataRetriever doesn't like midi files :(
+                // TODO Use FFMPEG MetadataRetriever https://github.com/wseemann/FFmpegMediaMetadataRetriever
                 mCursor.moveToNext();
                 continue;
             }
@@ -556,6 +557,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             } catch (RuntimeException re) {
                 Log.e(TAG, "Failed retriever.setDataSource(" + mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)) + ")");
                 // MetadataRetriever doesn't like midi files :(
+                // TODO Use FFMPEG MetadataRetriever https://github.com/wseemann/FFmpegMediaMetadataRetriever
                 mCursor.moveToNext();
                 continue;
             }
