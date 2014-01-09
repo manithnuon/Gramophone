@@ -28,6 +28,7 @@ public final class LibraryContract {
         public static final String COLUMN_NAME_COLOR_PRIMARY = "primary_color";
         public static final String COLUMN_NAME_COLOR_SECONDARY = "secondary_color";
         public static final String COLUMN_NAME_COLOR_DETAIL = "detail_color";
+        public static final String COLUMN_NAME_COMPILATION = "compilation";
         public static final String COLUMN_NAME_COMPOSER = "composer";
         public static final String COLUMN_NAME_DATE_MODIFIED = "modified";
         public static final String COLUMN_NAME_DISC_NUMBER = "disc_number";
@@ -47,6 +48,7 @@ public final class LibraryContract {
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_TRACK_NUMBER = "track_number";
         public static final String COLUMN_NAME_TRACK_TOTAL = "total_tracks";
+        public static final String COLUMN_NAME_WRITER = "writer";
         public static final String COLUMN_NAME_YEAR = "year";
     }
 

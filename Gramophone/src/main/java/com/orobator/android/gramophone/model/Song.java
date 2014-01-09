@@ -28,7 +28,7 @@ public class Song implements Serializable {
     public static final int DEFAULT_DETAIL_COLOR = -4479338;
     private int hasArtwork;
     private int discNumber = 0;
-    private int discTotal = 0;
+    private int discCount = 0;
     private int trackNumber = 0; // track number on album
     private int trackCount = 0;  // total tracks on album
     private int year = 0;
@@ -56,7 +56,6 @@ public class Song implements Serializable {
     private String compilationStatus;
     private String composer;
     private String writer;
-    private String fileName;
     private String filePath;
 
     public Song() {
@@ -167,14 +166,6 @@ public class Song implements Serializable {
 
     public void setSkipCount(int skipCount) {
         this.skipCount = skipCount;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 
     public int getPlayCount() {
@@ -289,12 +280,12 @@ public class Song implements Serializable {
         this.discNumber = discNumber;
     }
 
-    public int getDiscTotal() {
-        return discTotal;
+    public int getDiscCount() {
+        return discCount;
     }
 
-    public void setDiscTotal(int discTotal) {
-        this.discTotal = discTotal;
+    public void setDiscCount(int discCount) {
+        this.discCount = discCount;
     }
 
     public int getTrackNumber() {
@@ -360,7 +351,7 @@ public class Song implements Serializable {
     @Override
     public String toString() {
         if (title == null || artist == null) {
-            return fileName;
+            return filePath;
         }
 
         return title + " - " + artist;

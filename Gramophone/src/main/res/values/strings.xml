@@ -14,8 +14,8 @@
     <string name="album_artist">Album Artist: %s</string>
     <string name="artist">Artist: %s</string>
     <string name="bitrate">Bitrate: %s</string>
-    <string name="cd_track_number">CD Track Number: %s</string>
-    <string name="cd_track_count">CD Track Count: %s</string>
+    <string name="album_track_number">Album Track Number: %s</string>
+    <string name="album_track_count">Album Track Count: %s</string>
     <string name="compilation">Compilation: %s</string>
     <string name="composer">Composer: %s</string>
     <string name="date_modified">Date Modified: %s</string>
@@ -33,6 +33,7 @@
     <string name="samplerate">Sample Rate: %s</string>
     <string name="play_count">Play Count: %s</string>
     <string name="rating">Rating: %s/5</string>
+    <string name="skip_count">Skip Count: %s</string>
 
     <string-array name="nav_drawer_menu_items">
         <item>Songs</item>
@@ -68,5 +69,6 @@
     <string name="edit_title">Edit Title</string>
     <string name="confirm_metadata_edit">OK</string>
     <string name="cancel_metadata_edit">Cancel</string>
+    <string name="edit_metadata">Edit</string>
 
 </resources>

@@ -29,9 +29,26 @@ import java.util.HashSet;
  */
 public class SongDatabaseHelper extends SQLiteOpenHelper {
     public static final String UPDATE_TITLE = "update_title";
+    public static final String UPDATE_ARTIST = "update_artist";
+    public static final String UPDATE_ALBUM = "update_album";
+    public static final String UPDATE_ALBUM_ARTIST = "update_album_artist";
+    public static final String UPDATE_GENRE = "update_genre";
+    public static final String UPDATE_HAS_ARTWORK = "update_has_artwork";
+    public static final String UPDATE_COMPILATION = "update_compilation";
+    public static final String UPDATE_COMPOSER = "update_composer";
+    public static final String UPDATE_DISC_NUM = "update_disc_num";
+    public static final String UPDATE_DISC_COUNT = "update_disc_count";
+    public static final String UPDATE_LOCATION = "update_location";
+    public static final String UPDATE_PLAY_COUNT = "update_play_count";
+    public static final String UPDATE_RATING = "update_rating";
+    public static final String UPDATE_SKIP_COUNT = "update_skip_count";
+    public static final String UPDATE_TRACK_NUM = "update_track_num";
+    public static final String UPDATE_TRACK_COUNT = "update_track_count";
+    public static final String UPDATE_WRITER = "update_writer";
+    public static final String UPDATE_YEAR = "update_year";
+    private static final int VERSION = 1;
     private static final String TAG = "SongDatabaseHelper";
     private static final String DATABASE_NAME = "Library.db";
-    private static final int VERSION = 1;
     private static final String BIG_INT_TYPE = " BIG_INT";
     private static final String INT_TYPE = " INT";
     private static final String TEXT_TYPE = " TEXT";
@@ -47,6 +64,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                     SongEntry.COLUMN_NAME_COLOR_PRIMARY + INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_COLOR_SECONDARY + INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_COLOR_DETAIL + INT_TYPE + COMMA_SEP +
+                    SongEntry.COLUMN_NAME_COMPILATION + TEXT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_COMPOSER + TEXT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_DATE_MODIFIED + BIG_INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_DISC_NUMBER + INT_TYPE + COMMA_SEP +
@@ -66,6 +84,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                     SongEntry.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_TRACK_NUMBER + INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_TRACK_TOTAL + INT_TYPE + COMMA_SEP +
+                    SongEntry.COLUMN_NAME_WRITER + TEXT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_YEAR + INT_TYPE + ")";
     private static final String SQL_CREATE_ALBUM_ENTRIES =
             "CREATE TABLE " + AlbumEntry.TABLE_NAME + " (" +
@@ -112,18 +131,70 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         String id = Long.toString(songId);
+        ContentValues cv = new ContentValues();
+        String where = SongEntry._ID + "=?";
+        String whereArgs[] = {id};
 
         switch (whatToUpdate) {
             case UPDATE_TITLE:
-                ContentValues cv = new ContentValues();
-                String where = SongEntry._ID + "=?";
                 cv.put(SongEntry.COLUMN_NAME_TITLE, newValue);
-                db.update(SongEntry.TABLE_NAME, cv, where, new String[]{id});
+                break;
+            case UPDATE_ARTIST:
+                cv.put(SongEntry.COLUMN_NAME_ARTIST, newValue);
+                break;
+            case UPDATE_ALBUM:
+                cv.put(SongEntry.COLUMN_NAME_ALBUM, newValue);
+                break;
+            case UPDATE_ALBUM_ARTIST:
+                cv.put(SongEntry.COLUMN_NAME_ALBUM_ARTIST, newValue);
+                break;
+            case UPDATE_GENRE:
+                cv.put(SongEntry.COLUMN_NAME_GENRE, newValue);
+                break;
+            case UPDATE_HAS_ARTWORK:
+                // TODO do nothing for now
+                return;
+            case UPDATE_COMPILATION:
+                cv.put(SongEntry.COLUMN_NAME_COMPILATION, newValue);
+                break;
+            case UPDATE_COMPOSER:
+                cv.put(SongEntry.COLUMN_NAME_COMPOSER, newValue);
+                break;
+            case UPDATE_DISC_NUM:
+                cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, Integer.getInteger(newValue));
+                break;
+            case UPDATE_DISC_COUNT:
+                cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, Integer.getInteger(newValue));
+                break;
+            case UPDATE_LOCATION:
+                // TODO do nothing for now
+                return;
+            case UPDATE_PLAY_COUNT:
+                cv.put(SongEntry.COLUMN_NAME_PLAY_COUNT, Integer.getInteger(newValue));
+                break;
+            case UPDATE_RATING:
+                cv.put(SongEntry.COLUMN_NAME_RATING, Integer.getInteger(newValue));
+                break;
+            case UPDATE_SKIP_COUNT:
+                cv.put(SongEntry.COLUMN_NAME_SKIP_COUNT, Integer.getInteger(newValue));
+                break;
+            case UPDATE_TRACK_NUM:
+                cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, Integer.getInteger(newValue));
+                break;
+            case UPDATE_TRACK_COUNT:
+                cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, Integer.getInteger(newValue));
+                break;
+            case UPDATE_WRITER:
+                cv.put(SongEntry.COLUMN_NAME_WRITER, newValue);
+                break;
+            case UPDATE_YEAR:
+                cv.put(SongEntry.COLUMN_NAME_YEAR, Integer.getInteger(newValue));
                 break;
             default:
         }
 
         //TODO Actually edit the song's metadata. Why is MediaMetadataEditor abstract??? WTF Google!
+        db.update(SongEntry.TABLE_NAME, cv, where, whereArgs);
     }
 
     public SongCursor querySongsForAlbum(Album album) {
@@ -312,7 +383,14 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         HashSet<String> artistSet = new HashSet<String>();
 
         while (!mCursor.isAfterLast()) {
-            retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
+            try {
+                retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
+            } catch (RuntimeException re) {
+                Log.e(TAG, "Failed retriever.setDataSource(" + mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)) + ")");
+                // MetadataRetriever doesn't like midi files :(
+                mCursor.moveToNext();
+                continue;
+            }
             ContentValues cv = new ContentValues();
 
             String albumName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
@@ -473,7 +551,14 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         HashSet<Album> albumSet = new HashSet<Album>();
 
         while (!mCursor.isAfterLast()) {
-            retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
+            try {
+                retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
+            } catch (RuntimeException re) {
+                Log.e(TAG, "Failed retriever.setDataSource(" + mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)) + ")");
+                // MetadataRetriever doesn't like midi files :(
+                mCursor.moveToNext();
+                continue;
+            }
 
             String albumName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
             if (albumName == null || "".equals(albumName)) {
@@ -568,7 +653,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             song.setDiscNumber(discNumber);
 
             int discTotal = getInt(getColumnIndex(SongEntry.COLUMN_NAME_DISC_TOTAL));
-            song.setDiscTotal(discTotal);
+            song.setDiscCount(discTotal);
 
             long duration = getLong(getColumnIndex(SongEntry.COLUMN_NAME_DURATION));
             song.setDuration(duration);

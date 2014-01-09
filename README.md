@@ -16,8 +16,6 @@ This project is built using Android Studio.
 * [SwipeListView by 47 degrees](https://github.com/47deg/android-swipelistview)
 
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/AOrobator/gramophone/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
 ### Screenshots
 
 #### Basic Songs View
@@ -33,3 +31,4 @@ This project is built using Android Studio.
 ![Fix You](https://github.com/AOrobator/Gramophone/raw/master/img/Fix_You.png)
 ![Chasing_Pavements](https://github.com/AOrobator/Gramophone/raw/master/img/Chasing_Pavements.png)
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/AOrobator/gramophone/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
