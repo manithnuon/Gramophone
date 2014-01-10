@@ -70,5 +70,6 @@
     <string name="confirm_metadata_edit">OK</string>
     <string name="cancel_metadata_edit">Cancel</string>
     <string name="edit_metadata">Edit</string>
+    <string name="time_zero">0:00</string>
 
 </resources>
