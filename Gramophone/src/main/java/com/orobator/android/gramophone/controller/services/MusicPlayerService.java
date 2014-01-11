@@ -25,6 +25,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private static final String TAG = "MusicPlayerService";
     static MediaPlayer sMediaPlayer = null;
     private static long currentSongId = -1;
+    private Song mSong;
 
     public static long getCurrentSongId() {
         return currentSongId;
@@ -41,19 +42,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         Log.d(TAG, "onStartCommand");
         if (intent.getAction().equals(ACTION_PLAY)) {
             Log.d(TAG, "Received ACTION_PLAY");
-            Song song = (Song) intent.getSerializableExtra(Song.KEY_SONG);
-            currentSongId = song.getSongID();
-            Uri songUri = Uri.fromFile(new File(song.getFilePath()));
-            sMediaPlayer = new MediaPlayer();
-            sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            sMediaPlayer.setOnPreparedListener(this);
-            try {
-                sMediaPlayer.setDataSource(getApplicationContext(), songUri);
-                sMediaPlayer.prepareAsync();
-                Log.d(TAG, "Prepared the MediaPlayer asynchronously");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            mSong = (Song) intent.getSerializableExtra(Song.KEY_SONG);
+            currentSongId = mSong.getSongID();
+            playSong();
         } else if (intent.getAction().equals(ACTION_TOGGLE_PLAYBACK)) {
             if (sMediaPlayer != null) {
                 if (sMediaPlayer.isPlaying()) {
@@ -77,12 +68,25 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         return null;
     }
 
+    private void playSong() {
+        Uri songUri = Uri.fromFile(new File(mSong.getFilePath()));
+        sMediaPlayer = new MediaPlayer();
+        sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        sMediaPlayer.setOnPreparedListener(this);
+        try {
+            sMediaPlayer.setDataSource(getApplicationContext(), songUri);
+            sMediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * SeekBarUpdaterThread makes sure to update the SeekBar on the
      * NowPlayingFragment
      */
     public static class SeekBarUpdaterThread extends HandlerThread {
-        private static final String TAG = "SeekbarUpdaterThread";
+        private static final String TAG = "SeekBarUpdaterThread";
         private static final int UPDATE_SEEKBAR = 0;
         private SeekBar mSeekBar;
         private Listener mListener;
@@ -133,7 +137,8 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
         /**
-         * Used as callback to the main thread so the seekbar can be updated
+         * Used as callback to the main thread so the SeekBar can be updated
+         * with the passage of time
          */
         public interface Listener {
             void onUpdateReceived(SeekBar seekBar, int progress);

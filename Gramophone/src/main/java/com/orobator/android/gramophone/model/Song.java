@@ -17,10 +17,10 @@ public class Song implements Serializable {
     public static final String KEY_SONG_COLLECTION_TYPE = "song_collection_type";
     public static final String KEY_COLLECTION_TYPE_ALL = "all_songs";
     public static final String KEY_COLLECTION_TYPE_ALBUMS = "album_songs";
-    public static final String KEY_COLLECTION_TYPE_ARTISTS = "artist_songs";
     public static final String KEY_COLLECTION_TYPE_GENRES = "genre_songs";
     public static final String KEY_ALBUM = "song_album";
     public static final String KEY_ALBUM_ARTIST = "song_album_artist";
+    public static final String KEY_ARTIST = "artist";
     public static final String KEY_GENRE = "song_genre";
     public static final int DEFAULT_BACKGROUND_COLOR = 0xff22596d;
     public static final int DEFAULT_PRIMARY_COLOR = -268633;
@@ -374,10 +374,11 @@ public class Song implements Serializable {
     }
 
     /**
-     * displayTime() displays the time in a formatted string
+     * displayTime(long, boolean) displays the time in a formatted string
      *
      * @param duration the duration of a song in milliseconds
      * @param precise  if true, the result string will contain milliseconds
+     *
      * @return a string in the format of hh:mm:ss(.mmm). Leading zeros are not
      * shown
      */
@@ -404,6 +405,9 @@ public class Song implements Serializable {
         long displayMinutes = (totalSeconds - displayHours * hour) / minute;
         if (displayMinutes != 0) {
             minutes = Long.toString(displayMinutes);
+            if (displayMinutes < 10) {
+                minutes = "0" + minutes;
+            }
         } else {
             minutes = "0";
         }

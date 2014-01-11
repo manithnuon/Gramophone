@@ -1,0 +1,1 @@
+package com.orobator.android.gramophone.model;import java.util.ArrayList;public class SongQueue {    ArrayList mUpcomingSongs;    SongDatabaseHelper.SongCursor mSongCursor;    public static void initializeQueue(Song firstSong, boolean shuffle,                                       String collectionType) {    }}

@@ -52,7 +52,16 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
     private static final String BIG_INT_TYPE = " BIG_INT";
     private static final String INT_TYPE = " INT";
     private static final String TEXT_TYPE = " TEXT";
+    private static final String SQL_CREATE_ARTIST_ENTRIES =
+            "CREATE TABLE " + ArtistEntry.TABLE_NAME + " (" +
+                    ArtistEntry._ID + " INTEGER PRIMARY KEY," +
+                    ArtistEntry.COLUMN_NAME_ARTIST_NAME + TEXT_TYPE + ")";
     private static final String COMMA_SEP = ",";
+    private static final String SQL_CREATE_ALBUM_ENTRIES =
+            "CREATE TABLE " + AlbumEntry.TABLE_NAME + " (" +
+                    AlbumEntry._ID + " INTEGER PRIMARY KEY," +
+                    AlbumEntry.COLUMN_NAME_ALBUM_NAME + TEXT_TYPE + COMMA_SEP +
+                    AlbumEntry.COLUMN_NAME_ALBUM_ARTIST + TEXT_TYPE + ")";
     private static final String SQL_CREATE_SONG_ENTRIES =
             "CREATE TABLE " + SongEntry.TABLE_NAME + " (" +
                     SongEntry._ID + " INTEGER PRIMARY KEY," +
@@ -86,15 +95,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                     SongEntry.COLUMN_NAME_TRACK_TOTAL + INT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_WRITER + TEXT_TYPE + COMMA_SEP +
                     SongEntry.COLUMN_NAME_YEAR + INT_TYPE + ")";
-    private static final String SQL_CREATE_ALBUM_ENTRIES =
-            "CREATE TABLE " + AlbumEntry.TABLE_NAME + " (" +
-                    AlbumEntry._ID + " INTEGER PRIMARY KEY," +
-                    AlbumEntry.COLUMN_NAME_ALBUM_NAME + TEXT_TYPE + COMMA_SEP +
-                    AlbumEntry.COLUMN_NAME_ALBUM_ARTIST + TEXT_TYPE + ")";
-    private static final String SQL_CREATE_ARTIST_ENTRIES =
-            "CREATE TABLE " + ArtistEntry.TABLE_NAME + " (" +
-                    ArtistEntry._ID + " INTEGER PRIMARY KEY," +
-                    ArtistEntry.COLUMN_NAME_ARTIST_NAME + TEXT_TYPE + ")";
     private static final String SQL_CREATE_GENRE_ENTRIES =
             "CREATE TABLE " + GenreEntry.TABLE_NAME + " (" +
                     GenreEntry._ID + " INTEGER PRIMARY KEY," +
@@ -107,24 +107,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
     public SongDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, VERSION);
         sContext = context;
-    }
-
-    public SongCursor querySongs() {
-        if (allSongs != null && !allSongs.isClosed()) {
-            return allSongs;
-        }
-        // Equivalent to "select * from song order by song_title asc"
-        Cursor wrapped = getReadableDatabase()
-                .query(
-                        SongEntry.TABLE_NAME,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        SongEntry.COLUMN_NAME_TITLE + " asc");
-        allSongs = new SongCursor(wrapped);
-        return allSongs;
     }
 
     public void updateSongMetadata(long songId, String whatToUpdate, String newValue, String songPath) {
@@ -193,10 +175,58 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             default:
         }
 
-        //TODO Actually edit the song's metadata. Why is MediaMetadataEditor abstract??? WTF Google!
+        //TODO Actually edit the song's metadata.
         db.update(SongEntry.TABLE_NAME, cv, where, whereArgs);
     }
 
+    /**
+     * querySongs() queries the Library database for all songs
+     *
+     * @return a SongCursor containing all of the songs in the database
+     */
+    public SongCursor querySongs() {
+        if (allSongs != null && !allSongs.isClosed()) {
+            return allSongs;
+        }
+        // Equivalent to "select * from song order by song_title asc"
+        Cursor wrapped = getReadableDatabase()
+                .query(
+                        SongEntry.TABLE_NAME,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        SongEntry.COLUMN_NAME_TITLE + " asc");
+        allSongs = new SongCursor(wrapped);
+        return allSongs;
+    }
+
+    /**
+     * querySongsForArtist(String) returns a SongCursor containing all songs by
+     * a given artist
+     */
+    public SongCursor querySongsForArtist(String artist) {
+        String selection = SongEntry.COLUMN_NAME_ARTIST + "=?";
+        String selectionArgs[] = {artist};
+        Cursor wrapped = getReadableDatabase()
+                .query(SongEntry.TABLE_NAME,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null, null,
+                        SongEntry.COLUMN_NAME_TITLE + " asc");
+        return new SongCursor(wrapped);
+    }
+
+    /**
+     * querySongsForAlbum(Album) returns a SongCursor containing the songs in
+     * the given album
+     *
+     * @param album The album to get songs from
+     *
+     * @return A SongCursor with all the songs from the specified album
+     */
     public SongCursor querySongsForAlbum(Album album) {
         String selection =
                 SongEntry.COLUMN_NAME_ALBUM + " =? AND "
@@ -214,6 +244,15 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return new SongCursor(wrapped);
     }
 
+    /**
+     * querySongsForGenre(String) returns a SongCursor containing the songs that
+     * have the given genre
+     *
+     * @param genre the genre that all songs in the returned SongCursor will
+     *              have
+     *
+     * @return A SongCursor with al the songs that the specified genre
+     */
     public SongCursor querySongsForGenre(String genre) {
         String selection = SongEntry.COLUMN_NAME_GENRE + " =?";
         String selectionArgs[] = {genre};
@@ -229,6 +268,12 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return new SongCursor(wrapped);
     }
 
+    /**
+     * queryAlbums() returns an AlbumCursor containing all albums in the
+     * Library database
+     *
+     * @return an AlbumCursor containing all albums in the Library database
+     */
     public AlbumCursor queryAlbums() {
         Cursor wrapped = getReadableDatabase()
                 .query(
@@ -242,6 +287,10 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return new AlbumCursor(wrapped);
     }
 
+    /**
+     * queryAlbumsForArtist(String) returns an AlbumCursor containing all
+     * albums by the specified artist
+     */
     public AlbumCursor queryAlbumsForArtist(String artist) {
         String selection = AlbumEntry.COLUMN_NAME_ALBUM_ARTIST + " =?";
         String selectionArgs[] = {artist};
@@ -317,38 +366,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public int createGenres(SQLiteDatabase db) {
-        Uri uri = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
-        String projection[] = {MediaStore.Audio.Genres.NAME};
-        String selection = MediaStore.Audio.Genres.NAME + " != ''";
-        String sortOrder = MediaStore.Audio.Genres.NAME + " asc";
-
-        Cursor cursor = sContext
-                .getContentResolver()
-                .query(uri, projection, selection, null, sortOrder);
-
-        cursor.moveToNext();
-
-        HashSet<String> genres = new HashSet<String>();
-
-        while (!cursor.isAfterLast()) {
-            String genre = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres.NAME));
-
-            if (!genres.contains(genre) && !"".equals(genre)) {
-                genres.add(genre);
-                ContentValues values = new ContentValues();
-                values.put(GenreEntry.COLUMN_NAME_GENRE_NAME, genre);
-                db.insert(GenreEntry.TABLE_NAME, null, values);
-                Log.i(TAG, "Created " + genres.size() + " genres");
-            }
-
-            cursor.moveToNext();
-        }
-
-        return genres.size();
-    }
-
-    public int createSongsAndArtists(SQLiteDatabase db) {
+    private int createSongsAndArtists(SQLiteDatabase db) {
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String mProjection[] =
                 {
@@ -437,7 +455,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                 if (discNums.length > 1) {
                     cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, Integer.parseInt(discNums[1]));
                 } else {
-                    cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, -1);
+                    cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, 1);
                 }
             }
 
@@ -493,7 +511,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                 if (trackNums.length > 1) {
                     cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, Integer.parseInt(trackNums[1]));
                 } else {
-                    cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, -1);
+                    cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, 1);
                 }
             }
 
@@ -524,7 +542,43 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public int createAlbums(SQLiteDatabase db) {
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Implement schema changes and data massage here when upgrading
+    }
+
+    private int createGenres(SQLiteDatabase db) {
+        Uri uri = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
+        String projection[] = {MediaStore.Audio.Genres.NAME};
+        String selection = MediaStore.Audio.Genres.NAME + " != ''";
+        String sortOrder = MediaStore.Audio.Genres.NAME + " asc";
+
+        Cursor cursor = sContext
+                .getContentResolver()
+                .query(uri, projection, selection, null, sortOrder);
+
+        cursor.moveToNext();
+
+        HashSet<String> genres = new HashSet<String>();
+
+        while (!cursor.isAfterLast()) {
+            String genre = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres.NAME));
+
+            if (!genres.contains(genre) && !"".equals(genre)) {
+                genres.add(genre);
+                ContentValues values = new ContentValues();
+                values.put(GenreEntry.COLUMN_NAME_GENRE_NAME, genre);
+                db.insert(GenreEntry.TABLE_NAME, null, values);
+                Log.i(TAG, "Created " + genres.size() + " genres");
+            }
+
+            cursor.moveToNext();
+        }
+
+        return genres.size();
+    }
+
+    private int createAlbums(SQLiteDatabase db) {
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String mProjection[] =
                 {
@@ -589,11 +643,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         int count = mCursor.getCount();
         mCursor.close();
         return count;
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Implement schema changes and data massage here when upgrading
     }
 
     /**
