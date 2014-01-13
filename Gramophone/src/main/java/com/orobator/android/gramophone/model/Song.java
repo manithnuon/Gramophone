@@ -21,18 +21,24 @@ public class Song implements Serializable {
     public static final String KEY_ALBUM = "song_album";
     public static final String KEY_ALBUM_ARTIST = "song_album_artist";
     public static final String KEY_ARTIST = "artist";
+    public static final String KEY_FILE_PATH = "file_path";
     public static final String KEY_GENRE = "song_genre";
+
+    /**
+     * Default colors for Now Playing screen
+     */
     public static final int DEFAULT_BACKGROUND_COLOR = 0xff22596d;
     public static final int DEFAULT_PRIMARY_COLOR = -268633;
     public static final int DEFAULT_SECONDARY_COLOR = -3826113;
     public static final int DEFAULT_DETAIL_COLOR = -4479338;
+
     private int hasArtwork;
     private int discNumber = 0;
     private int discCount = 0;
-    private int trackNumber = 0; // track number on album
-    private int trackCount = 0;  // total tracks on album
+    private int trackNumber = 0; // Track number on album
+    private int trackCount = 0;  // Total tracks on album
     private int year = 0;
-    private int bitRate = 0; // bits/second
+    private int bitRate = 0; // Bits/second
     private int sampleRate = 0;
     private int playCount = 0;
     private int skipCount = 0;
@@ -41,7 +47,7 @@ public class Song implements Serializable {
     private int primaryColor;
     private int secondaryColor;
     private int detailColor;
-    private int rating = 0;
+    private int rating = 0; // Has max of 5
     private long songID = 0;
     private long size = 0; // Size of song in bytes
     private long dateModified; // Seconds since Jan 1, 1970
@@ -104,6 +110,10 @@ public class Song implements Serializable {
         return retriever.getEmbeddedPicture();
     }
 
+    public boolean hasArtwork() {
+        return hasArtwork == 1;
+    }
+
     public Bitmap getArtwork() {
         if (!hasArtwork()) {
             return null;
@@ -114,10 +124,6 @@ public class Song implements Serializable {
 
         byte albumBytes[] = retriever.getEmbeddedPicture();
         return BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
-    }
-
-    public boolean hasArtwork() {
-        return hasArtwork == 1;
     }
 
     public boolean skipOnShuffle() {
@@ -357,6 +363,10 @@ public class Song implements Serializable {
         return title + " - " + artist;
     }
 
+    /**
+     * displaySize() returns a string detailing how the file size of a song in
+     * kilobytes, megabytes, or gigabytes, whichever is most appropriate
+     */
     public String displaySize() {
         double kb = 1000;
         double mb = kb * 1000;
@@ -388,7 +398,7 @@ public class Song implements Serializable {
             duration += 500;
         }
 
-        long totalSeconds = duration / 1000;
+        final long totalSeconds = duration / 1000;
         int minute = 60;
         int hour = minute * 60;
 
@@ -402,7 +412,7 @@ public class Song implements Serializable {
             hours = Long.toString(displayHours) + ":";
         }
 
-        long displayMinutes = (totalSeconds - displayHours * hour) / minute;
+        long displayMinutes = (totalSeconds - (displayHours * hour)) / minute;
         if (displayMinutes != 0) {
             minutes = Long.toString(displayMinutes);
             if (displayMinutes < 10) {
@@ -412,7 +422,7 @@ public class Song implements Serializable {
             minutes = "0";
         }
 
-        long displaySeconds = totalSeconds - displayHours * hour - displayMinutes * minute;
+        long displaySeconds = totalSeconds - (displayHours * hour) - (displayMinutes * minute);
         if (displaySeconds != 0) {
             seconds = Long.toString(displaySeconds);
             if (displaySeconds < 10) {

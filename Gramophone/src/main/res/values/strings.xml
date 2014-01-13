@@ -74,4 +74,10 @@
 
     <string name="view_songs">View Songs</string>
 
+    <string name="alert_dialog_delete_songs_title">Delete Song?</string>
+    <string name="cancel_delete_song">Cancel</string>
+    <string name="alert_dialog_confirm_delete_song">Delete</string>
+    <string name="song_delete_failed">Delete Failed</string>
+    <string name="make_sure_delete_song">Are you sure you want to delete %s ?</string>
+
 </resources>

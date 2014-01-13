@@ -109,6 +109,11 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         sContext = context;
     }
 
+    public void deleteSong(long songId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(SongEntry.TABLE_NAME, "_ID=?", new String[]{Long.toString(songId)});
+    }
+
     public void updateSongMetadata(long songId, String whatToUpdate, String newValue, String songPath) {
         SQLiteDatabase db = getWritableDatabase();
 
