@@ -21,6 +21,7 @@ public class Song implements Serializable {
     public static final String KEY_ALBUM = "song_album";
     public static final String KEY_ALBUM_ARTIST = "song_album_artist";
     public static final String KEY_ARTIST = "artist";
+    public static final String KEY_FILE_PATH = "file_path";
     public static final String KEY_GENRE = "song_genre";
     public static final int DEFAULT_BACKGROUND_COLOR = 0xff22596d;
     public static final int DEFAULT_PRIMARY_COLOR = -268633;
