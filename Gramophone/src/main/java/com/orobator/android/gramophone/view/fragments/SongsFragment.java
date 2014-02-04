@@ -62,6 +62,7 @@ public class SongsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         if (view != null) {
             mSwipeListView = (SwipeListView) view.findViewById(R.id.list_view_songs);
+
         }
 
         LinearLayout emptyView = (LinearLayout) inflater.inflate(R.layout.list_view_songs_empty, parent, false);
@@ -71,5 +72,26 @@ public class SongsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         return view;
     }
+
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//
+//        // Adjust the padding for the listview so it's under the ActionBar
+//        ViewTreeObserver observer = mSwipeListView.getViewTreeObserver();
+//        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                int left = mSwipeListView.getPaddingLeft();
+//                int top = getActivity().getActionBar().getHeight() + mSwipeListView.getPaddingTop();
+//                int right = mSwipeListView.getPaddingRight();
+//                int bottom = mSwipeListView.getPaddingBottom();
+//
+//                mSwipeListView.setPadding(left,top, right, bottom);
+//
+//                mSwipeListView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+//            }
+//        });
+//    }
 
 }

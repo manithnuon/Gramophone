@@ -14,10 +14,12 @@ public class Song implements Serializable {
     public static final long serialVersionUID = 0L;
     public static final String KEY_SONG = "song";
     public static final String KEY_CURSOR_POSITION = "position";
+
     public static final String KEY_SONG_COLLECTION_TYPE = "song_collection_type";
     public static final String KEY_COLLECTION_TYPE_ALL = "all_songs";
     public static final String KEY_COLLECTION_TYPE_ALBUMS = "album_songs";
     public static final String KEY_COLLECTION_TYPE_GENRES = "genre_songs";
+
     public static final String KEY_ALBUM = "song_album";
     public static final String KEY_ALBUM_ARTIST = "song_album_artist";
     public static final String KEY_ARTIST = "artist";

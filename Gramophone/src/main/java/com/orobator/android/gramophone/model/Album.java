@@ -1,8 +1,11 @@
 package com.orobator.android.gramophone.model;
 
-public class Album {
-    public static final String KEY_ALBUM_NAME = "album name";
-    public static final String KEY_ALBUM_ARTIST = "album artist";
+import java.io.Serializable;
+
+public class Album implements Serializable {
+    public static final long serialVersionUID = 0L;
+    public static final String KEY_ALBUM_NAME = "album name key";
+    public static final String KEY_ALBUM_ARTIST = "album artist key";
     private String mAlbumName;
     private String mAlbumArtist;
 

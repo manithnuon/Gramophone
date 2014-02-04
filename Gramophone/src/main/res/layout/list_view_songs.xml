@@ -14,5 +14,4 @@
             swipe:swipeBackView="@+id/swipelist_backview"
             swipe:swipeMode="left"
             swipe:swipeCloseAllItemsWhenMoveList="true"/>
-
 </FrameLayout>

@@ -112,6 +112,7 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
     public void deleteSong(long songId) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(SongEntry.TABLE_NAME, "_ID=?", new String[]{Long.toString(songId)});
+        // TODO if you're the last song in the genre/artist/album, delete it.
     }
 
     public void updateSongMetadata(long songId, String whatToUpdate, String newValue, String songPath) {
@@ -456,6 +457,8 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
                     cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, Integer.parseInt(discNums[0]));
                 } catch (NumberFormatException nfe) {
                     cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, 1);
+                } catch (ArrayIndexOutOfBoundsException outOfBounds) {
+                    // Song lacks disc number, continue
                 }
                 if (discNums.length > 1) {
                     cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, Integer.parseInt(discNums[1]));
