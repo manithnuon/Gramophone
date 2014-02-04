@@ -15,6 +15,8 @@ This project is built using Android Studio.
 
 * [SwipeListView by 47 degrees](https://github.com/47deg/android-swipelistview)
 
+* [SystemBarTint by Jeff Gilfelt](https://github.com/jgilfelt/SystemBarTint)
+
 
 ### Screenshots
 
@@ -26,9 +28,9 @@ This project is built using Android Studio.
 
 #### Now Playing Screen
 
-![Lisztomania](https://github.com/AOrobator/Gramophone/raw/master/img/Lisztomania.png)
-![A Star Is Born](https://github.com/AOrobator/Gramophone/raw/master/img/A_Star_Is_Born.png)
-![Fix You](https://github.com/AOrobator/Gramophone/raw/master/img/Fix_You.png)
+![Apologize](https://github.com/AOrobator/Gramophone/raw/master/img/Apologize.png)
+![Levels](https://github.com/AOrobator/Gramophone/raw/master/img/Levels.png)
+![Strange World](https://github.com/AOrobator/Gramophone/raw/master/img/Strange_World.png)
 ![Chasing_Pavements](https://github.com/AOrobator/Gramophone/raw/master/img/Chasing_Pavements.png)
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/AOrobator/gramophone/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
