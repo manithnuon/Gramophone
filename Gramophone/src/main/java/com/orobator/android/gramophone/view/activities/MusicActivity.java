@@ -1,5 +1,6 @@
 package com.orobator.android.gramophone.view.activities;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -7,6 +8,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
@@ -17,6 +19,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -28,6 +32,7 @@ import com.orobator.android.gramophone.view.fragments.AlbumsFragment;
 import com.orobator.android.gramophone.view.fragments.ArtistsFragment;
 import com.orobator.android.gramophone.view.fragments.GenresFragment;
 import com.orobator.android.gramophone.view.fragments.SongsFragment;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +64,18 @@ public class MusicActivity extends Activity {
         long start = System.currentTimeMillis();
 
         setContentView(R.layout.nav_drawer);
+
+        setTranslucentStatusAndNavigationBar(true);
+
+        // create our manager instance after the content view is set
+        SystemBarTintManager tintManager = new SystemBarTintManager(this);
+        // enable status bar tint
+        tintManager.setStatusBarTintEnabled(true);
+        // enable navigation bar tint
+        tintManager.setNavigationBarTintEnabled(true);
+
+        tintManager.setStatusBarTintColor(getResources().getColor(R.color.belize_hole));
+        tintManager.setNavigationBarTintColor(0x33000000);
 
         long end = System.currentTimeMillis();
         double duration = (end - start) / 1000.0;
@@ -100,6 +117,20 @@ public class MusicActivity extends Activity {
         getActionBar().setHomeButtonEnabled(true);
 
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        // Add padding to the tops of views so that they don't start under the
+        // status bar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
+            int left = mDrawerList.getPaddingLeft();
+            int top = config.getActionBarHeight() + config.getStatusBarHeight();
+            int right = mDrawerList.getPaddingRight();
+            int bottom = mDrawerList.getPaddingBottom();
+            mDrawerList.setPadding(left, top, right, bottom);
+
+            View contentFrame = findViewById(R.id.content_frame);
+            contentFrame.setPadding(left, top, right, bottom);
+        }
 
         List<String> items = new ArrayList<String>();
         for (String string : nav_items) {
@@ -173,6 +204,23 @@ public class MusicActivity extends Activity {
             setTitle(nav_items[CURRENT_FRAGMENT]);
         }
 
+    }
+
+    @TargetApi(19)
+    private void setTranslucentStatusAndNavigationBar(boolean on) {
+        Window win = getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int status = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        final int navbar = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+        if (on) {
+            winParams.flags |= status;
+            winParams.flags |= navbar;
+
+        } else {
+            winParams.flags &= ~status;
+            winParams.flags &= ~navbar;
+        }
+        win.setAttributes(winParams);
     }
 
     @Override

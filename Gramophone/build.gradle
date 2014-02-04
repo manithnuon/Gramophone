@@ -32,5 +32,6 @@ dependencies {
     compile 'com.android.support:support-v4:18.0.+'
     compile 'org.michaelevans.colorart:library:0.0.2'
     compile 'com.nineoldandroids:library:2.4.0'
+    compile 'com.readystatesoftware.systembartint:systembartint:+'
     compile fileTree(dir: 'libs', include: '*.jar')
 }
