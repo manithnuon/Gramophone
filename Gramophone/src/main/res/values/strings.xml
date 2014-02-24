@@ -80,4 +80,6 @@
     <string name="song_delete_failed">Delete Failed</string>
     <string name="make_sure_delete_song">Are you sure you want to delete %s ?</string>
 
+    <string name="init_library">Initializing Library...</string>
+
 </resources>

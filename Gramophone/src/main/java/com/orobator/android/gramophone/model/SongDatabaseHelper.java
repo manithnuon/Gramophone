@@ -587,6 +587,8 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
     }
 
     private int createAlbums(SQLiteDatabase db) {
+        /* TODO: Associate a grouping of song ids with an album, also have a
+                 location of a song with album art */
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String mProjection[] =
                 {

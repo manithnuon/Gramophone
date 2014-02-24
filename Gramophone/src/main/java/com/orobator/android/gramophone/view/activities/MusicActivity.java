@@ -75,7 +75,7 @@ public class MusicActivity extends Activity {
         tintManager.setNavigationBarTintEnabled(true);
 
         tintManager.setStatusBarTintColor(getResources().getColor(R.color.belize_hole));
-        tintManager.setNavigationBarTintColor(0x33000000);
+        tintManager.setNavigationBarTintColor(0x00000000);
 
         long end = System.currentTimeMillis();
         double duration = (end - start) / 1000.0;
