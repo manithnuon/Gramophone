@@ -24,7 +24,7 @@
                     android:id="@+id/playNext_imageButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@android:drawable/ic_media_play"
+                    android:src="@drawable/ic_action_play"
                     android:contentDescription="@string/play_next"
                     android:background="@color/clear"/>
 
@@ -52,7 +52,7 @@
                     android:layout_marginTop="@dimen/activity_horizontal_margin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@android:drawable/ic_menu_add"
+                    android:src="@drawable/ic_action_add_to_queue"
                     android:contentDescription="@string/add_to_queue"
                     android:background="@color/clear"/>
 
@@ -80,7 +80,7 @@
                     android:layout_marginTop="@dimen/activity_horizontal_margin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@android:drawable/ic_btn_speak_now"
+                    android:src="@drawable/ic_action_mic"
                     android:contentDescription="@string/go_to_artist"
                     android:background="@color/clear"/>
 

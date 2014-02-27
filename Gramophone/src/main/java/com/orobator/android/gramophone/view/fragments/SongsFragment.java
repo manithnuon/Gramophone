@@ -5,10 +5,16 @@ import android.app.LoaderManager;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.fortysevendeg.android.swipelistview.SwipeListView;
 import com.orobator.android.gramophone.R;
@@ -35,9 +41,53 @@ public class SongsFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         SongCursor songCursor = (SongCursor) cursor;
         SongCursorAdapter adapter = new SongCursorAdapter(getActivity().getApplicationContext(), songCursor, this);
+        SongClickListener clickListener = new SongClickListener(adapter, this);
         mSwipeListView.setAdapter(adapter);
-        mSwipeListView.setOnItemClickListener(new SongClickListener(adapter, this));
+        mSwipeListView.setOnItemClickListener(clickListener);
+        mSwipeListView.setOnItemLongClickListener(clickListener);
         mSwipeListView.setSwipeListViewListener(new SongSwipeViewListener(adapter, this));
+        mSwipeListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                // Here you can do something when items are selected/de-selected,
+                // such as update the title in the CAB
+                // TODO update title to reflect selection count
+                // TODO create data structure to manage what has been selected
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.song_context_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                // Here you can perform updates to the CAB due to
+                // an invalidate() request
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_delete:
+                        // deleteSelectedItems();
+                        Toast.makeText(getActivity(), "Delete from MultiChoiceModeListener", Toast.LENGTH_LONG).show();
+                        mode.finish(); // Action picked, so close the CAB
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                // Here you can make any necessary updates to the activity when
+                // the CAB is removed. By default, selected items are deselected/unchecked.
+            }
+        });
     }
 
     @Override
@@ -71,6 +121,12 @@ public class SongsFragment extends Fragment implements LoaderManager.LoaderCallb
         mSwipeListView.setEmptyView(emptyView);
 
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mSwipeListView.setSelector(R.drawable.song_list_view_selector);
     }
 
 }
