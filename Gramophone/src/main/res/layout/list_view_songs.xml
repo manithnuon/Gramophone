@@ -13,5 +13,6 @@
             swipe:swipeFrontView="@+id/swipelist_frontview"
             swipe:swipeBackView="@+id/swipelist_backview"
             swipe:swipeMode="left"
-            swipe:swipeCloseAllItemsWhenMoveList="true"/>
+            swipe:swipeCloseAllItemsWhenMoveList="true"
+            swipe:swipeOpenOnLongPress="false"/>
 </FrameLayout>

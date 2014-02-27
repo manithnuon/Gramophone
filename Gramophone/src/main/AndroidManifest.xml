@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher"
@@ -47,6 +49,9 @@
                 android:enabled="true"
                 android:exported="false">
         </service>
+        <meta-data
+                android:name="com.crashlytics.ApiKey"
+                android:value="7e72d200b6d9876f0b1e482e8d34cdd465e36d3c"/>
     </application>
 
 </manifest>

@@ -27,6 +27,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.view.fragments.AlbumsFragment;
 import com.orobator.android.gramophone.view.fragments.ArtistsFragment;
@@ -61,6 +62,8 @@ public class MusicActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crashlytics.start(this);
+
         long start = System.currentTimeMillis();
 
         setContentView(R.layout.nav_drawer);
