@@ -32,6 +32,7 @@ import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.view.fragments.AlbumsFragment;
 import com.orobator.android.gramophone.view.fragments.ArtistsFragment;
 import com.orobator.android.gramophone.view.fragments.GenresFragment;
+import com.orobator.android.gramophone.view.fragments.SongQueueFragment;
 import com.orobator.android.gramophone.view.fragments.SongsFragment;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
@@ -166,7 +167,7 @@ public class MusicActivity extends Activity {
 
                 Log.i(TAG, "Name of top back stack entry: " + topName);
 
-                switch (topName) {
+                switch (topName) { // TODO: Sometimes this is null. Figure out why.
                     case "com.orobator.android.gramophone.Songs":
                         topName = "Songs";
                         CURRENT_FRAGMENT = SONGS_FRAGMENT;
@@ -332,35 +333,36 @@ public class MusicActivity extends Activity {
         int oldCURRENT_FRAGMENT = CURRENT_FRAGMENT;
 
         switch (position) {
-            case 0:
+            case SONGS_FRAGMENT:
                 fragment = new SongsFragment();
                 CURRENT_FRAGMENT = SONGS_FRAGMENT;
                 fragmentName = "com.orobator.android.gramophone.Songs";
                 break;
-            case 1:
+            case ALBUMS_FRAGMENT:
                 fragment = new AlbumsFragment();
                 CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
                 fragmentName = "com.orobator.android.gramophone.Albums";
                 break;
-            case 2:
+            case ARTISTS_FRAGMENT:
                 fragment = new ArtistsFragment();
                 CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
                 fragmentName = "com.orobator.android.gramophone.Artists";
                 break;
-            case 3:
+            case GENRES_FRAGMENT:
                 fragment = new GenresFragment();
                 CURRENT_FRAGMENT = GENRES_FRAGMENT;
                 fragmentName = "com.orobator.android.gramophone.Genres";
                 break;
-            case 4:
-                fragment = new SongsFragment();
+            case QUEUE_FRAGMENT:
+                fragment = new SongQueueFragment();
                 CURRENT_FRAGMENT = QUEUE_FRAGMENT;
                 fragmentName = "com.orobator.android.gramophone.Queue";
                 break;
-            case 5:
+            case PLAYLISTS_FRAGMENT:
                 fragment = new SongsFragment();
                 CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT;
                 fragmentName = "com.orobator.android.gramophone.Playlists";
+                break;
             default:
                 fragment = new SongsFragment();
         }

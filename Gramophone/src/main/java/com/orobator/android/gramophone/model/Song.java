@@ -365,6 +365,27 @@ public class Song implements Serializable {
         return title + " - " + artist;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Song)) {
+            return false;
+        }
+
+        Song other = (Song) o;
+
+        return songID == other.getSongID();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 1;
+        hash = (hash * 17) + (int) songID;
+        hash = (hash * 31) + title.hashCode();
+        hash = (hash * 19) + artist.hashCode();
+        hash = (hash * 53) + album.hashCode();
+        return hash;
+    }
+
     /**
      * displaySize() returns a string detailing how the file size of a song in
      * kilobytes, megabytes, or gigabytes, whichever is most appropriate
