@@ -20,7 +20,7 @@ import com.fortysevendeg.android.swipelistview.SwipeListView;
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.controller.listeners.SongClickListener;
 import com.orobator.android.gramophone.controller.listeners.SongSwipeViewListener;
-import com.orobator.android.gramophone.model.SongDatabaseHelper.SongCursor;
+import com.orobator.android.gramophone.model.SongDatabaseHelper;
 import com.orobator.android.gramophone.model.loaders.SongCursorLoader;
 import com.orobator.android.gramophone.view.adapters.DummyListAdapter;
 import com.orobator.android.gramophone.view.adapters.SongCursorAdapter;
@@ -39,11 +39,10 @@ public class SongsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        SongCursor songCursor = (SongCursor) cursor;
+        SongDatabaseHelper.SongCursor songCursor = (SongDatabaseHelper.SongCursor) cursor;
         SongCursorAdapter adapter = new SongCursorAdapter(getActivity().getApplicationContext(), songCursor, this);
         SongClickListener clickListener = new SongClickListener(adapter, this);
         mSwipeListView.setAdapter(adapter);
-        mSwipeListView.setOnItemClickListener(clickListener);
         mSwipeListView.setOnItemLongClickListener(clickListener);
         mSwipeListView.setSwipeListViewListener(new SongSwipeViewListener(adapter, this));
         mSwipeListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
@@ -112,7 +111,6 @@ public class SongsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         if (view != null) {
             mSwipeListView = (SwipeListView) view.findViewById(R.id.list_view_songs);
-
         }
 
         LinearLayout emptyView = (LinearLayout) inflater.inflate(R.layout.list_view_songs_empty, parent, false);
@@ -123,10 +121,10 @@ public class SongsFragment extends Fragment implements LoaderManager.LoaderCallb
         return view;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mSwipeListView.setSelector(R.drawable.song_list_view_selector);
-    }
+//    @Override
+//    public void onActivityCreated(Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+////        mSwipeListView.setSelector(R.drawable.song_list_view_selector);
+//    }
 
 }

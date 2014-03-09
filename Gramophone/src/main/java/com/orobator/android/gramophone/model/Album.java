@@ -23,6 +23,11 @@ public class Album implements Serializable {
     }
 
     @Override
+    public String toString() {
+        return mAlbumName + " - " + mAlbumArtist;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof Album)) {
             return false;
