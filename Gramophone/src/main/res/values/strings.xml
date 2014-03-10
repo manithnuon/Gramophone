@@ -81,5 +81,6 @@
     <string name="make_sure_delete_song">Are you sure you want to delete %s ?</string>
 
     <string name="init_library">Initializing Library...</string>
+    <string name="queue_empty">Queue is empty</string>
 
 </resources>
