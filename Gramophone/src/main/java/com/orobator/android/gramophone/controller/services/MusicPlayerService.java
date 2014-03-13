@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 import android.widget.SeekBar;
 
 import com.orobator.android.gramophone.model.Song;
@@ -34,17 +33,14 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     @Override
     public void onPrepared(MediaPlayer mp) {
         mp.start();
-        Log.d(TAG, "MediaPlayer started");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startID) {
-        Log.d(TAG, "onStartCommand");
         if (intent.getAction().equals(ACTION_PLAY)) {
-            Log.d(TAG, "Received ACTION_PLAY");
             mSong = (Song) intent.getSerializableExtra(Song.KEY_SONG);
             currentSongId = mSong.getSongID();
-            playSong();
+            playSong(); // TODO: You're also calling playSong() in swipeViewListener. One of them has got to go.
         } else if (intent.getAction().equals(ACTION_TOGGLE_PLAYBACK)) {
             if (sMediaPlayer != null) {
                 if (sMediaPlayer.isPlaying()) {

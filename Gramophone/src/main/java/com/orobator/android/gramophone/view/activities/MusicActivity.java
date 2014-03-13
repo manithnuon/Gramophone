@@ -65,8 +65,6 @@ public class MusicActivity extends Activity {
         super.onCreate(savedInstanceState);
         Crashlytics.start(this);
 
-        long start = System.currentTimeMillis();
-
         setContentView(R.layout.nav_drawer);
 
         setTranslucentStatusAndNavigationBar(true);
@@ -80,10 +78,6 @@ public class MusicActivity extends Activity {
 
         tintManager.setStatusBarTintColor(getResources().getColor(R.color.belize_hole));
         tintManager.setNavigationBarTintColor(0x00000000);
-
-        long end = System.currentTimeMillis();
-        double duration = (end - start) / 1000.0;
-        Log.d(TAG, "Call to onCreate(...) took " + duration + " seconds on thread " + Thread.currentThread().getName());
 
         mTitle = mDrawerTitle = getTitle();
 
@@ -153,7 +147,6 @@ public class MusicActivity extends Activity {
         fm.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                Log.i(TAG, "Size of fragment back stack: " + fm.getBackStackEntryCount());
                 if (fm.getBackStackEntryCount() == 0) {
                     setTitle("Songs");
                     mDrawerList.setItemChecked(SONGS_FRAGMENT, true);
@@ -164,8 +157,6 @@ public class MusicActivity extends Activity {
 
                 FragmentManager.BackStackEntry topEntry = fm.getBackStackEntryAt(top);
                 String topName = topEntry.getName();
-
-                Log.i(TAG, "Name of top back stack entry: " + topName);
 
                 switch (topName) { // TODO: Sometimes this is null. Figure out why.
                     case "com.orobator.android.gramophone.Songs":

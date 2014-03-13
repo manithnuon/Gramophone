@@ -20,6 +20,7 @@ import com.fortysevendeg.android.swipelistview.SwipeListView;
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.controller.listeners.SongClickListener;
 import com.orobator.android.gramophone.controller.listeners.SongSwipeViewListener;
+import com.orobator.android.gramophone.model.Song;
 import com.orobator.android.gramophone.model.SongDatabaseHelper;
 import com.orobator.android.gramophone.model.loaders.SongCursorLoader;
 import com.orobator.android.gramophone.view.adapters.DummyListAdapter;
@@ -44,7 +45,7 @@ public class SongsFragment extends Fragment implements LoaderManager.LoaderCallb
         SongClickListener clickListener = new SongClickListener(adapter, this);
         mSwipeListView.setAdapter(adapter);
         mSwipeListView.setOnItemLongClickListener(clickListener);
-        mSwipeListView.setSwipeListViewListener(new SongSwipeViewListener(adapter, this));
+        mSwipeListView.setSwipeListViewListener(new SongSwipeViewListener(adapter, this, Song.KEY_COLLECTION_TYPE_ALL));
         mSwipeListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
