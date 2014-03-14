@@ -42,6 +42,7 @@
         <item>Genres</item>
         <item>Queue</item>
         <item>Playlists</item>
+        <item>SETTINGS</item>
     </string-array>
 
     <string name="title_activity_song_metadata">Song Metadata</string>
@@ -49,7 +50,6 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="title_activity_now_playing">Now Playing</string>
     <string name="album_cover">Album Cover</string>
-
     <string name="search_hint">Search Songs, Artists, or Albums</string>
     <string name="play_next">Play Next</string>
     <string name="add_to_queue">Enqueue</string>
@@ -71,16 +71,18 @@
     <string name="cancel_metadata_edit">Cancel</string>
     <string name="edit_metadata">Edit</string>
     <string name="time_zero">0:00</string>
-
     <string name="view_songs">View Songs</string>
-
     <string name="alert_dialog_delete_songs_title">Delete Song?</string>
     <string name="cancel_delete_song">Cancel</string>
     <string name="alert_dialog_confirm_delete_song">Delete</string>
     <string name="song_delete_failed">Delete Failed</string>
     <string name="make_sure_delete_song">Are you sure you want to delete %s ?</string>
-
     <string name="init_library">Initializing Library...</string>
     <string name="queue_empty">Queue is empty</string>
+    <string name="about_app">ABOUT</string>
+    <string name="build_version">Build version</string>
+    <string name="build_number">0.0.1</string>
+    <string name="version_of_app">Version: %s</string>
+    <string name="title_activity_settings">Settings</string>
 
 </resources>

@@ -26,4 +26,5 @@
             android:divider="@color/silver"
             android:dividerHeight="1dp"
             android:background="@color/clouds"/>
+
 </android.support.v4.widget.DrawerLayout>

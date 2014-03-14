@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -51,6 +52,7 @@ public class MusicActivity extends Activity {
     private static final int GENRES_FRAGMENT = 3;
     private static final int QUEUE_FRAGMENT = 4;
     private static final int PLAYLISTS_FRAGMENT = 5;
+    private static final int SETTINGS_FRAGMENT = 6;
     private static String PREVIOUS_TOP_BACK_STACK_ENTRY = "com.orobator.android.gramophone.previousTopBackStackEntryName";
     private static int CURRENT_FRAGMENT = -1;
     private String[] nav_items;
@@ -218,6 +220,71 @@ public class MusicActivity extends Activity {
         win.setAttributes(winParams);
     }
 
+    /**
+     * Swaps fragments in the main content view *
+     */
+    private void selectItem(int position) {
+        // Create a new fragment based on the new position
+        Fragment fragment;
+        String fragmentName = null;
+        int oldCURRENT_FRAGMENT = CURRENT_FRAGMENT;
+
+        switch (position) {
+            case SONGS_FRAGMENT:
+                fragment = new SongsFragment();
+                CURRENT_FRAGMENT = SONGS_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Songs";
+                break;
+            case ALBUMS_FRAGMENT:
+                fragment = new AlbumsFragment();
+                CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Albums";
+                break;
+            case ARTISTS_FRAGMENT:
+                fragment = new ArtistsFragment();
+                CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Artists";
+                break;
+            case GENRES_FRAGMENT:
+                fragment = new GenresFragment();
+                CURRENT_FRAGMENT = GENRES_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Genres";
+                break;
+            case QUEUE_FRAGMENT:
+                fragment = new SongQueueFragment();
+                CURRENT_FRAGMENT = QUEUE_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Queue";
+                break;
+            case PLAYLISTS_FRAGMENT:
+                fragment = new SongsFragment();
+                CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT;
+                fragmentName = "com.orobator.android.gramophone.Playlists";
+                break;
+            case SETTINGS_FRAGMENT:
+                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(intent);
+                return;
+            default:
+                fragment = new SongsFragment();
+        }
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.content_frame, fragment);
+        if (oldCURRENT_FRAGMENT != -1) {
+            transaction.addToBackStack(fragmentName);
+        }
+        transaction.commit();
+
+        // Update ActionBar title
+        mTitle = nav_items[position];
+
+        // Highlight the selected item, update the title, and close the drawer
+        mDrawerList.setItemChecked(position, true);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -289,10 +356,6 @@ public class MusicActivity extends Activity {
         }
 
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                Toast toast = Toast.makeText(this, "Settings", Toast.LENGTH_SHORT);
-                toast.show();
-                return true;
             case R.id.action_search:
                 Toast toast1 = Toast.makeText(this, "Search", Toast.LENGTH_SHORT);
                 toast1.show();
@@ -314,67 +377,6 @@ public class MusicActivity extends Activity {
         getActionBar().setTitle(mTitle);
     }
 
-    /**
-     * Swaps fragments in the main content view *
-     */
-    private void selectItem(int position) {
-        // Create a new fragment based on the new position
-        Fragment fragment;
-        String fragmentName = null;
-        int oldCURRENT_FRAGMENT = CURRENT_FRAGMENT;
-
-        switch (position) {
-            case SONGS_FRAGMENT:
-                fragment = new SongsFragment();
-                CURRENT_FRAGMENT = SONGS_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Songs";
-                break;
-            case ALBUMS_FRAGMENT:
-                fragment = new AlbumsFragment();
-                CURRENT_FRAGMENT = ALBUMS_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Albums";
-                break;
-            case ARTISTS_FRAGMENT:
-                fragment = new ArtistsFragment();
-                CURRENT_FRAGMENT = ARTISTS_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Artists";
-                break;
-            case GENRES_FRAGMENT:
-                fragment = new GenresFragment();
-                CURRENT_FRAGMENT = GENRES_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Genres";
-                break;
-            case QUEUE_FRAGMENT:
-                fragment = new SongQueueFragment();
-                CURRENT_FRAGMENT = QUEUE_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Queue";
-                break;
-            case PLAYLISTS_FRAGMENT:
-                fragment = new SongsFragment();
-                CURRENT_FRAGMENT = PLAYLISTS_FRAGMENT;
-                fragmentName = "com.orobator.android.gramophone.Playlists";
-                break;
-            default:
-                fragment = new SongsFragment();
-        }
-
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.content_frame, fragment);
-        if (oldCURRENT_FRAGMENT != -1) {
-            transaction.addToBackStack(fragmentName);
-        }
-        transaction.commit();
-
-        // Update ActionBar title
-        mTitle = nav_items[position];
-
-        // Highlight the selected item, update the title, and close the drawer
-        mDrawerList.setItemChecked(position, true);
-        mDrawerLayout.closeDrawer(mDrawerList);
-    }
-
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
 
         @Override
@@ -385,6 +387,8 @@ public class MusicActivity extends Activity {
 
     private class CustomListAdapter extends ArrayAdapter<String> {
 
+        private static final int VIEW_TYPE_NAVIGATION = 0;
+        private static final int VIEW_TYPE_SETTINGS = 1;
         Context mContext;
         int layoutResourceId;
         List<String> items;
@@ -405,13 +409,35 @@ public class MusicActivity extends Activity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View listItemView = inflater.inflate(R.layout.nav_drawer_list_item, null, true);
-            TextView textView = (TextView) listItemView.findViewById(R.id.nav_drawer_list_item);
-            textView.setText(items.get(position));
-            if (tf != null) {
-                textView.setTypeface(tf);
+            switch (getItemViewType(position)) {
+                case VIEW_TYPE_NAVIGATION:
+                    View listItemView = inflater.inflate(R.layout.nav_drawer_list_item, null, true);
+                    TextView textView = (TextView) listItemView.findViewById(R.id.nav_drawer_list_item);
+                    textView.setText(items.get(position));
+                    if (tf != null) {
+                        textView.setTypeface(tf);
+                    }
+                    return listItemView;
+                case VIEW_TYPE_SETTINGS:
+                    listItemView = inflater.inflate(R.layout.nav_drawer_settings_list_item, null, true);
+                    textView = (TextView) listItemView.findViewById(R.id.settings_textView);
+                    textView.setText(items.get(position));
+                    if (tf != null) {
+                        textView.setTypeface(tf);
+                    }
+                    return listItemView;
+                default:
+                    return null;
             }
-            return listItemView;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position <= 5) {
+                return VIEW_TYPE_NAVIGATION;
+            }
+
+            return VIEW_TYPE_SETTINGS;
         }
 
     }

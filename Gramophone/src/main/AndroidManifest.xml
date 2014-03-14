@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.orobator.android.gramophone"
           android:versionCode="1"
-          android:versionName="1.0">
+          android:versionName="@string/build_number">
 
     <uses-sdk
             android:minSdkVersion="18"
@@ -10,7 +10,6 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -27,6 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <category android:name="android.intent.category.APP_MUSIC"/>
             </intent-filter>
+
             <meta-data
                     android:name="android.app.searchable"
                     android:resource="@xml/searchable"/>
@@ -45,13 +45,24 @@
         </activity>
 
         <service
-                android:name=".controller.services.MusicPlayerService"
+                android:name="com.orobator.android.gramophone.controller.services.MusicPlayerService"
                 android:enabled="true"
                 android:exported="false">
         </service>
+
         <meta-data
                 android:name="com.crashlytics.ApiKey"
                 android:value="7e72d200b6d9876f0b1e482e8d34cdd465e36d3c"/>
+
+        <activity
+                android:name="com.orobator.android.gramophone.view.activities.SettingsActivity"
+                android:label="@string/title_activity_settings"
+                android:parentActivityName=".view.activities.MusicActivity">
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="MusicActivity"/>
+        </activity>
     </application>
 
 </manifest>
