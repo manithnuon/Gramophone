@@ -1,6 +1,8 @@
 package com.orobator.android.gramophone.controller.services;
 
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -12,23 +14,23 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.SeekBar;
 
+import com.orobator.android.gramophone.model.NotificationID;
 import com.orobator.android.gramophone.model.Song;
 
 import java.io.File;
 import java.io.IOException;
 
 public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener {
+    public static final String ACTION_NEXT = "com.orobator.android.gramophone.ACTION_NEXT";
     public static final String ACTION_PLAY = "com.orobator.android.gramophone.ACTION_PLAY";
+    public static final String ACTION_PREV = "com.orobator.android.gramophone.ACTION_PREV";
     public static final String ACTION_TOGGLE_PLAYBACK = "com.orobator.android.gramophone.ACTION_TOGGLE_PLAYBACK";
     public static final String ACTION_SEEK_TO = "com.orobator.android.gramophone.ACTION_SEEK_TO";
     public static final String KEY_SEEK_TO = "com.orobator.android.gramophone.KEY_SEEK_TO";
     static MediaPlayer sMediaPlayer = null;
+    private static String TAG = "MusicPlayerService";
     private static long currentSongId = -1;
     private Song mSong;
-
-    public static long getCurrentSongId() {
-        return currentSongId;
-    }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
@@ -37,26 +39,45 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startID) {
-        if (intent.getAction().equals(ACTION_PLAY)) {
-            mSong = (Song) intent.getSerializableExtra(Song.KEY_SONG);
-            currentSongId = mSong.getSongID();
-            playSong(); // TODO: You're also calling playSong() in swipeViewListener. One of them has got to go.
-        } else if (intent.getAction().equals(ACTION_TOGGLE_PLAYBACK)) {
-            if (sMediaPlayer != null) {
-                if (sMediaPlayer.isPlaying()) {
-                    sMediaPlayer.pause();
-                } else {
-                    sMediaPlayer.start();
+        switch (intent.getAction()) {
+            case ACTION_NEXT:
+                Log.d(TAG, "received ACTION_NEXT");
+                break;
+            case ACTION_PLAY:
+                mSong = (Song) intent.getSerializableExtra(Song.KEY_SONG);
+                currentSongId = mSong.getSongID();
+                playSong();
+                break;
+            case ACTION_PREV:
+                Log.d(TAG, "received ACTION_PREV");
+                break;
+            case ACTION_TOGGLE_PLAYBACK:
+                if (sMediaPlayer != null) {
+                    if (sMediaPlayer.isPlaying()) {
+                        sMediaPlayer.pause();
+                    } else {
+                        sMediaPlayer.start();
+                    }
                 }
-            }
-        } else if (intent.getAction().equals(ACTION_SEEK_TO)) {
-            if (sMediaPlayer != null) {
-                int seek = intent.getIntExtra(KEY_SEEK_TO, 0);
-                sMediaPlayer.seekTo(seek);
-            }
+                break;
+            case ACTION_SEEK_TO:
+                if (sMediaPlayer != null) {
+                    int seek = intent.getIntExtra(KEY_SEEK_TO, 0);
+                    sMediaPlayer.seekTo(seek);
+                }
+                break;
+            default:
         }
 
         return Service.START_NOT_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        // TODO: This doesn't work. Find out what happens when a user clears your app from recent apps
+        // Other apps remain playing when swiped out. Maybe I'll make it a setting when I do get it working
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NotificationID.NOW_PLAYING);
     }
 
     @Override

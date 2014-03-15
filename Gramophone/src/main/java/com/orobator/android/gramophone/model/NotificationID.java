@@ -1,0 +1,1 @@
+package com.orobator.android.gramophone.model;/** * Class used for accessing notification IDs */public class NotificationID {    public static final int NOW_PLAYING = 0;    private NotificationID() {    }}

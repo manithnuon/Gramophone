@@ -1,10 +1,13 @@
 package com.orobator.android.gramophone.model;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.util.Log;
+import android.util.TypedValue;
 
 import org.michaelevans.colorart.library.ColorArt;
 
@@ -276,7 +279,7 @@ public class Song implements Serializable {
     }
 
     public Bitmap getArtwork() {
-        if (!hasArtwork()) {
+        if (hasArtwork == 0) {
             return null;
         }
 
@@ -285,6 +288,54 @@ public class Song implements Serializable {
 
         byte albumBytes[] = retriever.getEmbeddedPicture();
         return BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
+    }
+
+    public Bitmap getSmallArtwork(Context context) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        byte[] albumBytes = getArtworkByteArray();
+        BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
+
+        int dipSmallIconSize = 52;
+
+        // Calculate inSampleSize
+
+        int pixelSmallIconSize = dipToPixels(dipSmallIconSize, context);
+        options.inSampleSize = calculateInSampleSize(options, pixelSmallIconSize, pixelSmallIconSize);
+
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
+    }
+
+    private int dipToPixels(int dip, Context context) {
+        Resources r = context.getResources();
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) dip, r.getDisplayMetrics());
+    }
+
+    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (reqHeight == 0 || reqWidth == 0) return inSampleSize;
+
+        if (height > reqHeight || width > reqWidth) {
+            // Calculate ratios of height and width to requested height and width
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+
+            // Choose the smallest ratio as inSampleSize value. This will guarantee
+            // a final image with both dimensions larger than or equal to the
+            // requested height and width
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+
+        return inSampleSize;
+
     }
 
     public boolean skipOnShuffle() {
