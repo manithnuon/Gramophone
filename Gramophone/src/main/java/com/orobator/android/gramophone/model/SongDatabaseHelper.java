@@ -291,11 +291,13 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
 //            }
             cv.put(SongEntry.COLUMN_NAME_DATE_MODIFIED, dateModified/*mCursor.getLong(dateModifiedString)*/); // seconds since 1970 (type long)
 
-            if (retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER) == null) {
+            String discNum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER);
+
+            if (discNum == null) {
                 cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, 0);
                 cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, 0);
             } else {
-                String discNums[] = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER).split("/");
+                String discNums[] = discNum.split("/");
                 try {
                     cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, Integer.parseInt(discNums[0]));
                 } catch (NumberFormatException nfe) {
@@ -356,11 +358,13 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
             cv.put(SongEntry.COLUMN_NAME_SKIP_ON_SHUFFLE, 0);
             cv.put(SongEntry.COLUMN_NAME_TITLE, mCursor.getString(mCursor.getColumnIndex(AudioColumns.TITLE)));
 
-            if (retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER) == null) {
+            String trackNum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
+
+            if (trackNum == null) {
                 cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, 0);
                 cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, 0);
             } else {
-                String trackNums[] = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER).split("/");
+                String trackNums[] = trackNum.split("/");
                 try {
                     cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, Integer.parseInt(trackNums[0]));
                 } catch (NumberFormatException nfe) {

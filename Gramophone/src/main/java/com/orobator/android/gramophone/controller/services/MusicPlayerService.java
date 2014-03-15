@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
 import android.widget.SeekBar;
 
 import com.orobator.android.gramophone.model.Song;
@@ -21,7 +22,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     public static final String ACTION_TOGGLE_PLAYBACK = "com.orobator.android.gramophone.ACTION_TOGGLE_PLAYBACK";
     public static final String ACTION_SEEK_TO = "com.orobator.android.gramophone.ACTION_SEEK_TO";
     public static final String KEY_SEEK_TO = "com.orobator.android.gramophone.KEY_SEEK_TO";
-    private static final String TAG = "MusicPlayerService";
     static MediaPlayer sMediaPlayer = null;
     private static long currentSongId = -1;
     private Song mSong;
@@ -125,7 +125,11 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
 
         public void setListener(Listener listener) {
             mListener = listener;
-            mThreadHandler.obtainMessage(UPDATE_SEEKBAR).sendToTarget();
+            if (mThreadHandler != null) {
+                mThreadHandler.obtainMessage(UPDATE_SEEKBAR).sendToTarget();
+            } else {
+                Log.i(TAG, "mThreadHandler was null");
+            }
         }
 
         public void setSeekBar(SeekBar seekBar) {

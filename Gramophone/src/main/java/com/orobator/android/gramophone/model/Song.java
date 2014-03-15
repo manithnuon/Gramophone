@@ -3,7 +3,12 @@ package com.orobator.android.gramophone.model;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.util.Log;
 
+import org.michaelevans.colorart.library.ColorArt;
+
+import java.io.File;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
@@ -11,6 +16,7 @@ import java.text.DecimalFormat;
  * Represents a single song on a device.
  */
 public class Song implements Serializable {
+    private static final String TAG = "Song";
     public static final long serialVersionUID = 0L;
     public static final String KEY_SONG = "song";
     public static final String KEY_CURSOR_POSITION = "position";
@@ -68,6 +74,158 @@ public class Song implements Serializable {
     private String filePath;
 
     public Song() {
+    }
+
+    public static Song getSongFromURI(Uri uri) {
+        Song song = new Song();
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(uri.getPath());
+        } catch (RuntimeException re) {
+            return null;
+        }
+
+        String albumName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+        if (albumName == null) {
+            albumName = "<unknown>";
+        }
+
+        song.setAlbum(albumName);
+
+        String albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
+        String artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+
+        if (albumArtist == null) {
+            albumArtist = artistName;
+        }
+
+        song.setAlbumArtist(albumArtist);
+        song.setArtist(artistName);
+
+        int bitRate;
+
+        try {
+            bitRate = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
+        } catch (NumberFormatException nfe) {
+            bitRate = -1;
+        }
+
+        song.setBitRate(bitRate);
+
+        String composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER);
+
+        song.setComposer(composer);
+
+        song.setDateModified(0);
+
+        String discNum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER);
+
+        if (discNum == null) {
+            song.setDiscNumber(0);
+            song.setDiscCount(0);
+        } else {
+            String discNums[] = discNum.split("/");
+            try {
+                song.setDiscNumber(Integer.parseInt(discNums[0]));
+            } catch (NumberFormatException nfe) {
+                song.setDiscNumber(1);
+            } catch (ArrayIndexOutOfBoundsException outOfBounds) {
+                // Song lacks disc number, continue
+            }
+            if (discNums.length > 1) {
+                song.setDiscCount(Integer.parseInt(discNums[1]));
+            } else {
+                song.setDiscCount(0);
+            }
+        }
+
+        String durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+
+        Log.d(TAG, durationString);
+
+        long duration = Long.parseLong(durationString);
+        song.setDuration(duration);
+        song.setEqualizerPreset("");
+        song.setFilePath(uri.getPath());
+
+        String genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
+
+        if (genre == null || "".equals(genre)) {
+            genre = "<unknown>";
+        }
+
+        song.setGenre(genre);
+
+        byte albumBytes[] = retriever.getEmbeddedPicture();
+
+        int backGroundColor, primaryColor, secondaryColor, detailColor;
+
+        if (albumBytes != null) {
+            Bitmap albumCover = BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
+            ColorArt colorArt = new ColorArt(albumCover);
+            backGroundColor = colorArt.getBackgroundColor();
+            primaryColor = colorArt.getPrimaryColor();
+            secondaryColor = colorArt.getSecondaryColor();
+            detailColor = colorArt.getDetailColor();
+        } else {
+            backGroundColor = Song.DEFAULT_BACKGROUND_COLOR;
+            primaryColor = Song.DEFAULT_PRIMARY_COLOR;
+            secondaryColor = Song.DEFAULT_SECONDARY_COLOR;
+            detailColor = Song.DEFAULT_DETAIL_COLOR;
+        }
+
+        song.setBackgroundColor(backGroundColor);
+        song.setPrimaryColor(primaryColor);
+        song.setSecondaryColor(secondaryColor);
+        song.setDetailColor(detailColor);
+
+        song.setHasArtwork(albumBytes != null);
+
+        song.setLastPlayed(0);
+        song.setPlayCount(0);
+        song.setSampleRate(0);
+
+        long size = new File(uri.getPath()).length();
+
+        song.setSize(size);
+
+        song.setSkipCount(0);
+
+        song.setSkipOnShuffle(false);
+
+        String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        song.setTitle(title);
+
+        String trackNum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
+
+        if (trackNum == null) {
+            song.setTrackNumber(0);
+            song.setTrackCount(0);
+        } else {
+            String trackNums[] = trackNum.split("/");
+            try {
+                song.setTrackNumber(Integer.parseInt(trackNums[0]));
+            } catch (NumberFormatException nfe) {
+                song.setTrackNumber(1);
+            }
+            if (trackNums.length > 1) {
+                song.setTrackCount(Integer.parseInt(trackNums[1]));
+            } else {
+                song.setTrackCount(0);
+            }
+        }
+
+        String yearString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR);
+        int year;
+        if (yearString == null) {
+            year = -1;
+        } else {
+            year = Integer.parseInt(yearString);
+        }
+
+        song.setYear(year);
+
+        return song;
     }
 
     public int getBackgroundColor() {
@@ -374,13 +532,12 @@ public class Song implements Serializable {
 
         Song other = (Song) o;
 
-        return songID == other.getSongID();
+        return title.equals(other.getTitle()) && artist.equals(other.getArtist()) && album.equals(other.getAlbum());
     }
 
     @Override
     public int hashCode() {
         int hash = 1;
-        hash = (hash * 17) + (int) songID;
         hash = (hash * 31) + title.hashCode();
         hash = (hash * 19) + artist.hashCode();
         hash = (hash * 53) + album.hashCode();
