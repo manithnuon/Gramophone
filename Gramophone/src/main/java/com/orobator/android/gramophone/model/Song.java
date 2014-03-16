@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.util.Log;
 import android.util.TypedValue;
 
 import org.michaelevans.colorart.library.ColorArt;
@@ -19,23 +18,19 @@ import java.text.DecimalFormat;
  * Represents a single song on a device.
  */
 public class Song implements Serializable {
-    private static final String TAG = "Song";
     public static final long serialVersionUID = 0L;
     public static final String KEY_SONG = "song";
     public static final String KEY_CURSOR_POSITION = "position";
-
     public static final String KEY_SONG_COLLECTION_TYPE = "song_collection_type";
     public static final String KEY_COLLECTION_TYPE_ALL = "collection_type_all_songs";
     public static final String KEY_COLLECTION_TYPE_ALBUM = "collection_type_album_songs";
     public static final String KEY_COLLECTION_TYPE_ARTIST = "collection_type_artist_songs";
     public static final String KEY_COLLECTION_TYPE_GENRE = "collection_type_genre_songs";
-
     public static final String KEY_ALBUM = "song_album";
     public static final String KEY_ALBUM_ARTIST = "song_album_artist";
     public static final String KEY_ARTIST = "artist";
     public static final String KEY_FILE_PATH = "file_path";
     public static final String KEY_GENRE = "song_genre";
-
     /**
      * Default colors for Now Playing screen
      */
@@ -43,7 +38,7 @@ public class Song implements Serializable {
     public static final int DEFAULT_PRIMARY_COLOR = -268633;
     public static final int DEFAULT_SECONDARY_COLOR = -3826113;
     public static final int DEFAULT_DETAIL_COLOR = -4479338;
-
+    private static final String TAG = "Song";
     private int hasArtwork;
     private int discNumber = 0;
     private int discCount = 0;
@@ -144,8 +139,6 @@ public class Song implements Serializable {
 
         String durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
 
-        Log.d(TAG, durationString);
-
         long duration = Long.parseLong(durationString);
         song.setDuration(duration);
         song.setEqualizerPreset("");
@@ -231,51 +224,128 @@ public class Song implements Serializable {
         return song;
     }
 
-    public int getBackgroundColor() {
-        return backgroundColor;
+    public void setAlbum(String album) {
+        this.album = album;
+    }
+
+    public void setAlbumArtist(String albumArtist) {
+        this.albumArtist = albumArtist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public void setBitRate(int bitRate) {
+        this.bitRate = bitRate;
+    }
+
+    public void setComposer(String composer) {
+        this.composer = composer;
+    }
+
+    public void setDateModified(long dateModified) {
+        this.dateModified = dateModified;
+    }
+
+    public void setDiscNumber(int discNumber) {
+        this.discNumber = discNumber;
+    }
+
+    public void setDiscCount(int discCount) {
+        this.discCount = discCount;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    public void setEqualizerPreset(String equalizerPreset) {
+        this.equalizerPreset = equalizerPreset;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
 
-    public int getPrimaryColor() {
-        return primaryColor;
-    }
-
     public void setPrimaryColor(int primaryColor) {
         this.primaryColor = primaryColor;
-    }
-
-    public int getSecondaryColor() {
-        return secondaryColor;
     }
 
     public void setSecondaryColor(int secondaryColor) {
         this.secondaryColor = secondaryColor;
     }
 
-    public int getDetailColor() {
-        return detailColor;
-    }
-
     public void setDetailColor(int detailColor) {
         this.detailColor = detailColor;
     }
 
-    public byte[] getArtworkByteArray() {
-        if (!hasArtwork()) {
-            return null;
-        }
-
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(filePath);
-
-        return retriever.getEmbeddedPicture();
+    public void setHasArtwork(boolean hasArtwork) {
+        this.hasArtwork = hasArtwork ? 1 : 0;
     }
 
-    public boolean hasArtwork() {
-        return hasArtwork == 1;
+    public void setLastPlayed(long lastPlayed) {
+        this.lastPlayed = lastPlayed;
+    }
+
+    public void setPlayCount(int playCount) {
+        this.playCount = playCount;
+    }
+
+    public void setSampleRate(int sampleRate) {
+        this.sampleRate = sampleRate;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
+    }
+
+    public void setSkipCount(int skipCount) {
+        this.skipCount = skipCount;
+    }
+
+    public void setSkipOnShuffle(boolean skip) {
+        skipOnShuffle = skip ? 1 : 0;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setTrackNumber(int trackNumber) {
+        this.trackNumber = trackNumber;
+    }
+
+    public void setTrackCount(int trackCount) {
+        this.trackCount = trackCount;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public int getPrimaryColor() {
+        return primaryColor;
+    }
+
+    public int getSecondaryColor() {
+        return secondaryColor;
+    }
+
+    public int getDetailColor() {
+        return detailColor;
     }
 
     public Bitmap getArtwork() {
@@ -298,7 +368,7 @@ public class Song implements Serializable {
         byte[] albumBytes = getArtworkByteArray();
         BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
 
-        int dipSmallIconSize = 52;
+        int dipSmallIconSize = 64;
 
         // Calculate inSampleSize
 
@@ -306,7 +376,45 @@ public class Song implements Serializable {
         options.inSampleSize = calculateInSampleSize(options, pixelSmallIconSize, pixelSmallIconSize);
 
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
+        Bitmap unscaled = BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
+
+        // Needs to be scaled up by width
+        if (unscaled.getWidth() < pixelSmallIconSize) {
+            float ratio = (float) pixelSmallIconSize / (float) unscaled.getHeight();
+            int dstHeight = (int) (unscaled.getHeight() * ratio);
+            Bitmap scaled = Bitmap.createScaledBitmap(unscaled, pixelSmallIconSize, dstHeight, true);
+            int startY = scaled.getHeight() / 2 - pixelSmallIconSize / 2;
+            int stopY = pixelSmallIconSize;
+            if (startY < 0) {
+                startY = 0;
+                stopY = scaled.getHeight();
+            }
+            Bitmap cropped = Bitmap.createBitmap(scaled, 0, startY, pixelSmallIconSize, stopY, null, false);
+            return cropped;
+        }
+
+        // Black bars at top and bottom
+        if (unscaled.getHeight() < pixelSmallIconSize) {
+            return unscaled;
+        }
+
+        // Needs to be center cropped
+        int startX = unscaled.getWidth() / 2 - pixelSmallIconSize / 2;
+        int startY = unscaled.getHeight() / 2 - pixelSmallIconSize / 2;
+
+        Bitmap centerCropped = Bitmap.createBitmap(unscaled, startX, startY, pixelSmallIconSize, pixelSmallIconSize, null, false);
+        return centerCropped;
+    }
+
+    public byte[] getArtworkByteArray() {
+        if (!hasArtwork()) {
+            return null;
+        }
+
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(filePath);
+
+        return retriever.getEmbeddedPicture();
     }
 
     private int dipToPixels(int dip, Context context) {
@@ -331,35 +439,37 @@ public class Song implements Serializable {
             // Choose the smallest ratio as inSampleSize value. This will guarantee
             // a final image with both dimensions larger than or equal to the
             // requested height and width
+
             inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+
         }
 
-        return inSampleSize;
+        if (isPowerOf2(inSampleSize) & inSampleSize != 1) {
+            return inSampleSize;
+        } else {
+            return inSampleSize * 2;
+        }
 
+    }
+
+    public boolean hasArtwork() {
+        return hasArtwork == 1;
+    }
+
+    public boolean isPowerOf2(int n) {
+        return (n == 1) || (n & (n - 1)) == 0;
     }
 
     public boolean skipOnShuffle() {
         return skipOnShuffle == 1;
     }
 
-    public void setSkipOnShuffle(boolean skip) {
-        skipOnShuffle = skip ? 1 : 0;
-    }
-
     public long getLastPlayed() {
         return lastPlayed;
     }
 
-    public void setLastPlayed(long lastPlayed) {
-        this.lastPlayed = lastPlayed;
-    }
-
     public String getEqualizerPreset() {
         return equalizerPreset;
-    }
-
-    public void setEqualizerPreset(String equalizerPreset) {
-        this.equalizerPreset = equalizerPreset;
     }
 
     public int getRating() {
@@ -382,16 +492,8 @@ public class Song implements Serializable {
         return skipCount;
     }
 
-    public void setSkipCount(int skipCount) {
-        this.skipCount = skipCount;
-    }
-
     public int getPlayCount() {
         return playCount;
-    }
-
-    public void setPlayCount(int playCount) {
-        this.playCount = playCount;
     }
 
     public void incrPlayCount() {
@@ -414,16 +516,8 @@ public class Song implements Serializable {
         return duration;
     }
 
-    public void setDuration(long duration) {
-        this.duration = duration;
-    }
-
     public String getComposer() {
         return composer;
-    }
-
-    public void setComposer(String composer) {
-        this.composer = composer;
     }
 
     public String getCompilationStatus() {
@@ -442,137 +536,52 @@ public class Song implements Serializable {
         this.songID = songID;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getArtist() {
-        return artist;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
     public String getAlbumArtist() {
         return albumArtist;
-    }
-
-    public void setAlbumArtist(String albumArtist) {
-        this.albumArtist = albumArtist;
-    }
-
-    public String getAlbum() {
-        return album;
-    }
-
-    public void setAlbum(String album) {
-        this.album = album;
     }
 
     public String getGenre() {
         return genre;
     }
 
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
     public long getSize() {
         return size;
-    }
-
-    public void setSize(long size) {
-        this.size = size;
     }
 
     public int getDiscNumber() {
         return discNumber;
     }
 
-    public void setDiscNumber(int discNumber) {
-        this.discNumber = discNumber;
-    }
-
     public int getDiscCount() {
         return discCount;
-    }
-
-    public void setDiscCount(int discCount) {
-        this.discCount = discCount;
     }
 
     public int getTrackNumber() {
         return trackNumber;
     }
 
-    public void setTrackNumber(int trackNumber) {
-        this.trackNumber = trackNumber;
-    }
-
     public int getTrackCount() {
         return trackCount;
-    }
-
-    public void setTrackCount(int trackCount) {
-        this.trackCount = trackCount;
     }
 
     public int getYear() {
         return year;
     }
 
-    public void setYear(int year) {
-        this.year = year;
-    }
-
     public long getDateModified() {
         return dateModified;
-    }
-
-    public void setDateModified(long dateModified) {
-        this.dateModified = dateModified;
     }
 
     public int getBitRate() {
         return bitRate;
     }
 
-    public void setBitRate(int bitRate) {
-        this.bitRate = bitRate;
-    }
-
     public int getSampleRate() {
         return sampleRate;
     }
 
-    public void setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-    }
-
-    public void setHasArtwork(boolean hasArtwork) {
-        this.hasArtwork = hasArtwork ? 1 : 0;
-    }
-
     public String getFilePath() {
         return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    @Override
-    public String toString() {
-        if (title == null || artist == null) {
-            return filePath;
-        }
-
-        return title + " - " + artist;
     }
 
     @Override
@@ -586,6 +595,18 @@ public class Song implements Serializable {
         return title.equals(other.getTitle()) && artist.equals(other.getArtist()) && album.equals(other.getAlbum());
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public String getAlbum() {
+        return album;
+    }
+
     @Override
     public int hashCode() {
         int hash = 1;
@@ -593,6 +614,15 @@ public class Song implements Serializable {
         hash = (hash * 19) + artist.hashCode();
         hash = (hash * 53) + album.hashCode();
         return hash;
+    }
+
+    @Override
+    public String toString() {
+        if (title == null || artist == null) {
+            return filePath;
+        }
+
+        return title + " - " + artist;
     }
 
     /**
