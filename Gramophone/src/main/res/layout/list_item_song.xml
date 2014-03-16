@@ -26,7 +26,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_action_play"
                     android:contentDescription="@string/play_next"
-                    android:background="@color/clear"/>
+                    style="?android:attr/borderlessButtonStyle"/>
 
             <TextView
                     android:id="@+id/playNext_textView"
@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_action_add_to_queue"
                     android:contentDescription="@string/add_to_queue"
-                    android:background="@color/clear"/>
+                    style="?android:attr/borderlessButtonStyle"/>
 
             <TextView
                     android:layout_width="match_parent"
@@ -82,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_action_mic"
                     android:contentDescription="@string/go_to_artist"
-                    android:background="@color/clear"/>
+                    style="?android:attr/borderlessButtonStyle"/>
 
             <TextView
                     android:layout_width="match_parent"
@@ -97,9 +97,9 @@
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:orientation="vertical"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
-                android:orientation="vertical">
+                android:layout_weight="1">
 
             <ImageButton
                     android:id="@+id/goToAlbum_imageButton"
@@ -108,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:src="@android:drawable/ic_input_get"
                     android:contentDescription="@string/go_to_album"
-                    android:background="@color/clear"/>
+                    style="?android:attr/borderlessButtonStyle"/>
 
             <TextView
                     android:layout_width="match_parent"
@@ -133,7 +133,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_action_core_overflow"
                     android:contentDescription="@string/more"
-                    android:background="@color/clear"/>
+                    style="?android:attr/borderlessButtonStyle"/>
 
             <TextView
                     android:layout_width="match_parent"

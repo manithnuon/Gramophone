@@ -14,7 +14,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.SeekBar;
 
-import com.orobator.android.gramophone.model.NotificationID;
+import com.orobator.android.gramophone.model.NotificationBuilder;
 import com.orobator.android.gramophone.model.Song;
 
 import java.io.File;
@@ -26,6 +26,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     public static final String ACTION_PREV = "com.orobator.android.gramophone.ACTION_PREV";
     public static final String ACTION_TOGGLE_PLAYBACK = "com.orobator.android.gramophone.ACTION_TOGGLE_PLAYBACK";
     public static final String ACTION_SEEK_TO = "com.orobator.android.gramophone.ACTION_SEEK_TO";
+    public static final String ACTION_STOP = "com.orobator.android.gramophone.ACTION_STOP";
     public static final String KEY_SEEK_TO = "com.orobator.android.gramophone.KEY_SEEK_TO";
     static MediaPlayer sMediaPlayer = null;
     private static String TAG = "MusicPlayerService";
@@ -55,8 +56,10 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
                 if (sMediaPlayer != null) {
                     if (sMediaPlayer.isPlaying()) {
                         sMediaPlayer.pause();
+                        NotificationBuilder.createNotification(this, NotificationBuilder.NOW_PLAYING, false);
                     } else {
                         sMediaPlayer.start();
+                        NotificationBuilder.createNotification(this, NotificationBuilder.NOW_PLAYING, true);
                     }
                 }
                 break;
@@ -66,6 +69,12 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
                     sMediaPlayer.seekTo(seek);
                 }
                 break;
+            case ACTION_STOP:
+                if (sMediaPlayer != null) {
+                    sMediaPlayer.stop();
+                }
+                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                nm.cancel(NotificationBuilder.NOW_PLAYING);
             default:
         }
 
@@ -77,7 +86,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         // TODO: This doesn't work. Find out what happens when a user clears your app from recent apps
         // Other apps remain playing when swiped out. Maybe I'll make it a setting when I do get it working
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NotificationID.NOW_PLAYING);
+        notificationManager.cancel(NotificationBuilder.NOW_PLAYING);
     }
 
     @Override
