@@ -24,6 +24,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".controller.broadcast.receivers.RemoteControlReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+            </intent-filter>
+        </receiver>
+
         <activity
                 android:name="com.orobator.android.gramophone.view.activities.MusicActivity"
                 android:label="@string/app_name">

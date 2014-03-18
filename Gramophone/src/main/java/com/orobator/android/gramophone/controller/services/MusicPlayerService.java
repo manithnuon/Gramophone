@@ -2,6 +2,7 @@ package com.orobator.android.gramophone.controller.services;
 
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -13,14 +14,17 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
+import com.orobator.android.gramophone.R;
+import com.orobator.android.gramophone.controller.broadcast.receivers.RemoteControlReceiver;
 import com.orobator.android.gramophone.model.NotificationBuilder;
 import com.orobator.android.gramophone.model.Song;
 
 import java.io.File;
 import java.io.IOException;
 
-public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener {
+public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener, AudioManager.OnAudioFocusChangeListener {
     public static final String ACTION_NEXT = "com.orobator.android.gramophone.ACTION_NEXT";
     public static final String ACTION_PAUSE = "com.orobator.android.gramophone.ACTION_PAUSE";
     public static final String ACTION_PLAY = "com.orobator.android.gramophone.ACTION_PLAY";
@@ -29,9 +33,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     public static final String ACTION_SEEK_TO = "com.orobator.android.gramophone.ACTION_SEEK_TO";
     public static final String ACTION_STOP = "com.orobator.android.gramophone.ACTION_STOP";
     public static final String KEY_SEEK_TO = "com.orobator.android.gramophone.KEY_SEEK_TO";
-    static MediaPlayer sMediaPlayer = null;
+    private static MediaPlayer sMediaPlayer = null;
     private static String TAG = "MusicPlayerService";
-    private static long currentSongId = -1;
+    private static ComponentName sRemoteControllReciver;
     private Song mSong;
 
     @Override
@@ -55,7 +59,14 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
                 break;
             case ACTION_PLAY:
                 mSong = (Song) intent.getSerializableExtra(Song.KEY_SONG);
-                currentSongId = mSong.getSongID();
+                if (mSong == null) { // Received a headphone button press
+                    if (sMediaPlayer != null) {
+                        if (!sMediaPlayer.isPlaying()) {
+                            sMediaPlayer.start();
+                        }
+                    }
+                    break;
+                }
                 playSong();
                 break;
             case ACTION_PREV:
@@ -81,6 +92,16 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
             case ACTION_STOP:
                 if (sMediaPlayer != null) {
                     sMediaPlayer.stop();
+
+                    // Clean up time!
+                    AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    am.unregisterMediaButtonEventReceiver(sRemoteControllReciver);
+
+                    // Abandon audio focus when playback complete
+                    am.abandonAudioFocus(this);
+                    sMediaPlayer = null;
+                    // TODO: Make sure Now Playing screen goes away somehow, call to finish() maybe?
+
                 }
                 NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 nm.cancel(NotificationBuilder.NOW_PLAYING);
@@ -104,6 +125,26 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     private void playSong() {
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        // Request audio focus for playback
+        int result = am.requestAudioFocus(this,
+                // Use the music stream.
+                AudioManager.STREAM_MUSIC,
+                // Request permanent focus.
+                AudioManager.AUDIOFOCUS_GAIN);
+
+        // No tunes for you!
+        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            // TODO: test this
+            String focusFailed = getString(R.string.get_audio_focus_failed);
+            Toast.makeText(this, focusFailed, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Listen for headphone buttons
+        sRemoteControllReciver = new ComponentName(getPackageName(), RemoteControlReceiver.class.getName());
+        am.registerMediaButtonEventReceiver(sRemoteControllReciver);
+
         Uri songUri = Uri.fromFile(new File(mSong.getFilePath()));
         sMediaPlayer = new MediaPlayer();
         sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -113,6 +154,38 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
             sMediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            // Pause playback
+            if (sMediaPlayer != null) {
+                if (sMediaPlayer.isPlaying()) {
+                    sMediaPlayer.pause();
+                }
+            }
+        }
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+            // Lower the volume
+            // TODO: Implement this
+        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            // Resume playback
+            // TODO: Raise audio level to normal
+            if (sMediaPlayer != null) {
+                sMediaPlayer.start();
+            }
+        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            am.unregisterMediaButtonEventReceiver(sRemoteControllReciver);
+            am.abandonAudioFocus(this);
+            // Stop playback
+            if (sMediaPlayer != null) {
+                sMediaPlayer.stop();
+                sMediaPlayer = null;
+                // TODO: Make Now Playing fragment disappear somehow, call to finish()?
+            }
         }
     }
 

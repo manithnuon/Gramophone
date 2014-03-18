@@ -75,4 +75,6 @@
     <string name="pref_category_general">GENERAL</string>
     <string name="pref_default_start_screen">Default start screen</string>
     <string name="choose_default_start_screen">Choose default start screen</string>
+    <string name="get_audio_focus_failed">Gramophone failed to get audio focus. Perhaps another app is playing music.</string>
+    <string name="action_not_supported">Action not supported</string>
 </resources>
