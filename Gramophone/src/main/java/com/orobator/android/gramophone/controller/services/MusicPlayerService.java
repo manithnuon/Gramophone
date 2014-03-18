@@ -22,6 +22,7 @@ import java.io.IOException;
 
 public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener {
     public static final String ACTION_NEXT = "com.orobator.android.gramophone.ACTION_NEXT";
+    public static final String ACTION_PAUSE = "com.orobator.android.gramophone.ACTION_PAUSE";
     public static final String ACTION_PLAY = "com.orobator.android.gramophone.ACTION_PLAY";
     public static final String ACTION_PREV = "com.orobator.android.gramophone.ACTION_PREV";
     public static final String ACTION_TOGGLE_PLAYBACK = "com.orobator.android.gramophone.ACTION_TOGGLE_PLAYBACK";
@@ -43,6 +44,14 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         switch (intent.getAction()) {
             case ACTION_NEXT:
                 Log.d(TAG, "received ACTION_NEXT");
+                break;
+            case ACTION_PAUSE:
+                if (sMediaPlayer != null) {
+                    if (sMediaPlayer.isPlaying()) {
+                        sMediaPlayer.pause();
+                        NotificationBuilder.createNotification(this, NotificationBuilder.NOW_PLAYING, false);
+                    }
+                }
                 break;
             case ACTION_PLAY:
                 mSong = (Song) intent.getSerializableExtra(Song.KEY_SONG);

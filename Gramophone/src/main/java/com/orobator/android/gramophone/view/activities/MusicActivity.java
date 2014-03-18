@@ -7,10 +7,12 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -194,7 +196,32 @@ public class MusicActivity extends Activity {
 
         // Create initial view
         if (CURRENT_FRAGMENT == -1) {
-            selectItem(0);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String defaultScreenString = preferences.getString("pref_key_default_view", "songs");
+
+            int defaultScreen = -1;
+
+            switch (defaultScreenString) {
+                case "songs":
+                    defaultScreen = 0;
+                    break;
+                case "albums":
+                    defaultScreen = 1;
+                    break;
+                case "artists":
+                    defaultScreen = 2;
+                    break;
+                case "genres":
+                    defaultScreen = 3;
+                    break;
+                case "playlists":
+                    defaultScreen = 5;
+                    break;
+                default:
+                    break;
+            }
+
+            selectItem(defaultScreen);
         } else {
             // A view already exists
             selectItem(CURRENT_FRAGMENT);
