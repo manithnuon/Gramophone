@@ -18,8 +18,8 @@ import android.widget.Toast;
 
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.controller.broadcast.receivers.RemoteControlReceiver;
-import com.orobator.android.gramophone.model.NotificationBuilder;
 import com.orobator.android.gramophone.model.Song;
+import com.orobator.android.gramophone.view.NotificationBuilder;
 
 import java.io.File;
 import java.io.IOException;

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -69,6 +70,7 @@ public class MusicActivity extends Activity {
         super.onCreate(savedInstanceState);
         Crashlytics.start(this);
 
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
         setContentView(R.layout.nav_drawer);
 
         setTranslucentStatusAndNavigationBar(true);

@@ -40,6 +40,7 @@ dependencies {
     compile 'org.michaelevans.colorart:library:0.0.2'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.readystatesoftware.systembartint:systembartint:+'
+    compile files('../libs/wearable-preview-support.jar')
     compile fileTree(dir: 'libs', include: '*.jar')
     compile 'com.crashlytics.android:crashlytics:1.+'
 
