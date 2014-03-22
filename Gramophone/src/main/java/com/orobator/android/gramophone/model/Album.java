@@ -41,8 +41,8 @@ public class Album implements Serializable {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash += mAlbumName.hashCode();
-        hash += mAlbumArtist.hashCode();
+        hash += 17 * mAlbumName.hashCode();
+        hash += 19 * mAlbumArtist.hashCode();
         return hash;
     }
 
