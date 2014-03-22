@@ -360,7 +360,7 @@ public class Song implements Serializable {
         return BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
     }
 
-    public Bitmap getSmallArtwork(Context context) {
+    public Bitmap getSmallArtwork(Context context, boolean big) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -368,7 +368,13 @@ public class Song implements Serializable {
         byte[] albumBytes = getArtworkByteArray();
         BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
 
-        int dipSmallIconSize = 64;
+        int dipSmallIconSize;
+
+        if (big) {
+            dipSmallIconSize = 128;
+        } else {
+            dipSmallIconSize = 64;
+        }
 
         // Calculate inSampleSize
 
