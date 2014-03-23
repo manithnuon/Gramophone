@@ -14,13 +14,18 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.orobator.android.gramophone.model.LibraryContract.AlbumEntry;
 import com.orobator.android.gramophone.model.LibraryContract.ArtistEntry;
 import com.orobator.android.gramophone.model.LibraryContract.GenreEntry;
 import com.orobator.android.gramophone.model.LibraryContract.SongEntry;
 
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
 import org.michaelevans.colorart.library.ColorArt;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashSet;
 
@@ -107,6 +112,254 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
     public SongDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, VERSION);
         sContext = context;
+    }
+
+    public void deleteSong(long songId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(SongEntry.TABLE_NAME, "_ID=?", new String[]{Long.toString(songId)});
+        // TODO if you're the last song in the genre/artist/album, delete it.
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_SONG_ENTRIES);
+        db.execSQL(SQL_CREATE_ALBUM_ENTRIES);
+        db.execSQL(SQL_CREATE_ARTIST_ENTRIES);
+        db.execSQL(SQL_CREATE_GENRE_ENTRIES);
+
+        // Populate
+        long startTime = System.currentTimeMillis();
+        int songCount = createSongsAndArtists(db);
+
+        long endTime = System.currentTimeMillis();
+        double duration1 = (endTime - startTime) / 1000.0;
+
+        startTime = System.currentTimeMillis();
+        int albumCount = createAlbums(db);
+        endTime = System.currentTimeMillis();
+        double duration2 = (endTime - startTime) / 1000.0;
+
+        startTime = System.currentTimeMillis();
+        int genreCount = createGenres(db);
+        endTime = System.currentTimeMillis();
+        double duration3 = (endTime - startTime) / 1000.0;
+
+        Log.i(TAG, "Created database of " + songCount + " songs in " + duration1 + " seconds");
+        Log.i(TAG, "Created database of " + albumCount + " albums in " + duration2 + " seconds");
+        Log.i(TAG, "Created database of " + genreCount + " genres in " + duration3 + " seconds");
+        Log.i(TAG, "Total time : " + (duration1 + duration2 + duration3) + " seconds");
+//        db.close(); Not sure if i need this? Probably not because if you're
+//                    creating a db, you're not going to be done with it here
+
+
+    }
+
+    private int createSongsAndArtists(SQLiteDatabase db) {
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String mProjection[] =
+                {
+                        AudioColumns.ARTIST,
+                        AudioColumns.COMPOSER,
+                        AudioColumns.DATA,
+                        AudioColumns.DATE_MODIFIED,
+                        AudioColumns.DISPLAY_NAME,
+                        AudioColumns.DURATION,
+                        AudioColumns.TITLE,
+                        AudioColumns.TRACK,
+                        AudioColumns.SIZE,
+                        AudioColumns.YEAR
+                };
+        String mSelection = AudioColumns.IS_MUSIC + "=1"
+                + " AND " + AudioColumns.TITLE + " != ''";
+
+        Cursor mCursor = sContext
+                .getContentResolver()
+                .query(
+                        uri,
+                        mProjection,
+                        mSelection,
+                        null,
+                        MediaStore.Audio.Media.DEFAULT_SORT_ORDER
+                );
+
+        mCursor.moveToNext();
+        Log.i(TAG, "Found " + mCursor.getCount() + " songs");
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+
+        HashSet<String> artistSet = new HashSet<String>();
+
+        while (!mCursor.isAfterLast()) {
+            try {
+                retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
+            } catch (RuntimeException re) {
+                Log.e(TAG, "Failed retriever.setDataSource(" + mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)) + ")");
+                Crashlytics.logException(re);
+                // MetadataRetriever doesn't like midi files :(
+                // TODO Use FFMPEG MetadataRetriever https://github.com/wseemann/FFmpegMediaMetadataRetriever
+                mCursor.moveToNext();
+                continue;
+            }
+            ContentValues cv = new ContentValues();
+
+            String albumName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+            if (albumName == null) {
+                albumName = "<unknown>";
+            }
+
+            cv.put(SongEntry.COLUMN_NAME_ALBUM, albumName);
+
+            String albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
+            String artistName = mCursor.getString(mCursor.getColumnIndex(AudioColumns.ARTIST));
+
+            if (albumArtist == null) {
+                albumArtist = artistName;
+            }
+
+            cv.put(SongEntry.COLUMN_NAME_ALBUM_ARTIST, albumArtist);
+            cv.put(SongEntry.COLUMN_NAME_ARTIST, artistName);
+
+            try {
+                cv.put(SongEntry.COLUMN_NAME_BIT_RATE, Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)));
+            } catch (NumberFormatException nfe) {
+                cv.put(SongEntry.COLUMN_NAME_BIT_RATE, -1);
+            }
+
+            cv.put(SongEntry.COLUMN_NAME_COMPOSER, mCursor.getString(mCursor.getColumnIndex(AudioColumns.COMPOSER)));
+            int dateModified = mCursor.getColumnIndex(AudioColumns.DATE_MODIFIED);
+//            if (dateModifiedString.equals("null")) {
+//                dateModifiedString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
+//            }
+            cv.put(SongEntry.COLUMN_NAME_DATE_MODIFIED, dateModified/*mCursor.getLong(dateModifiedString)*/); // seconds since 1970 (type long)
+
+            String discNum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER);
+
+            if (discNum == null) {
+                cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, 0);
+                cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, 0);
+            } else {
+                String discNums[] = discNum.split("/");
+                try {
+                    cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, Integer.parseInt(discNums[0]));
+                } catch (NumberFormatException nfe) {
+                    cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, 1);
+                } catch (ArrayIndexOutOfBoundsException outOfBounds) {
+                    // Song lacks disc number, continue
+                }
+                if (discNums.length > 1) {
+                    cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, Integer.parseInt(discNums[1]));
+                } else {
+                    cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, 1);
+                }
+            }
+
+            cv.put(SongEntry.COLUMN_NAME_DURATION, mCursor.getLong(mCursor.getColumnIndex(AudioColumns.DURATION))); // length in ms (type long)
+            cv.put(SongEntry.COLUMN_NAME_EQUALIZER_PRESET, "");
+            cv.put(SongEntry.COLUMN_NAME_FILE_LOCATION, mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
+
+            String genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
+
+            if (genre == null || "".equals(genre)) {
+                genre = "<unknown>";
+            }
+
+            cv.put(SongEntry.COLUMN_NAME_GENRE, genre);
+
+            byte albumBytes[] = retriever.getEmbeddedPicture();
+
+            int backGroundColor, primaryColor, secondaryColor, detailColor;
+
+            if (albumBytes != null) {
+                Bitmap albumCover = BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
+                ColorArt colorArt = new ColorArt(albumCover);
+                backGroundColor = colorArt.getBackgroundColor();
+                primaryColor = colorArt.getPrimaryColor();
+                secondaryColor = colorArt.getSecondaryColor();
+                detailColor = colorArt.getDetailColor();
+            } else {
+                backGroundColor = Song.DEFAULT_BACKGROUND_COLOR;
+                primaryColor = Song.DEFAULT_PRIMARY_COLOR;
+                secondaryColor = Song.DEFAULT_SECONDARY_COLOR;
+                detailColor = Song.DEFAULT_DETAIL_COLOR;
+            }
+
+            cv.put(SongEntry.COLUMN_NAME_COLOR_BACKGROUND, backGroundColor);
+            cv.put(SongEntry.COLUMN_NAME_COLOR_PRIMARY, primaryColor);
+            cv.put(SongEntry.COLUMN_NAME_COLOR_SECONDARY, secondaryColor);
+            cv.put(SongEntry.COLUMN_NAME_COLOR_DETAIL, detailColor);
+
+            cv.put(SongEntry.COLUMN_NAME_HAS_ARTWORK, albumBytes == null ? 0 : 1);
+
+            cv.put(SongEntry.COLUMN_NAME_LAST_PLAYED, 0L);
+            cv.put(SongEntry.COLUMN_NAME_PLAY_COUNT, 0);
+            cv.put(SongEntry.COLUMN_NAME_RATING, 0);
+            try {
+                String filename = mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA));
+                AudioFile audioFile = AudioFileIO.read(new File(filename));
+                AudioHeader audioHeader = audioFile.getAudioHeader();
+                int sampleRate = audioHeader.getSampleRateAsNumber();
+                cv.put(SongEntry.COLUMN_NAME_SAMPLE_RATE, sampleRate);
+            } catch (Exception e) {
+                try {
+                    String filename = mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA));
+                    AudioFile audioFile = AudioFileIO.read(new File(filename));
+                    AudioHeader audioHeader = audioFile.getAudioHeader();
+                    int sampleRate = audioHeader.getSampleRateAsNumber();
+                    cv.put(SongEntry.COLUMN_NAME_SAMPLE_RATE, sampleRate);
+                } catch (Exception e1) {
+                    Log.e(TAG, "Error getting sample rate", e1);
+                    Crashlytics.logException(e1);
+                    cv.put(SongEntry.COLUMN_NAME_SAMPLE_RATE, 0);
+                }
+            }
+            cv.put(SongEntry.COLUMN_NAME_SIZE, Long.parseLong(mCursor.getString(mCursor.getColumnIndex(AudioColumns.SIZE))));
+            cv.put(SongEntry.COLUMN_NAME_SKIP_COUNT, 0);
+            cv.put(SongEntry.COLUMN_NAME_SKIP_ON_SHUFFLE, 0);
+            cv.put(SongEntry.COLUMN_NAME_TITLE, mCursor.getString(mCursor.getColumnIndex(AudioColumns.TITLE)));
+
+            String trackNum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
+
+            if (trackNum == null) {
+                cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, 0);
+                cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, 0);
+            } else {
+                String trackNums[] = trackNum.split("/");
+                try {
+                    cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, Integer.parseInt(trackNums[0]));
+                } catch (NumberFormatException nfe) {
+                    cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, 1);
+                }
+                if (trackNums.length > 1) {
+                    cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, Integer.parseInt(trackNums[1]));
+                } else {
+                    cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, 1);
+                }
+            }
+
+            int year;
+            if (mCursor.getString(mCursor.getColumnIndex(AudioColumns.YEAR)) == null) {
+                year = -1;
+            } else {
+                year = Integer.parseInt(mCursor.getString(mCursor.getColumnIndex(AudioColumns.YEAR)));
+            }
+            cv.put(SongEntry.COLUMN_NAME_YEAR, year);
+            db.insert(SongEntry.TABLE_NAME, null, cv);
+
+            if (!artistSet.contains(artistName)) {
+                artistSet.add(artistName);
+                ContentValues values = new ContentValues();
+                values.put(ArtistEntry.COLUMN_NAME_ARTIST_NAME, artistName);
+                db.insert(ArtistEntry.TABLE_NAME, null, values);
+            }
+
+
+            Log.i(TAG, "Processed " + mCursor.getPosition() + " songs");
+            mCursor.moveToNext();
+        }
+
+        retriever.release();
+        int count = mCursor.getCount();
+        mCursor.close();
+        return count;
     }
 
     private int createAlbums(SQLiteDatabase db) {
@@ -213,235 +466,6 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
 
         return genres.size();
-    }
-
-    private int createSongsAndArtists(SQLiteDatabase db) {
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String mProjection[] =
-                {
-                        AudioColumns.ARTIST,
-                        AudioColumns.COMPOSER,
-                        AudioColumns.DATA,
-                        AudioColumns.DATE_MODIFIED,
-                        AudioColumns.DISPLAY_NAME,
-                        AudioColumns.DURATION,
-                        AudioColumns.TITLE,
-                        AudioColumns.TRACK,
-                        AudioColumns.SIZE,
-                        AudioColumns.YEAR
-                };
-        String mSelection = AudioColumns.IS_MUSIC + "=1"
-                + " AND " + AudioColumns.TITLE + " != ''";
-
-        Cursor mCursor = sContext
-                .getContentResolver()
-                .query(
-                        uri,
-                        mProjection,
-                        mSelection,
-                        null,
-                        MediaStore.Audio.Media.DEFAULT_SORT_ORDER
-                );
-
-        mCursor.moveToNext();
-        Log.i(TAG, "Found " + mCursor.getCount() + " songs");
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-
-        HashSet<String> artistSet = new HashSet<String>();
-
-        while (!mCursor.isAfterLast()) {
-            try {
-                retriever.setDataSource(mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
-            } catch (RuntimeException re) {
-                Log.e(TAG, "Failed retriever.setDataSource(" + mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)) + ")");
-                // MetadataRetriever doesn't like midi files :(
-                // TODO Use FFMPEG MetadataRetriever https://github.com/wseemann/FFmpegMediaMetadataRetriever
-                mCursor.moveToNext();
-                continue;
-            }
-            ContentValues cv = new ContentValues();
-
-            String albumName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-            if (albumName == null) {
-                albumName = "<unknown>";
-            }
-
-            cv.put(SongEntry.COLUMN_NAME_ALBUM, albumName);
-
-            String albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
-            String artistName = mCursor.getString(mCursor.getColumnIndex(AudioColumns.ARTIST));
-
-            if (albumArtist == null) {
-                albumArtist = artistName;
-            }
-
-            cv.put(SongEntry.COLUMN_NAME_ALBUM_ARTIST, albumArtist);
-            cv.put(SongEntry.COLUMN_NAME_ARTIST, artistName);
-
-            try {
-                cv.put(SongEntry.COLUMN_NAME_BIT_RATE, Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)));
-            } catch (NumberFormatException nfe) {
-                cv.put(SongEntry.COLUMN_NAME_BIT_RATE, -1);
-            }
-
-            cv.put(SongEntry.COLUMN_NAME_COMPOSER, mCursor.getString(mCursor.getColumnIndex(AudioColumns.COMPOSER)));
-            int dateModified = mCursor.getColumnIndex(AudioColumns.DATE_MODIFIED);
-//            if (dateModifiedString.equals("null")) {
-//                dateModifiedString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
-//            }
-            cv.put(SongEntry.COLUMN_NAME_DATE_MODIFIED, dateModified/*mCursor.getLong(dateModifiedString)*/); // seconds since 1970 (type long)
-
-            String discNum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER);
-
-            if (discNum == null) {
-                cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, 0);
-                cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, 0);
-            } else {
-                String discNums[] = discNum.split("/");
-                try {
-                    cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, Integer.parseInt(discNums[0]));
-                } catch (NumberFormatException nfe) {
-                    cv.put(SongEntry.COLUMN_NAME_DISC_NUMBER, 1);
-                } catch (ArrayIndexOutOfBoundsException outOfBounds) {
-                    // Song lacks disc number, continue
-                }
-                if (discNums.length > 1) {
-                    cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, Integer.parseInt(discNums[1]));
-                } else {
-                    cv.put(SongEntry.COLUMN_NAME_DISC_TOTAL, 1);
-                }
-            }
-
-            cv.put(SongEntry.COLUMN_NAME_DURATION, mCursor.getLong(mCursor.getColumnIndex(AudioColumns.DURATION))); // length in ms (type long)
-            cv.put(SongEntry.COLUMN_NAME_EQUALIZER_PRESET, "");
-            cv.put(SongEntry.COLUMN_NAME_FILE_LOCATION, mCursor.getString(mCursor.getColumnIndex(AudioColumns.DATA)));
-
-            String genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
-
-            if (genre == null || "".equals(genre)) {
-                genre = "<unknown>";
-            }
-
-            cv.put(SongEntry.COLUMN_NAME_GENRE, genre);
-
-            byte albumBytes[] = retriever.getEmbeddedPicture();
-
-            int backGroundColor, primaryColor, secondaryColor, detailColor;
-
-            if (albumBytes != null) {
-                Bitmap albumCover = BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length);
-                ColorArt colorArt = new ColorArt(albumCover);
-                backGroundColor = colorArt.getBackgroundColor();
-                primaryColor = colorArt.getPrimaryColor();
-                secondaryColor = colorArt.getSecondaryColor();
-                detailColor = colorArt.getDetailColor();
-            } else {
-                backGroundColor = Song.DEFAULT_BACKGROUND_COLOR;
-                primaryColor = Song.DEFAULT_PRIMARY_COLOR;
-                secondaryColor = Song.DEFAULT_SECONDARY_COLOR;
-                detailColor = Song.DEFAULT_DETAIL_COLOR;
-            }
-
-            cv.put(SongEntry.COLUMN_NAME_COLOR_BACKGROUND, backGroundColor);
-            cv.put(SongEntry.COLUMN_NAME_COLOR_PRIMARY, primaryColor);
-            cv.put(SongEntry.COLUMN_NAME_COLOR_SECONDARY, secondaryColor);
-            cv.put(SongEntry.COLUMN_NAME_COLOR_DETAIL, detailColor);
-
-            cv.put(SongEntry.COLUMN_NAME_HAS_ARTWORK, albumBytes == null ? 0 : 1);
-
-            cv.put(SongEntry.COLUMN_NAME_LAST_PLAYED, 0L);
-            cv.put(SongEntry.COLUMN_NAME_PLAY_COUNT, 0);
-            cv.put(SongEntry.COLUMN_NAME_RATING, 0);
-            cv.put(SongEntry.COLUMN_NAME_SAMPLE_RATE, 0);
-            cv.put(SongEntry.COLUMN_NAME_SIZE, Long.parseLong(mCursor.getString(mCursor.getColumnIndex(AudioColumns.SIZE))));
-            cv.put(SongEntry.COLUMN_NAME_SKIP_COUNT, 0);
-            cv.put(SongEntry.COLUMN_NAME_SKIP_ON_SHUFFLE, 0);
-            cv.put(SongEntry.COLUMN_NAME_TITLE, mCursor.getString(mCursor.getColumnIndex(AudioColumns.TITLE)));
-
-            String trackNum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
-
-            if (trackNum == null) {
-                cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, 0);
-                cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, 0);
-            } else {
-                String trackNums[] = trackNum.split("/");
-                try {
-                    cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, Integer.parseInt(trackNums[0]));
-                } catch (NumberFormatException nfe) {
-                    cv.put(SongEntry.COLUMN_NAME_TRACK_NUMBER, 1);
-                }
-                if (trackNums.length > 1) {
-                    cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, Integer.parseInt(trackNums[1]));
-                } else {
-                    cv.put(SongEntry.COLUMN_NAME_TRACK_TOTAL, 1);
-                }
-            }
-
-            int year;
-            if (mCursor.getString(mCursor.getColumnIndex(AudioColumns.YEAR)) == null) {
-                year = -1;
-            } else {
-                year = Integer.parseInt(mCursor.getString(mCursor.getColumnIndex(AudioColumns.YEAR)));
-            }
-            cv.put(SongEntry.COLUMN_NAME_YEAR, year);
-            db.insert(SongEntry.TABLE_NAME, null, cv);
-
-            if (!artistSet.contains(artistName)) {
-                artistSet.add(artistName);
-                ContentValues values = new ContentValues();
-                values.put(ArtistEntry.COLUMN_NAME_ARTIST_NAME, artistName);
-                db.insert(ArtistEntry.TABLE_NAME, null, values);
-            }
-
-
-            Log.i(TAG, "Processed " + mCursor.getPosition() + " songs");
-            mCursor.moveToNext();
-        }
-
-        retriever.release();
-        int count = mCursor.getCount();
-        mCursor.close();
-        return count;
-    }
-
-    public void deleteSong(long songId) {
-        SQLiteDatabase db = getWritableDatabase();
-        db.delete(SongEntry.TABLE_NAME, "_ID=?", new String[]{Long.toString(songId)});
-        // TODO if you're the last song in the genre/artist/album, delete it.
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_SONG_ENTRIES);
-        db.execSQL(SQL_CREATE_ALBUM_ENTRIES);
-        db.execSQL(SQL_CREATE_ARTIST_ENTRIES);
-        db.execSQL(SQL_CREATE_GENRE_ENTRIES);
-
-        // Populate
-        long startTime = System.currentTimeMillis();
-        int songCount = createSongsAndArtists(db);
-
-        long endTime = System.currentTimeMillis();
-        double duration1 = (endTime - startTime) / 1000.0;
-
-        startTime = System.currentTimeMillis();
-        int albumCount = createAlbums(db);
-        endTime = System.currentTimeMillis();
-        double duration2 = (endTime - startTime) / 1000.0;
-
-        startTime = System.currentTimeMillis();
-        int genreCount = createGenres(db);
-        endTime = System.currentTimeMillis();
-        double duration3 = (endTime - startTime) / 1000.0;
-
-        Log.i(TAG, "Created database of " + songCount + " songs in " + duration1 + " seconds");
-        Log.i(TAG, "Created database of " + albumCount + " albums in " + duration2 + " seconds");
-        Log.i(TAG, "Created database of " + genreCount + " genres in " + duration3 + " seconds");
-        Log.i(TAG, "Total time : " + (duration1 + duration2 + duration3) + " seconds");
-//        db.close(); Not sure if i need this? Probably not because if you're
-//                    creating a db, you're not going to be done with it here
-
-
     }
 
     @Override

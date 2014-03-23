@@ -13,6 +13,8 @@ This project is built using Android Studio.
 
 * [ColorArt by Michael Evans](https://github.com/MichaelEvans/ColorArt)
 
+* [JAudioTagger by Paul Taylor](http://www.jthink.net/jaudiotagger/)
+
 * [SwipeListView by 47 degrees](https://github.com/47deg/android-swipelistview)
 
 * [SystemBarTint by Jeff Gilfelt](https://github.com/jgilfelt/SystemBarTint)

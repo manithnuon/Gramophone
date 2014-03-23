@@ -8,6 +8,8 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.util.TypedValue;
 
+import com.orobator.android.gramophone.R;
+
 import org.michaelevans.colorart.library.ColorArt;
 
 import java.io.File;
@@ -366,8 +368,8 @@ public class Song implements Serializable {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         byte[] albumBytes = getArtworkByteArray();
-        BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
 
+        Bitmap unscaled;
         int dipSmallIconSize;
 
         if (big) {
@@ -376,13 +378,23 @@ public class Song implements Serializable {
             dipSmallIconSize = 64;
         }
 
-        // Calculate inSampleSize
-
         int pixelSmallIconSize = dipToPixels(dipSmallIconSize, context);
-        options.inSampleSize = calculateInSampleSize(options, pixelSmallIconSize, pixelSmallIconSize);
 
-        options.inJustDecodeBounds = false;
-        Bitmap unscaled = BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
+        if (albumBytes == null) {
+            unscaled = BitmapFactory.decodeResource(context.getResources(), R.drawable.replacement_album_art);
+            // TODO: scale default cover down
+        } else {
+
+            BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
+
+
+            // Calculate inSampleSize
+
+            options.inSampleSize = calculateInSampleSize(options, pixelSmallIconSize, pixelSmallIconSize);
+
+            options.inJustDecodeBounds = false;
+            unscaled = BitmapFactory.decodeByteArray(albumBytes, 0, albumBytes.length, options);
+        }
 
         // Needs to be scaled up by width
         if (unscaled.getWidth() < pixelSmallIconSize) {
