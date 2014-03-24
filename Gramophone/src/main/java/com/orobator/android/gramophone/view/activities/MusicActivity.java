@@ -201,6 +201,8 @@ public class MusicActivity extends Activity {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String defaultScreenString = preferences.getString("pref_key_default_view", "songs");
 
+            Log.d(TAG, "Default screen is: " + defaultScreenString);
+
             int defaultScreen = -1;
 
             switch (defaultScreenString) {

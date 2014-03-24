@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -19,12 +20,13 @@ import android.widget.Toast;
 import com.orobator.android.gramophone.R;
 import com.orobator.android.gramophone.controller.broadcast.receivers.RemoteControlReceiver;
 import com.orobator.android.gramophone.model.Song;
+import com.orobator.android.gramophone.model.SongQueue;
 import com.orobator.android.gramophone.view.NotificationBuilder;
 
 import java.io.File;
 import java.io.IOException;
 
-public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener, AudioManager.OnAudioFocusChangeListener {
+public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     public static final String ACTION_NEXT = "com.orobator.android.gramophone.ACTION_NEXT";
     public static final String ACTION_PAUSE = "com.orobator.android.gramophone.ACTION_PAUSE";
     public static final String ACTION_PLAY = "com.orobator.android.gramophone.ACTION_PLAY";
@@ -34,20 +36,40 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     public static final String ACTION_STOP = "com.orobator.android.gramophone.ACTION_STOP";
     public static final String KEY_SEEK_TO = "com.orobator.android.gramophone.KEY_SEEK_TO";
     private static MediaPlayer sMediaPlayer = null;
+    private static MediaPlayer sNextMediaPlayer = null;
     private static String TAG = "MusicPlayerService";
     private static ComponentName sRemoteControllReciver;
+    private static OnSongChangeListener sOnSongChangeListener;
+    private static int currentAudioSessionID;
     private Song mSong;
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mp.start();
+        if (mp.getAudioSessionId() == currentAudioSessionID) {
+            mp.start();
+        } else {
+            // This is the next MediaPlayer
+            sMediaPlayer.setNextMediaPlayer(mp);
+        }
+        Log.d(TAG, "On prepared MediaPlayer audioSessionID: " + mp.getAudioSessionId());
+        mp.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
+        // TODO: If streaming, use a WifiLock
+    }
+
+    public static void setOnSongChangeListener(OnSongChangeListener listener) {
+        sOnSongChangeListener = listener;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startID) {
         switch (intent.getAction()) {
             case ACTION_NEXT:
+                if (sMediaPlayer != null) {
+                    Song currentSong = SongQueue.getSong(SongQueue.getCurrentSongQueuePosition());
+                    sMediaPlayer.seekTo((int) currentSong.getDuration());
+                }
                 Log.d(TAG, "received ACTION_NEXT");
+                // TODO: Might have to update notification
                 break;
             case ACTION_PAUSE:
                 if (sMediaPlayer != null) {
@@ -68,9 +90,13 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
                     break;
                 }
                 playSong();
+                if (sMediaPlayer != null) {
+                    sMediaPlayer.setOnErrorListener(this);
+                }
                 break;
             case ACTION_PREV:
                 Log.d(TAG, "received ACTION_PREV");
+                // TODO: Might have to update notification
                 break;
             case ACTION_TOGGLE_PLAYBACK:
                 if (sMediaPlayer != null) {
@@ -99,9 +125,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
 
                     // Abandon audio focus when playback complete
                     am.abandonAudioFocus(this);
+                    sMediaPlayer.release();
                     sMediaPlayer = null;
                     // TODO: Make sure Now Playing screen goes away somehow, call to finish() maybe?
-
                 }
                 NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 nm.cancel(NotificationBuilder.NOW_PLAYING);
@@ -117,6 +143,17 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         // Other apps remain playing when swiped out. Maybe I'll make it a setting when I do get it working
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NotificationBuilder.NOW_PLAYING);
+
+        // Make sure to clear up system resources
+        if (sMediaPlayer != null) {
+            sMediaPlayer.release();
+            sMediaPlayer = null;
+        }
+
+        if (sNextMediaPlayer != null) {
+            sNextMediaPlayer.release();
+            sNextMediaPlayer = null;
+        }
     }
 
     @Override
@@ -149,11 +186,30 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         sMediaPlayer = new MediaPlayer();
         sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         sMediaPlayer.setOnPreparedListener(this);
+        sMediaPlayer.setOnCompletionListener(this);
         try {
             sMediaPlayer.setDataSource(getApplicationContext(), songUri);
             sMediaPlayer.prepareAsync();
+            currentAudioSessionID = sMediaPlayer.getAudioSessionId();
+            Log.d(TAG, "Current audio session id : " + currentAudioSessionID);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        Song nextSong = SongQueue.getSong(SongQueue.getCurrentSongQueuePosition() + 1);
+
+        if (nextSong != null) {
+            Uri nextSongUri = Uri.fromFile(new File(nextSong.getFilePath()));
+            sNextMediaPlayer = new MediaPlayer();
+            sNextMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            sNextMediaPlayer.setOnPreparedListener(this);
+            sNextMediaPlayer.setOnCompletionListener(this);
+            try {
+                sNextMediaPlayer.setDataSource(this, nextSongUri);
+                sNextMediaPlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -189,6 +245,45 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         }
     }
 
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        // ... react appropriately ...
+        // The MediaPlayer has moved to the Error state, must be reset!
+        // TODO: Figure out what should be done here
+        return false;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        Log.d(TAG, "onCompletion of session id " + mp.getAudioSessionId());
+        mp.stop();
+        mp.release();
+        mp = null;
+
+        SongQueue.moveToNext();
+        sMediaPlayer = sNextMediaPlayer;
+        currentAudioSessionID = sMediaPlayer.getAudioSessionId();
+        sNextMediaPlayer.setOnPreparedListener(this);
+        Song nextSong = SongQueue.getNextSong();
+        if (nextSong != null) {
+            Uri nextSongUri = Uri.fromFile(new File(nextSong.getFilePath()));
+            sNextMediaPlayer = new MediaPlayer();
+            sNextMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            sNextMediaPlayer.setOnPreparedListener(this);
+            sNextMediaPlayer.setOnCompletionListener(this);
+            try {
+                sNextMediaPlayer.setDataSource(this, nextSongUri);
+                sNextMediaPlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (sOnSongChangeListener != null) {
+            sOnSongChangeListener.onSongChanged();
+        }
+    }
+
     /**
      * SeekBarUpdaterThread makes sure to update the SeekBar on the
      * NowPlayingFragment
@@ -197,7 +292,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         private static final String TAG = "SeekBarUpdaterThread";
         private static final int UPDATE_SEEKBAR = 0;
         private SeekBar mSeekBar;
-        private Listener mListener;
+        protected Listener mListener;
         /**
          * The handler for this SeekBarUpdaterThread
          */
@@ -257,5 +352,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
 
+    }
+
+    public interface OnSongChangeListener {
+        void onSongChanged();
     }
 }
