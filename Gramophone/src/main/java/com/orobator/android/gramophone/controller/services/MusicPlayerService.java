@@ -39,7 +39,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     public static final String KEY_SEEK_TO = "com.orobator.android.gramophone.KEY_SEEK_TO";
     private static MediaPlayer sMediaPlayer = null;
     private static MediaPlayer sNextMediaPlayer = null;
-    private static String TAG = "MusicPlayerService";
+    private static String TAG = "MusicPlayerService U WOT M8";
     private static ComponentName sRemoteControllReciver;
     private static OnSongChangeListener sOnSongChangeListener;
     private static int currentAudioSessionID;
@@ -93,7 +93,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         SongQueue.moveToNext();
         sMediaPlayer = sNextMediaPlayer;
         currentAudioSessionID = sMediaPlayer.getAudioSessionId();
-        sNextMediaPlayer.setOnPreparedListener(this);
         Song nextSong = SongQueue.getNextSong();
         if (nextSong != null) {
             Uri nextSongUri = Uri.fromFile(new File(nextSong.getFilePath()));
@@ -138,24 +137,13 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         // ... react appropriately ...
         // The MediaPlayer has moved to the Error state, must be reset!
         // TODO: Figure out what should be done here
+        Log.d(TAG, "onError session: " + mp.getAudioSessionId() + " what: " + what + "extra " + extra);
         return false;
     }
 
     @Override
-    public void onPrepared(MediaPlayer mp) {
-        if (mp.getAudioSessionId() == currentAudioSessionID) {
-            mp.start();
-        } else {
-            // This is the next MediaPlayer
-            sMediaPlayer.setNextMediaPlayer(mp);
-        }
-        Log.d(TAG, "On prepared MediaPlayer audioSessionID: " + mp.getAudioSessionId());
-        mp.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
-        // TODO: If streaming, use a WifiLock
-    }
-
-    @Override
-    public void onQueueChange() {
+    public void onNextSongChange() {
+        Log.d(TAG, "onNextSongChange");
         Song nextSong = SongQueue.getNextSong();
 
         if (nextSong == null) {
@@ -180,6 +168,19 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
         // TODO: Update the notification
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        if (mp.getAudioSessionId() == currentAudioSessionID) {
+            mp.start();
+        } else {
+            // This is the next MediaPlayer
+            sMediaPlayer.setNextMediaPlayer(mp);
+        }
+        Log.d(TAG, "On prepared MediaPlayer audioSessionID: " + mp.getAudioSessionId());
+        mp.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
+        // TODO: If streaming, use a WifiLock
     }
 
     @Override
