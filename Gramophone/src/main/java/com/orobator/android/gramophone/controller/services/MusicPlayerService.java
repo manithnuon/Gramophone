@@ -26,7 +26,9 @@ import com.orobator.android.gramophone.view.NotificationBuilder;
 import java.io.File;
 import java.io.IOException;
 
-public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener,
+        AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnErrorListener,
+        MediaPlayer.OnCompletionListener, SongQueue.OnQueueChangeListener {
     public static final String ACTION_NEXT = "com.orobator.android.gramophone.ACTION_NEXT";
     public static final String ACTION_PAUSE = "com.orobator.android.gramophone.ACTION_PAUSE";
     public static final String ACTION_PLAY = "com.orobator.android.gramophone.ACTION_PLAY";
@@ -43,6 +45,102 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private static int currentAudioSessionID;
     private Song mSong;
 
+
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            // Pause playback
+            if (sMediaPlayer != null) {
+                if (sMediaPlayer.isPlaying()) {
+                    sMediaPlayer.pause();
+                }
+            }
+        }
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+            // Lower the volume
+            // TODO: Implement this
+        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            // Resume playback
+            // TODO: Raise audio level to normal
+            if (sMediaPlayer != null) {
+                sMediaPlayer.start();
+            }
+        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            am.unregisterMediaButtonEventReceiver(sRemoteControllReciver);
+            am.abandonAudioFocus(this);
+            // Stop playback
+            if (sMediaPlayer != null) {
+                sMediaPlayer.stop();
+                sMediaPlayer = null;
+                // TODO: Make Now Playing fragment disappear somehow, call to finish()?
+            }
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        Log.d(TAG, "onCompletion of session id " + mp.getAudioSessionId());
+        mp.stop();
+        mp.release();
+
+        SongQueue.moveToNext();
+        sMediaPlayer = sNextMediaPlayer;
+        currentAudioSessionID = sMediaPlayer.getAudioSessionId();
+        sNextMediaPlayer.setOnPreparedListener(this);
+        Song nextSong = SongQueue.getNextSong();
+        if (nextSong != null) {
+            Uri nextSongUri = Uri.fromFile(new File(nextSong.getFilePath()));
+            sNextMediaPlayer = new MediaPlayer();
+            sNextMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            sNextMediaPlayer.setOnPreparedListener(this);
+            sNextMediaPlayer.setOnCompletionListener(this);
+            try {
+                sNextMediaPlayer.setDataSource(this, nextSongUri);
+                sNextMediaPlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (sOnSongChangeListener != null) {
+            sOnSongChangeListener.onSongChanged();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        // TODO: This doesn't work. Find out what happens when a user clears your app from recent apps
+        // Other apps remain playing when swiped out. Maybe I'll make it a setting when I do get it working
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NotificationBuilder.NOW_PLAYING);
+
+        // Make sure to clear up system resources
+        if (sMediaPlayer != null) {
+            sMediaPlayer.release();
+            sMediaPlayer = null;
+        }
+
+        if (sNextMediaPlayer != null) {
+            sNextMediaPlayer.release();
+            sNextMediaPlayer = null;
+        }
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        // ... react appropriately ...
+        // The MediaPlayer has moved to the Error state, must be reset!
+        // TODO: Figure out what should be done here
+        return false;
+    }
+
     @Override
     public void onPrepared(MediaPlayer mp) {
         if (mp.getAudioSessionId() == currentAudioSessionID) {
@@ -56,8 +154,32 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         // TODO: If streaming, use a WifiLock
     }
 
-    public static void setOnSongChangeListener(OnSongChangeListener listener) {
-        sOnSongChangeListener = listener;
+    @Override
+    public void onQueueChange() {
+        Song nextSong = SongQueue.getNextSong();
+
+        if (nextSong == null) {
+            sMediaPlayer.setNextMediaPlayer(null);
+            return;
+        }
+
+        if (sNextMediaPlayer != null) {
+            sNextMediaPlayer.release();
+        }
+
+        Uri nextSongUri = Uri.fromFile(new File(nextSong.getFilePath()));
+        sNextMediaPlayer = new MediaPlayer();
+        sNextMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        sNextMediaPlayer.setOnPreparedListener(this);
+        sNextMediaPlayer.setOnCompletionListener(this);
+        try {
+            sNextMediaPlayer.setDataSource(this, nextSongUri);
+            sNextMediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // TODO: Update the notification
     }
 
     @Override
@@ -137,30 +259,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         return Service.START_NOT_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        // TODO: This doesn't work. Find out what happens when a user clears your app from recent apps
-        // Other apps remain playing when swiped out. Maybe I'll make it a setting when I do get it working
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NotificationBuilder.NOW_PLAYING);
-
-        // Make sure to clear up system resources
-        if (sMediaPlayer != null) {
-            sMediaPlayer.release();
-            sMediaPlayer = null;
-        }
-
-        if (sNextMediaPlayer != null) {
-            sNextMediaPlayer.release();
-            sNextMediaPlayer = null;
-        }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
     private void playSong() {
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         // Request audio focus for playback
@@ -211,77 +309,12 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
                 e.printStackTrace();
             }
         }
+
+        SongQueue.setOnQueueChangeListener(this);
     }
 
-    @Override
-    public void onAudioFocusChange(int focusChange) {
-        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-            // Pause playback
-            if (sMediaPlayer != null) {
-                if (sMediaPlayer.isPlaying()) {
-                    sMediaPlayer.pause();
-                }
-            }
-        }
-        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-            // Lower the volume
-            // TODO: Implement this
-        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            // Resume playback
-            // TODO: Raise audio level to normal
-            if (sMediaPlayer != null) {
-                sMediaPlayer.start();
-            }
-        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            am.unregisterMediaButtonEventReceiver(sRemoteControllReciver);
-            am.abandonAudioFocus(this);
-            // Stop playback
-            if (sMediaPlayer != null) {
-                sMediaPlayer.stop();
-                sMediaPlayer = null;
-                // TODO: Make Now Playing fragment disappear somehow, call to finish()?
-            }
-        }
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        // ... react appropriately ...
-        // The MediaPlayer has moved to the Error state, must be reset!
-        // TODO: Figure out what should be done here
-        return false;
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.d(TAG, "onCompletion of session id " + mp.getAudioSessionId());
-        mp.stop();
-        mp.release();
-        mp = null;
-
-        SongQueue.moveToNext();
-        sMediaPlayer = sNextMediaPlayer;
-        currentAudioSessionID = sMediaPlayer.getAudioSessionId();
-        sNextMediaPlayer.setOnPreparedListener(this);
-        Song nextSong = SongQueue.getNextSong();
-        if (nextSong != null) {
-            Uri nextSongUri = Uri.fromFile(new File(nextSong.getFilePath()));
-            sNextMediaPlayer = new MediaPlayer();
-            sNextMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            sNextMediaPlayer.setOnPreparedListener(this);
-            sNextMediaPlayer.setOnCompletionListener(this);
-            try {
-                sNextMediaPlayer.setDataSource(this, nextSongUri);
-                sNextMediaPlayer.prepareAsync();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (sOnSongChangeListener != null) {
-            sOnSongChangeListener.onSongChanged();
-        }
+    public static void setOnSongChangeListener(OnSongChangeListener listener) {
+        sOnSongChangeListener = listener;
     }
 
     /**
