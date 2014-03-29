@@ -26,6 +26,12 @@ import com.orobator.android.gramophone.view.NotificationBuilder;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * MusicPlayerService is where all the magic happens. It handles the actual
+ * playing of music and other app components send it messages via intents. In
+ * addition to playing music, it is also responsible for updating now playing
+ * notifications.
+ */
 public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener,
         AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener, SongQueue.OnQueueChangeListener {
@@ -45,7 +51,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private static int currentAudioSessionID;
     private Song mSong;
 
-
+    public static void setOnSongChangeListener(OnSongChangeListener listener) {
+        sOnSongChangeListener = listener;
+    }
 
     @Override
     public void onAudioFocusChange(int focusChange) {
@@ -80,11 +88,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "onCompletion of session id " + mp.getAudioSessionId());
         mp.stop();
@@ -110,25 +113,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
 
         if (sOnSongChangeListener != null) {
             sOnSongChangeListener.onSongChanged();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        // TODO: This doesn't work. Find out what happens when a user clears your app from recent apps
-        // Other apps remain playing when swiped out. Maybe I'll make it a setting when I do get it working
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NotificationBuilder.NOW_PLAYING);
-
-        // Make sure to clear up system resources
-        if (sMediaPlayer != null) {
-            sMediaPlayer.release();
-            sMediaPlayer = null;
-        }
-
-        if (sNextMediaPlayer != null) {
-            sNextMediaPlayer.release();
-            sNextMediaPlayer = null;
         }
     }
 
@@ -260,6 +244,30 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         return Service.START_NOT_STICKY;
     }
 
+    @Override
+    public void onDestroy() {
+        // TODO: This doesn't work. Find out what happens when a user clears your app from recent apps
+        // Other apps remain playing when swiped out. Maybe I'll make it a setting when I do get it working
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NotificationBuilder.NOW_PLAYING);
+
+        // Make sure to clear up system resources
+        if (sMediaPlayer != null) {
+            sMediaPlayer.release();
+            sMediaPlayer = null;
+        }
+
+        if (sNextMediaPlayer != null) {
+            sNextMediaPlayer.release();
+            sNextMediaPlayer = null;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
     private void playSong() {
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         // Request audio focus for playback
@@ -314,8 +322,8 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         SongQueue.setOnQueueChangeListener(this);
     }
 
-    public static void setOnSongChangeListener(OnSongChangeListener listener) {
-        sOnSongChangeListener = listener;
+    public interface OnSongChangeListener {
+        void onSongChanged();
     }
 
     /**
@@ -325,8 +333,8 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     public static class SeekBarUpdaterThread extends HandlerThread {
         private static final String TAG = "SeekBarUpdaterThread";
         private static final int UPDATE_SEEKBAR = 0;
-        private SeekBar mSeekBar;
         protected Listener mListener;
+        private SeekBar mSeekBar;
         /**
          * The handler for this SeekBarUpdaterThread
          */
@@ -386,9 +394,5 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
 
-    }
-
-    public interface OnSongChangeListener {
-        void onSongChanged();
     }
 }

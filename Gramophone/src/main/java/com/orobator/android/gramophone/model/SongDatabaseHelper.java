@@ -600,6 +600,9 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return new AlbumCursor(wrapped);
     }
 
+    /**
+     * Returns an ArtistCursor containing all artists on the device
+     */
     public ArtistCursor queryArtists() {
         Cursor wrapped = getReadableDatabase()
                 .query(
@@ -613,6 +616,9 @@ public class SongDatabaseHelper extends SQLiteOpenHelper {
         return new ArtistCursor(wrapped);
     }
 
+    /**
+     * Returns a GenreCursor containing all genres on the device
+     */
     public GenreCursor queryGenres() {
         Cursor wrapped = getReadableDatabase()
                 .query(
